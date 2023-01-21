@@ -2,13 +2,10 @@ package frc.robot.subsystems.drive;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drive extends SubsystemBase {
-  public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(3.0);
-
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleIOInputsAutoLogged[] m_inputs;
 
