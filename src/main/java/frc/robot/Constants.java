@@ -15,16 +15,19 @@ package frc.robot;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final Mode currentMode = Mode.REAL;
+  public static final class FieldConstants {
 
-  public static enum Mode {
-    /** Running on a real robot. */
-    REAL,
+  }
 
-    /** Running a physics simulator. */
-    SIM,
+  public static final class DriveConstants {
 
-    /** Replaying from a log file. */
-    REPLAY
+  }
+
+  public static final class ElectricalConstants {
+
+  }
+
+  public static final class VisionConstants {
+
   }
 }
