@@ -88,7 +88,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
 
-    annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:2.0.0"
+    annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:2.1.1"
 }
 
 test {
