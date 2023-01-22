@@ -45,8 +45,8 @@ public final class Constants {
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kSwerveModuleTranslations);
 
     // Gear Ratios
-    public static final double kDriveGearRatio = 8.14;
-    public static final double kTurnGearRatio = 21.4285714286;
+    public static final double kDriveGearRatio = 6.75;
+    public static final double kTurnGearRatio = 18;
 
     // Encoder Conversion Factors
     public static final double kDrivePositionConversionFactor = Math.PI * kWheelDiameter / kDriveGearRatio;
@@ -58,7 +58,7 @@ public final class Constants {
     public static final double kDriveD = 0.001;
     public static final double kDriveFF = 2.96;
 
-    public static final double kTurnP = 0.2;
+    public static final double kTurnP = 0.1;
     public static final double kTurnI = 0.0;
     public static final double kTurnD = 0.005;
 
@@ -69,27 +69,27 @@ public final class Constants {
 
   public static final class ElectricalConstants {
     // Front Left Swerve Module Channels
-    public static final int kFrontLeftTurnMotorPort = 16;
-    public static final int kFrontLeftDriveMotorPort = 1;
-    public static final int kFrontLeftCANCoderPort = 7;
+    public static final int kFrontLeftTurnMotorPort = 8;
+    public static final int kFrontLeftDriveMotorPort = 7;
+    public static final int kFrontLeftCANCoderPort = 3;
 
     // Front Right Swerve Module Channels
-    public static final int kFrontRightTurnMotorPort = 2;
-    public static final int kFrontRightDriveMotorPort = 23;
-    public static final int kFrontRightCANCoderPort = 1;
+    public static final int kFrontRightTurnMotorPort = 6;
+    public static final int kFrontRightDriveMotorPort = 5;
+    public static final int kFrontRightCANCoderPort = 2;
 
     // Back Left Swerve Module Channels
-    public static final int kBackLeftTurnMotorPort = 32;
-    public static final int kBackLeftDriveMotorPort = 3;
-    public static final int kBackLeftCANCoderPort = 2;
+    public static final int kBackLeftTurnMotorPort = 2;
+    public static final int kBackLeftDriveMotorPort = 1;
+    public static final int kBackLeftCANCoderPort = 0;
 
     // Back Right Swerve Module Channels
-    public static final int kBackRightTurnMotorPort = 39;
-    public static final int kBackRightDriveMotorPort = 38;
-    public static final int kBackRightCANCoderPort = 3;
+    public static final int kBackRightTurnMotorPort = 4;
+    public static final int kBackRightDriveMotorPort = 3;
+    public static final int kBackRightCANCoderPort = 1;
 
     // Gyro Channel
-    public static final int kGyroPort = 22;
+    public static final int kGyroPort = 0;
   }
 
   public static final class VisionConstants {

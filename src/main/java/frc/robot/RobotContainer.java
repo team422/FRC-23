@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,12 +21,12 @@ import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.debug.DebugCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DualJoystickDriverControls;
 import frc.robot.oi.OperatorControls;
-import frc.robot.oi.XboxOperatorControls;
+import frc.robot.oi.SingleUserXboxControls;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.gyro.GyroIOWPIWrapper;
 import frc.robot.subsystems.drive.gyro.PigeonIO;
-import frc.robot.subsystems.drive.module.SwerveModuleIOMK4iNeo;
+import frc.robot.subsystems.drive.module.SwerveModuleIOMK2Neo;
 import frc.robot.subsystems.drive.module.SwerveModuleIOSim;
 
 /**
@@ -53,23 +54,27 @@ public class RobotContainer {
   private void configureSubsystems() {
     if (Robot.isReal()) {
       m_drive = new Drive(
-          new PigeonIO(ElectricalConstants.kGyroPort),
-          new SwerveModuleIOMK4iNeo(
+          new GyroIOWPIWrapper(new ADXRS450_Gyro()),
+          new SwerveModuleIOMK2Neo(
               ElectricalConstants.kFrontLeftTurnMotorPort,
               ElectricalConstants.kFrontLeftDriveMotorPort,
-              ElectricalConstants.kFrontLeftCANCoderPort),
-          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kFrontLeftCANCoderPort,
+              Rotation2d.fromRadians(0.618)),
+          new SwerveModuleIOMK2Neo(
               ElectricalConstants.kFrontRightTurnMotorPort,
               ElectricalConstants.kFrontRightDriveMotorPort,
-              ElectricalConstants.kFrontRightCANCoderPort),
-          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kFrontRightCANCoderPort,
+              Rotation2d.fromRadians(2.966)),
+          new SwerveModuleIOMK2Neo(
               ElectricalConstants.kBackLeftTurnMotorPort,
               ElectricalConstants.kBackLeftDriveMotorPort,
-              ElectricalConstants.kBackLeftCANCoderPort),
-          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kBackLeftCANCoderPort,
+              Rotation2d.fromRadians(0.548)),
+          new SwerveModuleIOMK2Neo(
               ElectricalConstants.kBackRightTurnMotorPort,
               ElectricalConstants.kBackRightDriveMotorPort,
-              ElectricalConstants.kBackRightCANCoderPort));
+              ElectricalConstants.kBackRightCANCoderPort,
+              Rotation2d.fromRadians(0.993)));
     } else {
       m_drive = new Drive(
           new PigeonIO(ElectricalConstants.kGyroPort),
@@ -87,12 +92,12 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // var singleUserControls = new SingleUserXboxControls(5);
-    // DriverControls driverControls = singleUserControls;
-    // OperatorControls operatorControls = singleUserControls;
+    var singleUserControls = new SingleUserXboxControls(5);
+    DriverControls driverControls = singleUserControls;
+    OperatorControls operatorControls = singleUserControls;
 
-    DriverControls driverControls = new DualJoystickDriverControls(0, 1);
-    OperatorControls operatorControls = new XboxOperatorControls(5);
+    // DriverControls driverControls = new DualJoystickDriverControls(0, 1);
+    // OperatorControls operatorControls = new XboxOperatorControls(5);
 
     DriveCommandConfig driveConfig = new DriveCommandConfig(
         DriveConstants.kDriveKinematics,

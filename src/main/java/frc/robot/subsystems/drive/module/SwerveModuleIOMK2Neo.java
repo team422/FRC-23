@@ -20,15 +20,19 @@ public class SwerveModuleIOMK2Neo implements SwerveModuleIO {
   private final RelativeEncoder m_driveMotorEncoder;
   private final RelativeEncoder m_turnMotorEncoder;
 
+  private final Rotation2d m_absoluteOffset;
+
   private final AnalogEncoder m_turnAbsoluteEncoder;
 
   private final SparkMaxPIDController m_drivePIDController;
   private final SparkMaxPIDController m_turnPIDController;
 
-  public SwerveModuleIOMK2Neo(int turnMotorPort, int driveMotorPort, int turnAbsoluteEncoderPort) {
+  public SwerveModuleIOMK2Neo(int turnMotorPort, int driveMotorPort, int turnAbsoluteEncoderPort, Rotation2d offset) {
     // Define Motors
     this.m_turnMotor = new CANSparkMax(turnMotorPort, MotorType.kBrushless);
     this.m_driveMotor = new CANSparkMax(driveMotorPort, MotorType.kBrushless);
+
+    this.m_absoluteOffset = offset;
 
     // Set Idle Modes
     this.m_turnMotor.setIdleMode(IdleMode.kBrake);
@@ -36,6 +40,9 @@ public class SwerveModuleIOMK2Neo implements SwerveModuleIO {
 
     m_turnMotor.setSmartCurrentLimit(30);
     m_driveMotor.setSmartCurrentLimit(30);
+
+    m_turnMotor.setInverted(false);
+    m_driveMotor.setInverted(false);
 
     // Define Encoders
     m_turnMotorEncoder = m_turnMotor.getEncoder();
@@ -93,7 +100,7 @@ public class SwerveModuleIOMK2Neo implements SwerveModuleIO {
   @Override
   public Rotation2d getAbsoluteRotation() {
     double angle = (1.0 - m_turnAbsoluteEncoder.getAbsolutePosition()) * 2 * Math.PI;
-    return new Rotation2d(MathUtil.angleModulus(angle));
+    return new Rotation2d(MathUtil.angleModulus(angle)).plus(m_absoluteOffset);
   }
 
   @Override
