@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.FullSwerveBase;
 import frc.robot.util.CustomHolmonomicDrive;
 
-public class DriveToPoint extends CommandBase {
+public class DriveToPointAuto extends CommandBase {
   FullSwerveBase m_swerveBase;
   Pose2d m_targetPose;
   double m_maxSpeedWanted;
@@ -17,15 +17,11 @@ public class DriveToPoint extends CommandBase {
   Supplier<Double> ySpeed;
   Supplier<Double> zRotation;
 
-  public DriveToPoint(FullSwerveBase swerveBase, Pose2d targetPose,
-      CustomHolmonomicDrive HolmDrive, Supplier<Double> xSpeed, Supplier<Double> ySpeed,
-      Supplier<Double> zRotation) {
+  public DriveToPointAuto(FullSwerveBase swerveBase, Pose2d targetPose, CustomHolmonomicDrive HolmDrive) {
     m_swerveBase = swerveBase;
     m_targetPose = targetPose;
     m_HolmDrive = HolmDrive;
-    this.xSpeed = xSpeed;
-    this.ySpeed = ySpeed;
-    this.zRotation = zRotation;
+
     addRequirements(swerveBase);
   }
 
@@ -36,15 +32,27 @@ public class DriveToPoint extends CommandBase {
 
   @Override
   public void execute() {
-    ChassisSpeeds speeds = m_HolmDrive.calculate(m_swerveBase.getPose(), m_targetPose, xSpeed, ySpeed, zRotation);
+    ChassisSpeeds speeds = m_HolmDrive.calculate(m_swerveBase.getPose(), m_targetPose, () -> {
+      return 0.0;
+    }, () -> {
+      return 0.0;
+    }, () -> {
+      return 0.0;
+    });
     m_swerveBase.drive(speeds);
 
   }
 
   @Override
   public boolean isFinished() {
-    // return m_HolmDrive.atReference();
-    return false;
+    boolean slow = true;
+    for (double velo : m_swerveBase.getVelocities()) {
+      if (velo > 0.15) {
+        slow = false;
+      }
+    }
+    return m_HolmDrive.atReference() && slow;
+    // return false;
   }
 
   @Override
