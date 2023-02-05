@@ -74,4 +74,8 @@ public class SingleUserXboxControls implements DriverControls, OperatorControls 
   public Trigger setElevatorPositionLow() {
     return m_controller.povDown();
   }
+
+  public Trigger testButton() {
+    return m_controller.start().and(m_controller.a());
+  }
 }

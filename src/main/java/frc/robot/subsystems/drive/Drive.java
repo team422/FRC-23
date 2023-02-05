@@ -162,6 +162,10 @@ public class Drive extends SubsystemBase {
     return m_gyro;
   }
 
+  public SwerveDrivePoseEstimator getPoseEstimator() {
+    return m_poseEstimator;
+  }
+
   //#region Sim Stuff
 
   private double m_simGyroLastUpdated;

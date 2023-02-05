@@ -4,13 +4,23 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.photonvision.PhotonCamera;
+import org.photonvision.SimVisionSystem;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -22,8 +32,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.commands.drive.BaseDriveCommand;
 import frc.lib.commands.drive.DriveCommandConfig;
+import frc.lib.pathplanner.PathPlannerUtil;
+import frc.lib.utils.FieldUtil;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectricalConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.debug.DebugCommands;
 import frc.robot.commands.drive.DriveCommands;
@@ -38,6 +52,7 @@ import frc.robot.subsystems.drive.module.SwerveModuleIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.vision.AprilTagCamera;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -52,16 +67,72 @@ public class RobotContainer {
   private Elevator m_elevator;
 
   private Mechanism2d m_mechanism;
+  private AprilTagCamera m_camera;
+
+  private AprilTagFieldLayout m_tagLayout;
+
+  private AutoFactory m_autoFactory;
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+  private LoggedDashboardChooser<Command> m_autoChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureAprilTags();
+    configureAllianceSettings(DriverStation.getAlliance());
     configureSubsystems();
     configureButtonBindings();
+    configureAuto();
+  }
+
+  private void configureAuto() {
+    m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+    m_autoFactory = new AutoFactory(m_drive, m_camera);
+
+    // Add basic autonomous commands
+    m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+    m_autoChooser.addOption("Zero Absolute Encoders", DebugCommands.zeroTurnAbsoluteEncoders(m_drive));
+
+    // Add PathPlanner Auto Commands
+    PathPlannerUtil.getExistingPaths().forEach(path -> {
+      m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path));
+    });
+  }
+
+  private void configureAprilTags() {
+    try {
+      m_tagLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+
+      if (Robot.isSimulation()) {
+        m_simVisionSystem = Optional.of(
+            new SimVisionSystem(
+                VisionConstants.kAprilTagCameraName,
+                VisionConstants.kAprilTagCameraFOVDiag,
+                VisionConstants.kAprilTagRobotToCamera,
+                5,
+                640, 480,
+                10.0));
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to load apriltag field layout!");
+    }
+  }
+
+  private void configureAllianceSettings(Alliance alliance) {
+    var origin = alliance == Alliance.Red
+        ? OriginPosition.kRedAllianceWallRightSide
+        : OriginPosition.kBlueAllianceWallRightSide;
+    m_tagLayout.setOrigin(origin);
+
+    FieldUtil.getDefaultField().setObjectGlobalPoses("AprilTags",
+        m_tagLayout.getTags().stream().map(x -> x.pose.toPose2d()).toArray(Pose2d[]::new));
+
+    m_simVisionSystem.ifPresent(visionSystem -> {
+      visionSystem.clearVisionTargets();
+      visionSystem.addVisionTargets(m_tagLayout);
+    });
   }
 
   private void configureSubsystems() {
@@ -112,6 +183,11 @@ public class RobotContainer {
     }
 
     SmartDashboard.putData("Robot Mechanism", m_mechanism);
+    m_camera = new AprilTagCamera(
+        new PhotonCamera(VisionConstants.kAprilTagCameraName),
+        VisionConstants.kAprilTagRobotToCamera,
+        m_tagLayout,
+        m_drive.getPoseEstimator());
   }
 
   /**
@@ -162,8 +238,29 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    if (Robot.isSimulation()) {
+      String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+      if (PathPlannerUtil.getExistingPaths().contains(selectedAuto)) {
+        System.out.println("Reloading pathplanner path file: " + selectedAuto);
+        return m_autoFactory.getAutoCommand(selectedAuto);
+      }
+    }
     return m_autoChooser.get();
   }
+
+  //#region Sim Stuff
+
+  private Optional<SimVisionSystem> m_simVisionSystem = Optional.empty();
+
+  public void simulationPeriodic() {
+    m_simVisionSystem.ifPresent(visionSystem -> {
+      visionSystem.processFrame(m_drive.getPose());
+    });
+  }
+
+  //#endregion
+
+  //#region Robot State Callbacks
 
   public void periodic() {
     Logger.getInstance().recordOutput("Mechanism2d", m_mechanism);
@@ -172,4 +269,6 @@ public class RobotContainer {
   public void onDisabled() {
     DebugCommands.brakeAndReset(m_drive).schedule();
   }
+
+  //#endregion
 }

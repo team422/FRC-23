@@ -6,7 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -30,7 +33,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final double kWheelDiameter = Units.inchesToMeters(3.7);
+    public static final double kWheelDiameter = Units.inchesToMeters(4.0);
 
     public static final double kWheelBase = Units.inchesToMeters(23);
     public static final double kTrackWidth = Units.inchesToMeters(23);
@@ -100,5 +103,19 @@ public final class Constants {
     public static final String kPhotonVisionIp = "10.4.22.22";
     public static final String kPhotonVisionHostName = "photonvision.local";
     public static final int kPhotonVisionPort = 5800;
+
+    public static final double kAprilTagCameraFOVDiag = 110.0;
+    public static final String kAprilTagCameraName = "limelight";
+    public static final Transform3d kAprilTagRobotToCamera = new Transform3d(
+        new Translation3d(
+            Units.inchesToMeters(15.5),
+            Units.inchesToMeters(-0.6),
+            Units.inchesToMeters(10.8375)),
+        new Rotation3d());
+  }
+
+  public static final class AutoConstants {
+    public static final double kMaxSpeedMetersPerSecond = 4.0;
+    public static final double kMaxAccelMetersPerSecondSq = 3.0;
   }
 }

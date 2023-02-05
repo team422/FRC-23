@@ -37,8 +37,9 @@ public class DriveCommands {
   }
 
   public static BaseDriveCommand joystickAngleDrive(DriveCommandConfig config, DriverControls controls) {
-    Constraints constraints = new Constraints(DriveConstants.kMaxSpeedRadiansPerSecond, Units.degreesToRadians(5));
-    ProfiledPIDController controller = new ProfiledPIDController(4, 0, 0.03, constraints);
+    Constraints constraints = new Constraints(Units.degreesToRadians(3000), Units.degreesToRadians(2000));
+    ProfiledPIDController controller = new ProfiledPIDController(10, 0, 0.03, constraints);
+    controller.setTolerance(Units.degreesToRadians(2), Units.degreesToRadians(3));
     return BaseDriveCommand.builder(config)
         .withSpeedConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxSpeedRadiansPerSecond)
         .useFieldRelative(true)
