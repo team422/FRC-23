@@ -90,6 +90,10 @@ public final class Constants {
 
     // Gyro Channel
     public static final int kGyroPort = 0;
+
+    // Elevator Spark Max Channels
+    public static final int kElevatorLeaderPort = 12;
+    public static final int kElevatorFollowerPort = 13;
   }
 
   public static final class VisionConstants {

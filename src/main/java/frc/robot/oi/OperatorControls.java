@@ -10,4 +10,10 @@ public interface OperatorControls {
   public default Trigger zeroTurnAbsoluteEncoders() {
     return new Trigger(() -> false);
   }
+
+  public Trigger setElevatorPositionHigh();
+
+  public Trigger setElevatorPositionMid();
+
+  public Trigger setElevatorPositionLow();
 }
