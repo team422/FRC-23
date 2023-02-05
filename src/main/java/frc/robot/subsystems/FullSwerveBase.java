@@ -189,9 +189,10 @@ public class FullSwerveBase extends SubsystemBase {
   public void drive(ChassisSpeeds speeds) {
     // SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     // SwerveModule.normalizeWheelSpeeds(moduleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    //Jakson Duimstra was here :3
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveModuleState[] moduleStatesFinal = new SwerveModuleState[4];
-    if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
+    if (speeds.omegaRadiansPerSecond == 0.0 && speeds.vxMetersPerSecond == 0.0 && speeds.vyMetersPerSecond == 0.0) {
       this.brake();
     } else {
       for (int i = 0; i < 4; i++) {
