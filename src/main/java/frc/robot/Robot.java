@@ -54,6 +54,7 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
     BaseChangeNotifier.updateAllChangeNotifiers();
     CommandScheduler.getInstance().run();
+    robotContainer.periodic();
   }
 
   /** This function is called once when the robot is disabled. */
