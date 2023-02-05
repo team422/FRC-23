@@ -4,10 +4,20 @@
 
 package frc.robot;
 
-import org.photonvision.PhotonCamera;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.BaseAutoBuilder;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
+
+import org.photonvision.PhotonCamera;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,7 +27,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.CustomAutoGen;
 import frc.robot.commands.DriveToPoint;
 import frc.robot.commands.FullSwerveDrive;
 import frc.robot.commands.StartSwerveTestingMode;
@@ -140,6 +149,8 @@ public class RobotContainer {
     //         () -> myController.getLeftY(), () -> myController.getRightX()));
     FullSwerveDrive driveCommand = new FullSwerveDrive(m_swerveBase, () -> -controls.getLeftDriveY(),
         () -> -controls.getLeftDriveX(), () -> -controls.getRightDriveX());// , m_SwerveBase.getHeading()
+    // FullSwerveDrive driveCommand = new FullSwerveDrive(m_swerveBase, () -> -controls.getLeftDriveY(),
+    //     () -> controls.getDummyValue(), () -> controls.getDummyValue());// for testing only, makes it so you can only go forward and back
     m_swerveBase.setDefaultCommand(driveCommand);
     controls.getAButtonOperator().onTrue(new SwitchSwerveWheel(m_swerveBase));
     // while active once is now deprecated
@@ -168,22 +179,22 @@ public class RobotContainer {
     // return new Turn(m_SwerveBase, 50);
     // return new AutoSetSwerveState(m_RightFrontSwerveModule, new SwerveModuleState(0, new Rotation2d(3.14 / 2)));
 
-    // var autoPath = PathPlanner.loadPathGroup("Caseys Wild Ride", new PathConstraints(2, 1));
-    // List<PathPlannerTrajectory.EventMarker> events;
-    // Map<String, Command> eventMap = new HashMap<>();
-    // eventMap.put("brake", m_swerveBase.fullBrakeCommand());
-    // return new FollowPath(m_SwerveBase, autoPath);
-    // PIDConstants linearPIDConstants = new PIDConstants(12, 0, 0);
-    // PIDConstants angularPIDConstants = new PIDConstants(3, 0, 0);
-    // BaseAutoBuilder autoBuilder = new SwerveAutoBuilder(
-    //     m_swerveBase::getPose,
-    //     m_swerveBase::resetPose,
-    //     linearPIDConstants, angularPIDConstants,
-    //     m_swerveBase::drive,
-    //     eventMap,
-    //     false, m_swerveBase);
+    var autoPath = PathPlanner.loadPathGroup("Wait Test", new PathConstraints(2, 1));
+    List<PathPlannerTrajectory.EventMarker> events;
+    Map<String, Command> eventMap = new HashMap<>();
+    eventMap.put("brake", m_swerveBase.fullBrakeCommand());
+    // return new FollowPath(m_swerveBase, autoPath);
+    PIDConstants linearPIDConstants = new PIDConstants(12, 6, 0);
+    PIDConstants angularPIDConstants = new PIDConstants(3, 1.5, 0);
+    BaseAutoBuilder autoBuilder = new SwerveAutoBuilder(
+        m_swerveBase::getPose,
+        m_swerveBase::resetPose,
+        linearPIDConstants, angularPIDConstants,
+        m_swerveBase::drive,
+        eventMap,
+        false, m_swerveBase);
 
-    // return autoBuilder.fullAuto(autoPath);
-    return new CustomAutoGen(m_swerveBase);
+    return autoBuilder.fullAuto(autoPath);
+    // return new CustomAutoGen(m_swerveBase);
   }
 }

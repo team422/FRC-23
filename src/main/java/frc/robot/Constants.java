@@ -163,7 +163,7 @@ public final class Constants {
     //hi (hazel was here)
     public static final double kDriveGearRatio = 6.75;
     // public static final double kDriveConversionFactor = ((kWheelDiameterMeters * Math.PI) / kDriveGearRatio);
-    public static final double kDriveConversionFactor = 1 / 22.0409;
+    public static final double kDriveConversionFactor = 1 / 22.0409 * 0.981566666; //0.98 is after empirical testing
     // public static final double kDriveConversionFactor = 1;
 
     public static final double kTurnPositionConversionFactor = 21.428; // 21.428
