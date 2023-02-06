@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.advantagekit.LoggedTunableNumber;
 
 public class Elevator extends SubsystemBase {
   public static final double kElevatorDrumRadius = Units.inchesToMeters(1.5);
@@ -23,14 +24,22 @@ public class Elevator extends SubsystemBase {
   public static final double kElevatorMinHeight = Units.feetToMeters(1.0);
   public static final double kElevatorMaxHeight = Units.feetToMeters(6.0);
 
+  public static final LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", 5.0);
+  public static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/kI", 0.01);
+  public static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", 0.8);
+  public static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/kS", 0.01);
+  public static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/kG", 1.1);
+  public static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/kV", 0.01);
+  public static final LoggedTunableNumber kMaxVelocity = new LoggedTunableNumber("Elevator/kMaxVelocity", 2.45);
+  public static final LoggedTunableNumber kMaxAccel = new LoggedTunableNumber("Elevator/kMaxAcceleration", 2.45);
+
   private final ElevatorIO m_io;
   private final ElevatorInputsAutoLogged m_inputs;
   private final MechanismLigament2d m_ligament;
 
   private double m_setpointMeters;
-  private final ProfiledPIDController m_controller = new ProfiledPIDController(
-      4.0, 0, 0.4, new Constraints(2.45, 2.45)); // TODO: TUNE
-  private final ElevatorFeedforward m_feedforward = new ElevatorFeedforward(0.1, 1.1, 0.1); // TODO: TUNE
+  private final ProfiledPIDController m_controller;
+  private ElevatorFeedforward m_feedforward;
 
   public Elevator(ElevatorIO io, MechanismLigament2d ligament) {
     m_io = io;
@@ -40,6 +49,13 @@ public class Elevator extends SubsystemBase {
     m_ligament.setAngle(kElevatorAngle);
     m_ligament.setColor(new Color8Bit(Color.kBeige));
     m_ligament.setLineWeight(10);
+
+    m_controller = new ProfiledPIDController(
+        kP.get(), kI.get(), kD.get(),
+        new Constraints(kMaxVelocity.get(), kMaxAccel.get())); // TODO: TUNE
+    m_feedforward = new ElevatorFeedforward(kS.get(), kG.get(), kV.get()); // TODO: TUNE
+
+    initTunableNumberListeners();
   }
 
   @Override
@@ -108,4 +124,16 @@ public class Elevator extends SubsystemBase {
   }
 
   //#endregion
+
+  private void initTunableNumberListeners() {
+    Runnable updateFF = () -> m_feedforward = new ElevatorFeedforward(kS.get(), kG.get(), kV.get());
+    kP.addListener(m_controller::setP);
+    kI.addListener(m_controller::setI);
+    kD.addListener(m_controller::setD);
+    kS.addListener(updateFF);
+    kG.addListener(updateFF);
+    kV.addListener(updateFF);
+    kMaxVelocity.addListener(() -> m_controller.setConstraints(new Constraints(kMaxVelocity.get(), kMaxAccel.get())));
+    kMaxAccel.addListener(() -> m_controller.setConstraints(new Constraints(kMaxVelocity.get(), kMaxAccel.get())));
+  }
 }

@@ -227,9 +227,9 @@ public class RobotContainer {
     operatorControls.zeroTurnAbsoluteEncoders().onTrue(DebugCommands.zeroTurnAbsoluteEncoders(m_drive));
 
     // Elevator Buttons
-    operatorControls.setElevatorPositionHigh().onTrue(m_elevator.fullExtendCommand());
+    operatorControls.setElevatorPositionHigh().onTrue(m_elevator.setPositionCommand(Units.feetToMeters(5)));
     operatorControls.setElevatorPositionMid().onTrue(m_elevator.setPositionCommand(Units.feetToMeters(3)));
-    operatorControls.setElevatorPositionLow().onTrue(m_elevator.fullRetractCommand());
+    operatorControls.setElevatorPositionLow().onTrue(m_elevator.setPositionCommand(Units.feetToMeters(1.5)));
   }
 
   /**
