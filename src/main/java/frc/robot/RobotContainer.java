@@ -89,7 +89,7 @@ public class RobotContainer {
 
   private void configureAuto() {
     m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
-    m_autoFactory = new AutoFactory(m_drive, m_camera);
+    m_autoFactory = new AutoFactory(m_drive, m_camera, m_elevator);
 
     // Add basic autonomous commands
     m_autoChooser.addDefaultOption("Do Nothing", Commands.none());

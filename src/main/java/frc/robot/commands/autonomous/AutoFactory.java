@@ -1,6 +1,5 @@
 package frc.robot.commands.autonomous;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,11 +9,13 @@ import com.pathplanner.lib.auto.BaseAutoBuilder;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.vision.AprilTagCamera;
 
 public class AutoFactory extends CommandBase {
@@ -23,21 +24,25 @@ public class AutoFactory extends CommandBase {
 
   private final Drive m_drive;
   private final AprilTagCamera m_camera;
+  private final Elevator m_elevator;
 
-  private final HashMap<String, Command> m_eventMap;
+  private final Map<String, Command> m_eventMap;
 
-  public AutoFactory(Drive drive, AprilTagCamera camera) {
+  public AutoFactory(Drive drive, AprilTagCamera camera, Elevator elevator) {
     m_drive = drive;
     m_camera = camera;
+    m_elevator = elevator;
 
     // Define PathPlanner Event Map
-    m_eventMap = new HashMap<String, Command>(Map.of(
+    m_eventMap = Map.of(
         "a", Commands.print("a"),
         "b", Commands.print("b"),
         "c", Commands.print("c"),
         "d", Commands.print("d"),
         "brake", m_drive.brakeCommand(),
-        "charge", ChargeStationBalance.charge(drive)));
+        "elevatorLow", m_elevator.setPositionCommand(Units.feetToMeters(1.5)),
+        "elevatorHigh", m_elevator.setPositionCommand(Units.feetToMeters(5)),
+        "charge", ChargeStationBalance.charge(drive));
   }
 
   public List<PathPlannerTrajectory> loadPathGroupByName(String name) {
