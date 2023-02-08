@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -22,10 +24,14 @@ public final class Constants {
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
+
+    public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
+        Rotation2d.fromDegrees(180));
   }
 
   public static final class DriveConstants {
-    public static final double kWheelDiameter = Units.inchesToMeters(3.0);
+    public static final double kWheelDiameter = Units.inchesToMeters(3.7);
+
     public static final double kWheelBase = Units.inchesToMeters(23);
     public static final double kTrackWidth = Units.inchesToMeters(23);
 
@@ -37,6 +43,28 @@ public final class Constants {
     };
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kSwerveModuleTranslations);
+
+    // Gear Ratios
+    public static final double kDriveGearRatio = 8.14;
+    public static final double kTurnGearRatio = 21.4285714286;
+
+    // Encoder Conversion Factors
+    public static final double kDrivePositionConversionFactor = Math.PI * kWheelDiameter / kDriveGearRatio;
+    public static final double kTurnPositionConversionFactor = 2 * Math.PI / kTurnGearRatio;
+
+    // PID Values
+    public static final double kDriveP = 0.1;
+    public static final double kDriveI = 0.0;
+    public static final double kDriveD = 0.001;
+    public static final double kDriveFF = 2.96;
+
+    public static final double kTurnP = 0.2;
+    public static final double kTurnI = 0.0;
+    public static final double kTurnD = 0.005;
+
+    // Max Speeds
+    public static final double kMaxSpeedMetersPerSecond = 4.0;
+    public static final double kMaxSpeedRadiansPerSecond = Units.degreesToRadians(360);
   }
 
   public static final class ElectricalConstants {
@@ -65,6 +93,8 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-
+    public static final String kPhotonVisionIp = "10.4.22.22";
+    public static final String kPhotonVisionHostName = "photonvision.local";
+    public static final int kPhotonVisionPort = 5800;
   }
 }

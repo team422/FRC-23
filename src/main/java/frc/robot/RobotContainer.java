@@ -6,13 +6,27 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.commands.drive.BaseDriveCommand;
+import frc.lib.commands.drive.DriveCommandConfig;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElectricalConstants;
+import frc.robot.commands.autonomous.ChargeStationBalance;
+import frc.robot.commands.debug.DebugCommands;
+import frc.robot.commands.drive.DriveCommands;
 import frc.robot.oi.DriverControls;
+import frc.robot.oi.DualJoystickDriverControls;
 import frc.robot.oi.OperatorControls;
+import frc.robot.oi.XboxOperatorControls;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.gyro.PigeonIO;
+import frc.robot.subsystems.drive.module.SwerveModuleIOMK4iNeo;
+import frc.robot.subsystems.drive.module.SwerveModuleIOSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -38,9 +52,31 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     if (Robot.isReal()) {
-      m_drive = new Drive();
+      m_drive = new Drive(
+          new PigeonIO(ElectricalConstants.kGyroPort),
+          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kFrontLeftTurnMotorPort,
+              ElectricalConstants.kFrontLeftDriveMotorPort,
+              ElectricalConstants.kFrontLeftCANCoderPort),
+          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kFrontRightTurnMotorPort,
+              ElectricalConstants.kFrontRightDriveMotorPort,
+              ElectricalConstants.kFrontRightCANCoderPort),
+          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kBackLeftTurnMotorPort,
+              ElectricalConstants.kBackLeftDriveMotorPort,
+              ElectricalConstants.kBackLeftCANCoderPort),
+          new SwerveModuleIOMK4iNeo(
+              ElectricalConstants.kBackRightTurnMotorPort,
+              ElectricalConstants.kBackRightDriveMotorPort,
+              ElectricalConstants.kBackRightCANCoderPort));
     } else {
-      m_drive = new Drive();
+      m_drive = new Drive(
+          new PigeonIO(ElectricalConstants.kGyroPort),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim());
     }
   }
 
@@ -51,13 +87,34 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    DriverControls driverControls = new DriverControls() {
-    };
-    OperatorControls operatorControls = new OperatorControls() {
-    };
+    // var singleUserControls = new SingleUserXboxControls(5);
+    // DriverControls driverControls = singleUserControls;
+    // OperatorControls operatorControls = singleUserControls;
 
-    driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
+    DriverControls driverControls = new DualJoystickDriverControls(0, 1);
+    OperatorControls operatorControls = new XboxOperatorControls(5);
+
+    DriveCommandConfig driveConfig = new DriveCommandConfig(
+        DriveConstants.kDriveKinematics,
+        m_drive::getPose,
+        m_drive::getModuleStates,
+        m_drive.getGyro()::getRate,
+        m_drive::drive,
+        m_drive);
+
+    BaseDriveCommand fieldRelativeDrive = DriveCommands.fieldRelativeDrive(driveConfig, driverControls);
+    BaseDriveCommand robotRelativeDrive = DriveCommands.robotRelativeDrive(driveConfig, driverControls);
+    BaseDriveCommand joystickAngleDrive = DriveCommands.joystickAngleDrive(driveConfig, driverControls);
+
+    m_drive.setDefaultCommand(fieldRelativeDrive);
+    driverControls.robotRelativeDrive().whileTrue(robotRelativeDrive);
+    driverControls.joystickAngleDrive().whileTrue(joystickAngleDrive);
+
+    driverControls.testButton().onTrue(ChargeStationBalance.charge(m_drive));
+    driverControls.resetPose().onTrue(m_drive.resetPoseCommand(new Pose2d(5, 3, Rotation2d.fromDegrees(0))));
+
     operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
+    operatorControls.zeroTurnAbsoluteEncoders().onTrue(DebugCommands.zeroTurnAbsoluteEncoders(m_drive));
   }
 
   /**
@@ -67,5 +124,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoChooser.get();
+  }
+
+  public void onDisabled() {
+    DebugCommands.brakeAndReset(m_drive).schedule();
   }
 }

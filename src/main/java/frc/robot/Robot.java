@@ -6,9 +6,11 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.advantagekit.LoggerUtil;
+import frc.robot.Constants.VisionConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,6 +29,12 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
+    // Forward PhotonVision Port
+    PortForwarder.add(
+        VisionConstants.kPhotonVisionPort,
+        VisionConstants.kPhotonVisionHostName,
+        VisionConstants.kPhotonVisionPort);
+
     // Initialize the AdvantageKit Logger
     LoggerUtil.initializeLogger();
 
@@ -49,6 +57,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    robotContainer.onDisabled();
   }
 
   /** This function is called periodically when disabled. */

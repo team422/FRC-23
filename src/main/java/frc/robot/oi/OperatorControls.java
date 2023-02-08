@@ -6,4 +6,8 @@ public interface OperatorControls {
   public default Trigger getExampleOperatorButton() {
     return new Trigger(() -> false);
   }
+
+  public default Trigger zeroTurnAbsoluteEncoders() {
+    return new Trigger(() -> false);
+  }
 }
