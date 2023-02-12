@@ -35,7 +35,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final double kWheelDiameter = Units.inchesToMeters(4.0);
+    public static final double kWheelDiameter = Units.inchesToMeters(3.87);
 
     public static final double kWheelBase = Units.inchesToMeters(23);
     public static final double kTrackWidth = Units.inchesToMeters(23);
@@ -117,7 +117,7 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 4.0;
-    public static final double kMaxAccelMetersPerSecondSq = 3.0;
+    public static final double kMaxSpeedMetersPerSecond = 2.5;
+    public static final double kMaxAccelMetersPerSecondSq = 1.5;
   }
 }

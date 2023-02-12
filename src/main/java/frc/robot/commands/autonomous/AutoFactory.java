@@ -21,8 +21,8 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.vision.AprilTagCamera;
 
 public class AutoFactory extends CommandBase {
-  public static final PIDConstants linearPIDConstants = new PIDConstants(8, 0, 0);
-  public static final PIDConstants angularPIDConstants = new PIDConstants(3, 0, 0);
+  public static final PIDConstants linearPIDConstants = new PIDConstants(6, 0, 0);
+  public static final PIDConstants angularPIDConstants = new PIDConstants(2, 0, 0);
 
   private final Drive m_drive;
   private final AprilTagCamera m_camera;
