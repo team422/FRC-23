@@ -55,6 +55,11 @@ public class DualJoystickDriverControls implements DriverControls {
   }
 
   @Override
+  public Trigger resetPoseToVisionEst() {
+    return m_rightJoystick.button(2);
+  }
+
+  @Override
   public Trigger testButton() {
     return m_leftJoystick.button(10);
   }

@@ -1,13 +1,17 @@
 package frc.robot.subsystems.drive;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,7 +51,9 @@ public class Drive extends SubsystemBase {
         DriveConstants.kDriveKinematics,
         getGyroHeading(),
         getModulePositions(),
-        new Pose2d());
+        new Pose2d(),
+        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5)),
+        VecBuilder.fill(65, 65, Units.degreesToRadians(75)));
   }
 
   @Override
@@ -78,7 +84,7 @@ public class Drive extends SubsystemBase {
             speeds.omegaRadiansPerSecond
         });
 
-    if (speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0 && speeds.omegaRadiansPerSecond == 0) {
+    if (speeds.vxMetersPerSecond == 0.0 && speeds.vyMetersPerSecond == 0.0 && speeds.omegaRadiansPerSecond == 0.0) {
       brake();
       return;
     }
@@ -215,6 +221,10 @@ public class Drive extends SubsystemBase {
 
   public CommandBase resetPoseCommand(Pose2d pose) {
     return runOnce(() -> resetPose(pose));
+  }
+
+  public CommandBase resetPoseCommand(Supplier<Pose2d> pose) {
+    return runOnce(() -> resetPose(pose.get()));
   }
 
   //#endregion

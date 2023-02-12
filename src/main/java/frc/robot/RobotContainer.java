@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.photonvision.PhotonCamera;
 import org.photonvision.SimVisionSystem;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -50,7 +49,6 @@ import frc.robot.subsystems.drive.gyro.PigeonIO;
 import frc.robot.subsystems.drive.module.SwerveModuleIOMK2Neo;
 import frc.robot.subsystems.drive.module.SwerveModuleIOSim;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIONeo;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.vision.AprilTagCamera;
 
@@ -103,7 +101,7 @@ public class RobotContainer {
 
   private void configureAprilTags() {
     try {
-      m_tagLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+      m_tagLayout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
 
       if (Robot.isSimulation()) {
         m_simVisionSystem = Optional.of(
@@ -120,7 +118,7 @@ public class RobotContainer {
     }
   }
 
-  private void configureAllianceSettings(Alliance alliance) {
+  public void configureAllianceSettings(Alliance alliance) {
     var origin = alliance == Alliance.Red
         ? OriginPosition.kRedAllianceWallRightSide
         : OriginPosition.kBlueAllianceWallRightSide;
@@ -169,9 +167,10 @@ public class RobotContainer {
               ElectricalConstants.kBackRightDriveMotorPort,
               ElectricalConstants.kBackRightCANCoderPort,
               Rotation2d.fromRadians(0.993)));
-      m_elevator = new Elevator(new ElevatorIONeo(
-          ElectricalConstants.kElevatorLeaderPort,
-          ElectricalConstants.kElevatorFollowerPort), elevatorLigament);
+      m_elevator = new Elevator(new ElevatorIOSim(), elevatorLigament);
+      // m_elevator = new Elevator(new ElevatorIONeo(
+      //     ElectricalConstants.kElevatorLeaderPort,
+      //     ElectricalConstants.kElevatorFollowerPort), elevatorLigament);
     } else {
       m_drive = new Drive(
           new PigeonIO(ElectricalConstants.kGyroPort),
@@ -184,7 +183,7 @@ public class RobotContainer {
 
     SmartDashboard.putData("Robot Mechanism", m_mechanism);
     m_camera = new AprilTagCamera(
-        new PhotonCamera(VisionConstants.kAprilTagCameraName),
+        VisionConstants.kAprilTagCameraName,
         VisionConstants.kAprilTagRobotToCamera,
         m_tagLayout,
         m_drive.getPoseEstimator());
@@ -222,6 +221,7 @@ public class RobotContainer {
 
     driverControls.testButton().onTrue(ChargeStationBalance.charge(m_drive));
     driverControls.resetPose().onTrue(m_drive.resetPoseCommand(new Pose2d(5, 3, Rotation2d.fromDegrees(0))));
+    driverControls.resetPoseToVisionEst().onTrue(m_drive.resetPoseCommand(m_camera::getLatestEstimatedPose));
 
     operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
     operatorControls.zeroTurnAbsoluteEncoders().onTrue(DebugCommands.zeroTurnAbsoluteEncoders(m_drive));
@@ -268,7 +268,7 @@ public class RobotContainer {
 
   public void onDisabled() {
     if (Constants.kDebugMode) {
-    DebugCommands.brakeAndReset(m_drive).schedule();
+      DebugCommands.brakeAndReset(m_drive).schedule();
     }
   }
 

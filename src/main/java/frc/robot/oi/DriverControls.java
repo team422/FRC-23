@@ -19,6 +19,8 @@ public interface DriverControls {
 
   public Trigger resetPose();
 
+  public Trigger resetPoseToVisionEst();
+
   public default Trigger testButton() {
     return new Trigger(() -> false);
   }
