@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive.gyro;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class GyroIOWPIWrapper extends GyroIOWPI {
@@ -11,20 +12,16 @@ public class GyroIOWPIWrapper extends GyroIOWPI {
   }
 
   @Override
-  public void setPitchOffset(double pitch) {
-    // TODO Auto-generated method stub
-
+  public void setPitchOffset(Rotation2d pitch) {
   }
 
   @Override
-  public double getPitchOffset() {
-    // TODO Auto-generated method stub
-    return 0;
+  public Rotation2d getPitchOffset() {
+    return GyroIOWPI.kZero;
   }
 
   @Override
   public Gyro getWPIGyro() {
     return m_gyro;
   }
-
 }
