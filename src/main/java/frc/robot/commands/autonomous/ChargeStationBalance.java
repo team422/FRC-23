@@ -37,7 +37,7 @@ public class ChargeStationBalance extends CommandBase {
     // boolean usePitch = Math.abs(gyro.getRotation2d().getCos()) < root2Over2;
     // double angle = usePitch ? gyro.getPitch() : gyro.getRoll();
 
-    double angle = -m_gyro.getPitch();
+    double angle = -m_gyro.getPitch().getRadians();
     double deadbandAngle = MathUtil.applyDeadband(angle, kLevelThreshold, kMaxIncline);
     double xSpeed = deadbandAngle * kAngleSpeedMultiplier;
 

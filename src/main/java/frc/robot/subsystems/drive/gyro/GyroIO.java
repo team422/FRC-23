@@ -9,63 +9,68 @@ import frc.lib.advantagekit.LoggedIO;
 import frc.robot.subsystems.drive.gyro.GyroIO.GyroInputs;
 
 public interface GyroIO extends LoggedIO<GyroInputs> {
-    @AutoLog
-    public static class GyroInputs {
-        public double rawAngleRads;
-        public double angleRads;
-        public double rateRadsPerSec;
-        public double pitchRads;
-        public double rollRads;
-    }
+  public static final Rotation2d kZero = Rotation2d.fromDegrees(0);
 
-    @Override
-    public default void updateInputs(GyroInputs inputs) {
-        inputs.rawAngleRads = getRawGyroAngle().getRadians();
-        inputs.angleRads = getRotation2d().getRadians();
-        inputs.rateRadsPerSec = getRate();
-        inputs.pitchRads = getPitch();
-        inputs.rollRads = getRoll();
-    }
+  @AutoLog
+  public static class GyroInputs {
+    public double rawAngleRads;
+    public double angleRads;
+    public double rateRadsPerSec;
+    public double pitchRads;
+    public double rollRads;
+  }
 
-    public Rotation2d getRawGyroAngle();
+  @Override
+  public default void updateInputs(GyroInputs inputs) {
+    inputs.rawAngleRads = getRawGyroAngle().getRadians();
+    inputs.angleRads = getRotation2d().getRadians();
+    inputs.rateRadsPerSec = getRate();
+    inputs.pitchRads = getPitch().getRadians();
+    inputs.rollRads = getRoll().getRadians();
+  }
 
-    public default Rotation2d getRotation2d() {
-        return getRawGyroAngle().plus(getOffset());
-    }
+  public Rotation2d getRawGyroAngle();
 
-    public Rotation2d getOffset();
+  public default Rotation2d getRotation2d() {
+    return getRawGyroAngle().plus(getOffset());
+  }
 
-    public double getRate();
+  public Rotation2d getOffset();
 
-    public void reset();
+  public double getRate();
 
-    public void reset(Rotation2d offset);
+  public void reset();
 
-    public void addAngle(Rotation2d angle);
+  public void reset(Rotation2d offset);
 
-    public void setPitchOffset(double pitch);
+  public void addAngle(Rotation2d angle);
 
-    public Gyro getWPIGyro();
+  public void setPitchOffset(Rotation2d pitch);
 
-    public default double getPitch() {
-        return getRawGyroPitch() + getPitchOffset();
-    }
+  public Gyro getWPIGyro();
 
-    public default double getRawGyroPitch() {
-        return 0;
-    }
+  public default Rotation2d getPitch() {
+    return getRawGyroPitch().plus(getPitchOffset());
+  }
 
-    public double getPitchOffset();
+  public default Rotation2d getRawGyroPitch() {
+    return kZero;
+  }
 
-    public default double getRoll() {
-        return 0;
-    }
+  public Rotation2d getPitchOffset();
 
-    public default Rotation3d getOrientation() {
-        return new Rotation3d(getRoll(), getPitch(), getRotation2d().getRadians());
-    }
+  public default Rotation2d getRoll() {
+    return kZero;
+  }
 
-    public default boolean isLevel(double threshold) {
-        return Math.abs(getPitch()) < threshold;
-    }
+  public default Rotation3d getOrientation() {
+    return new Rotation3d(
+        getRoll().getRadians(),
+        getPitch().getRadians(),
+        getRotation2d().getRadians());
+  }
+
+  public default boolean isLevel(double thresholdRadians) {
+    return Math.abs(getPitch().getRadians()) < thresholdRadians;
+  }
 }

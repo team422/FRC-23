@@ -2,11 +2,11 @@ package frc.robot.subsystems.drive.gyro;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class PigeonIO extends GyroIOWPI {
   private WPI_Pigeon2 m_pigeon;
-  private double m_pitchOffset;
+  private Rotation2d m_pitchOffset;
 
   public PigeonIO(WPI_Pigeon2 pigeon) {
     m_pigeon = pigeon;
@@ -22,22 +22,22 @@ public class PigeonIO extends GyroIOWPI {
   }
 
   @Override
-  public double getRawGyroPitch() {
-    return Units.degreesToRadians(m_pigeon.getPitch());
+  public Rotation2d getRawGyroPitch() {
+    return Rotation2d.fromDegrees(m_pigeon.getPitch());
   }
 
   @Override
-  public double getPitchOffset() {
+  public Rotation2d getPitchOffset() {
     return m_pitchOffset;
   }
 
   @Override
-  public void setPitchOffset(double pitch) {
+  public void setPitchOffset(Rotation2d pitch) {
     m_pitchOffset = pitch;
   }
 
   @Override
-  public double getRoll() {
-    return Units.degreesToRadians(m_pigeon.getRoll());
+  public Rotation2d getRoll() {
+    return Rotation2d.fromDegrees(m_pigeon.getRoll());
   }
 }
