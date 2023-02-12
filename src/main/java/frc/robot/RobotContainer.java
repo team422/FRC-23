@@ -267,7 +267,9 @@ public class RobotContainer {
   }
 
   public void onDisabled() {
+    if (Constants.kDebugMode) {
     DebugCommands.brakeAndReset(m_drive).schedule();
+    }
   }
 
   //#endregion

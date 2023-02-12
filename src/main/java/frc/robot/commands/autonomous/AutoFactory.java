@@ -8,11 +8,13 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.BaseAutoBuilder;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -43,6 +45,10 @@ public class AutoFactory extends CommandBase {
         "elevatorLow", m_elevator.setPositionCommand(Units.feetToMeters(1.5)),
         "elevatorHigh", m_elevator.setPositionCommand(Units.feetToMeters(5)),
         "charge", ChargeStationBalance.charge(drive));
+
+    if (Constants.kDebugMode) {
+      PathPlannerServer.startServer(5811);
+    }
   }
 
   public List<PathPlannerTrajectory> loadPathGroupByName(String name) {
