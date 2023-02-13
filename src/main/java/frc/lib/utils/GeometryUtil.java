@@ -4,16 +4,26 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 
 public class GeometryUtil {
+  public static final Vector<N3> kUp = VecBuilder.fill(0, 0, 1);
+  public static final Vector<N3> kLeft = VecBuilder.fill(0, 1, 0);
+  public static final Vector<N3> kForward = VecBuilder.fill(1, 0, 0);
+
   public static Pose2d averagePoses(Pose2d... poses) {
     if (poses.length == 1) {
       return poses[0];
@@ -83,9 +93,17 @@ public class GeometryUtil {
   * @param translation The translation to create the transform with
   * @return The resulting transform
   */
-  public static Transform2d transformFromTranslation(
+  public static Transform2d translationToTransform(
       Translation2d translation) {
     return new Transform2d(translation, new Rotation2d());
+  }
+
+  public static Pose2d translationToPose(Translation2d translation) {
+    return new Pose2d(translation, Rotation2d.fromDegrees(0));
+  }
+
+  public static Pose2d translationToPose(double x, double y) {
+    return translationToPose(new Translation2d(x, y));
   }
 
   /**
@@ -95,8 +113,30 @@ public class GeometryUtil {
    * @param y The y componenet of the translation
    * @return The resulting transform
    */
-  public static Transform2d transformFromTranslation(double x, double y) {
+  public static Transform2d translationToTransform(double x, double y) {
     return new Transform2d(new Translation2d(x, y), new Rotation2d());
+  }
+
+  /**
+  * Creates a pure translating transform
+  * 
+  * @param translation The translation to create the transform with
+  * @return The resulting transform
+  */
+  public static Transform3d translationToTransform(
+      Translation3d translation) {
+    return new Transform3d(translation, new Rotation3d());
+  }
+
+  /**
+   * Creates a pure translating transform
+   * 
+   * @param x The x componenet of the translation
+   * @param y The y componenet of the translation
+   * @return The resulting transform
+   */
+  public static Transform3d translationToTransform(double x, double y, double z) {
+    return new Transform3d(new Translation3d(x, y, z), new Rotation3d());
   }
 
   /**
@@ -117,5 +157,31 @@ public class GeometryUtil {
         .collect(Collectors.toMap(
             x -> x.ID,
             x -> layout.getTagPose(x.ID).orElseThrow()));
+  }
+
+  public static Vector<N3> cross(Matrix<N3, N1> v1, Matrix<N3, N1> v2) {
+    return VecBuilder.fill(
+        v1.get(1, 0) * v2.get(2, 0) - v2.get(1, 0) * v1.get(2, 0),
+        v2.get(0, 0) * v1.get(2, 0) - v1.get(0, 0) * v2.get(2, 0),
+        v1.get(0, 0) * v2.get(1, 0) - v2.get(0, 0) * v1.get(1, 0));
+  }
+
+  public static Vector<N3> vector(Quaternion q) {
+    return VecBuilder.fill(q.getX(), q.getY(), q.getZ());
+  }
+
+  public static Vector<N3> rotateVector(Matrix<N3, N1> v, Quaternion q) {
+    // v' = v + 2 * r x (s * v + r x v) / m
+    double s = q.getW();
+    double x = q.getX();
+    double y = q.getY();
+    double z = q.getZ();
+    Vector<N3> r = vector(q);
+    var sv = v.times(s);
+    Vector<N3> rxv = cross(r, v);
+    Vector<N3> rxsvrxv = cross(r, sv.plus(rxv));
+    double m = s * s + x * x + y * y + z * z;
+    var result = v.plus(rxsvrxv.times(2).div(m));
+    return new Vector<>(result);
   }
 }
