@@ -231,4 +231,11 @@ public final class Constants {
   //     public static final double kPTranslationController = 6.0;
   //     public static final double kPThetaController = 6.0;
   //   }
+
+  public static final class ElevatorConstants {
+    public static final double kElevatorP = 5;
+    public static final double kElevatorI = 0;
+    public static final double kElevatorD = 0;
+    public static final double kElevatorPositionConversionFactor = 1;
+  }
 }
