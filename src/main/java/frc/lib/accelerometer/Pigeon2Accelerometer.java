@@ -5,19 +5,20 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 
-public class Pigeon2Accel implements Accelerometer {
+public class Pigeon2Accelerometer implements Accelerometer {
   private static final double kMultiplier = 1;
   private static final int kFixedShift = 14;
   private static final int kX = 0;
   private static final int kY = 1;
   private static final int kZ = 2;
-  private Pigeon2 m_pigeon;
 
-  public Pigeon2Accel(Pigeon2 pigeon) {
+  private final Pigeon2 m_pigeon;
+
+  public Pigeon2Accelerometer(Pigeon2 pigeon) {
     m_pigeon = pigeon;
   }
 
-  public Pigeon2Accel(int port) {
+  public Pigeon2Accelerometer(int port) {
     this(new Pigeon2(port));
   }
 
