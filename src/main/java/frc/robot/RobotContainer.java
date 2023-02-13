@@ -11,13 +11,15 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.SimVisionSystem;
 
+import com.ctre.phoenix.sensors.Pigeon2.AxisDirection;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.accelerometer.Pigeon2Accelerometer;
 import frc.lib.commands.drive.BaseDriveCommand;
 import frc.lib.commands.drive.DriveCommandConfig;
 import frc.lib.pathplanner.PathPlannerUtil;
@@ -44,7 +47,8 @@ import frc.robot.oi.DriverControls;
 import frc.robot.oi.OperatorControls;
 import frc.robot.oi.SingleUserXboxControls;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.gyro.GyroIOWPIWrapper;
+import frc.robot.subsystems.drive.accelerometer.AccelerometerIOSim;
+import frc.robot.subsystems.drive.accelerometer.AccelerometerIOWPI;
 import frc.robot.subsystems.drive.gyro.PigeonIO;
 import frc.robot.subsystems.drive.module.SwerveModuleIOMK2Neo;
 import frc.robot.subsystems.drive.module.SwerveModuleIOSim;
@@ -106,9 +110,9 @@ public class RobotContainer {
       if (Robot.isSimulation()) {
         m_simVisionSystem = Optional.of(
             new SimVisionSystem(
-                VisionConstants.kAprilTagCameraName,
-                VisionConstants.kAprilTagCameraFOVDiag,
-                VisionConstants.kAprilTagRobotToCamera,
+                VisionConstants.kAprilTagCameraGrayConfig.getName(),
+                VisionConstants.kAprilTagCameraGrayConfig.getFOV(),
+                VisionConstants.kAprilTagCameraGrayConfig.getRobotToCamera(),
                 5,
                 640, 480,
                 10.0));
@@ -144,9 +148,14 @@ public class RobotContainer {
     var wristLigament = staticArmLigament
         .append(new MechanismLigament2d("wrist", 4, 0, 10, new Color8Bit(Color.kAliceBlue)));
 
+    WPI_Pigeon2 pigeon = new WPI_Pigeon2(ElectricalConstants.kGyroPort);
+
     if (Robot.isReal()) {
+      pigeon.configMountPose(AxisDirection.NegativeX, AxisDirection.PositiveZ);
       m_drive = new Drive(
-          new GyroIOWPIWrapper(new ADXRS450_Gyro()),
+          // new GyroIOWPIWrapper(new ADXRS450_Gyro()),
+          new PigeonIO(pigeon),
+          new AccelerometerIOWPI(new Pigeon2Accelerometer(pigeon)),
           new SwerveModuleIOMK2Neo(
               ElectricalConstants.kFrontLeftTurnMotorPort,
               ElectricalConstants.kFrontLeftDriveMotorPort,
@@ -173,7 +182,8 @@ public class RobotContainer {
       //     ElectricalConstants.kElevatorFollowerPort), elevatorLigament);
     } else {
       m_drive = new Drive(
-          new PigeonIO(ElectricalConstants.kGyroPort),
+          new PigeonIO(pigeon),
+          new AccelerometerIOSim(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
@@ -183,8 +193,8 @@ public class RobotContainer {
 
     SmartDashboard.putData("Robot Mechanism", m_mechanism);
     m_camera = new AprilTagCamera(
-        VisionConstants.kAprilTagCameraName,
-        VisionConstants.kAprilTagRobotToCamera,
+        VisionConstants.kAprilTagCameraGrayConfig.getName(),
+        VisionConstants.kAprilTagCameraGrayConfig.getRobotToCamera(),
         m_tagLayout,
         m_drive.getPoseEstimator());
   }

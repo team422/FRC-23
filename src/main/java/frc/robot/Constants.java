@@ -6,12 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import frc.lib.utils.GeometryUtil;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -24,11 +23,16 @@ import edu.wpi.first.math.util.Units;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final boolean kDebugMode = false;
+  public static final boolean kDebugMode = true;
 
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
+    public static final double kTapeWidth = Units.inchesToMeters(2.0);
+
+    public static final Pose2d kChargeStationCenter = GeometryUtil.translationToPose(
+        Units.inchesToMeters(193.25) - kTapeWidth - Units.inchesToMeters(76.125) / 2,
+        Units.feetToMeters(18) - Units.inchesToMeters(59.39) + Units.inchesToMeters(97.25) / 2);
 
     public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
         Rotation2d.fromDegrees(180));
@@ -94,7 +98,7 @@ public final class Constants {
     public static final int kBackRightCANCoderPort = 1;
 
     // Gyro Channel
-    public static final int kGyroPort = 0;
+    public static final int kGyroPort = 22;
 
     // Elevator Spark Max Channels
     public static final int kElevatorLeaderPort = 12;
@@ -102,22 +106,78 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final String kPhotonVisionIp = "10.4.22.22";
-    public static final String kPhotonVisionHostName = "photonvision.local";
     public static final int kPhotonVisionPort = 5800;
 
-    public static final double kAprilTagCameraFOVDiag = 110.0;
-    public static final String kAprilTagCameraName = "limelight";
-    public static final Transform3d kAprilTagRobotToCamera = new Transform3d(
-        new Translation3d(
+    public static final PhotonCameraConfig kAprilTagCameraGrayConfig = new PhotonCameraConfig(
+        "AprilTagCameraGray",
+        "10.4.22.30",
+        "photonvisiongray.local",
+        70,
+        GeometryUtil.translationToTransform(
             Units.inchesToMeters(15.5),
             Units.inchesToMeters(-0.6),
-            Units.inchesToMeters(10.8375)),
-        new Rotation3d());
+            Units.inchesToMeters(10.8375)));
+
+    public static final PhotonCameraConfig kAprilTagCameraGreenConfig = new PhotonCameraConfig(
+        "AprilTagCameraGreen",
+        "10.4.22.31",
+        "photonvisiongreen.local",
+        70,
+        GeometryUtil.translationToTransform(
+            Units.inchesToMeters(15.5),
+            Units.inchesToMeters(-0.6),
+            Units.inchesToMeters(10.8375)));
+
+    public static final PhotonCameraConfig kLimelightConfig = new PhotonCameraConfig(
+        "limelight",
+        "10.4.22.31",
+        "photonvisiongreen.local",
+        70,
+        GeometryUtil.translationToTransform(
+            Units.inchesToMeters(15.5),
+            Units.inchesToMeters(-0.6),
+            Units.inchesToMeters(10.8375)));
+
   }
 
   public static final class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 2.5;
     public static final double kMaxAccelMetersPerSecondSq = 1.5;
+  }
+
+  public static final class PhotonCameraConfig {
+    private final String m_name;
+    private final String m_ip;
+    private final String m_hostname;
+    private final double m_fov;
+    private final Transform3d m_robotToCamera;
+
+    public PhotonCameraConfig(String name, String ip, String hostname, double fov, Transform3d robotToCamera) {
+      m_name = name;
+      m_ip = ip;
+      m_hostname = hostname;
+      m_fov = fov;
+      m_robotToCamera = robotToCamera;
+    }
+
+    public String getName() {
+      return m_name;
+    }
+
+    public String getIp() {
+      return m_ip;
+    }
+
+    public String getHostName() {
+      return m_hostname;
+    }
+
+    public double getFOV() {
+      return m_fov;
+    }
+
+    public Transform3d getRobotToCamera() {
+      return m_robotToCamera;
+    }
   }
 }
