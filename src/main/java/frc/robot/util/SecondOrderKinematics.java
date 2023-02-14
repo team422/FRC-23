@@ -8,8 +8,8 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Get a module's X Acceleration component
   * @param botVel bot's velocity
   * @param botAccel bot's acceleration
-  * @param thetaMRobot should be thetaRobot - thetaModule
-  * @param thetaVelMRobot should be thetaVelRobot - thetaVelModule
+  * @param thetaMRobot should be thetaModule - thetaRobot
+  * @param thetaVelMRobot should be thetaVelModule - thetaVelRobot
   */
   public static double getModulePositionAccelX(double botVel,
       double botAccel,
@@ -23,8 +23,8 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Get a module's Y Acceleration component
   * @param botVel bot's velocity
   * @param botAccel bot's acceleration
-  * @param thetaMRobot should be thetaRobot - thetaModule
-  * @param thetaVelMRobot should be thetaVelRobot - thetaVelModule
+  * @param thetaMRobot should be thetaModule - thetaRobot
+  * @param thetaVelMRobot should be thetaVelModuule - thetaVelRobot
   */
   public static double getModulePositionAccelY(double botVel,
       double botAccel,
