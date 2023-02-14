@@ -11,7 +11,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * @param thetaMRobot should be thetaRobot - thetaModule
   * @param thetaVelMRobot should be thetaVelRobot - thetaVelModule
   */
-  public double getModulePositionAccelX(double botVel,
+  public static double getModulePositionAccelX(double botVel,
       double botAccel,
       double thetaMRobot,
       double thetaVelMRobot) {
@@ -26,7 +26,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * @param thetaMRobot should be thetaRobot - thetaModule
   * @param thetaVelMRobot should be thetaVelRobot - thetaVelModule
   */
-  public double getModulePositionAccelY(double botVel,
+  public static double getModulePositionAccelY(double botVel,
       double botAccel,
       double thetaMRobot,
       double thetaVelMRobot) {
