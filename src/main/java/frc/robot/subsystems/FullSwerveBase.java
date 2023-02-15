@@ -37,6 +37,8 @@ public class FullSwerveBase extends SubsystemBase {
   int m_currentWheel = 0;
   Boolean m_singleWheelMode = false;
   double max_speed = 0;
+  double[] accelMetersPerSecondSquared = { 0, 0, 0, 0 };
+  double[] omegaRadiansPerSecond = { 0, 0, 0, 0 };
 
   public FullSwerveBase(SwerveModule[] swerveModules, Gyro gyro) {
     // Setting up all the modules
@@ -95,6 +97,12 @@ public class FullSwerveBase extends SubsystemBase {
     // This method will be called once per scheduler run
     /* 
     */
+
+    //Updates accelMetersPerSecondSquaredSquared and omegaRadiansPerSecond
+    for (int i = 0; i < 4; i++) {
+      omegaRadiansPerSecond[i] = getSwerveStates()[i].angle.getDegrees() - omegaRadiansPerSecond[i];
+      accelMetersPerSecondSquared[i] = getSwerveStates()[0].speedMetersPerSecond - accelMetersPerSecondSquared[i];
+    }
 
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition(m_swerveModules[i].getDriveDistanceMeters(),
@@ -244,6 +252,14 @@ public class FullSwerveBase extends SubsystemBase {
   public SwerveModulePosition[] getSwervePositions() {
     return new SwerveModulePosition[] { m_swerveModules[0].getPosition(), m_swerveModules[1].getPosition(),
         m_swerveModules[2].getPosition(), m_swerveModules[3].getPosition() };
+  }
+
+  public double[] getModuleOmegas() {
+    return omegaRadiansPerSecond;
+  }
+
+  public double[] getModuleAccels() {
+    return accelMetersPerSecondSquared;
   }
 
   public void resetPose(Pose2d pose) {

@@ -10,48 +10,36 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   WPI_Pigeon2 m_Gyro = new WPI_Pigeon2(DriveConstants.kGyroPort);
   Pigeon2Accelerometer m_Accelerometer = new Pigeon2Accelerometer(m_Gyro);
 
-  double[] accelXYT = m_Accelerometer.getAccelMetersPerSecond();
-  double accelX = accelXYT[0];
-  double accelY = accelXYT[0];
-
-  private double getBotAccel() {
-    return Math.sqrt(accelX * accelX + accelY * accelY);
-  }
-
-  private double getThetaMRobot() {
-    //Change to get module angle - robot angle later
-    return 0;
-  }
-
-  private double getThetaVelMRobot() {
-    //Change to get module angle vel - robot angle vel later
-    return 0;
-  }
-
   /**
   * Get a module's X Acceleration component
-  * @param botVel bot's velocity
-  * @param thetaMRobot should be thetaModule - thetaRobot
-  * @param thetaVelMRobot should be thetaVelModule - thetaVelRobot
   */
-  public double getModulePositionAccelX(double botVel,
+  public double getModulePositionAccelXMetersPerSecondSquared(double botVel,
       double thetaMRobot,
       double thetaVelMRobot) {
-    double A_mx = getBotAccel() * Math.cos(thetaMRobot) - botVel * thetaVelMRobot * Math.sin(thetaMRobot);
-    return A_mx;
+
+    for (int i = 0; i < 0; i++) {
+
+    }
+    // double A_mx = getModuleAccelMatersPerSecondSquared() * Math.cos(thetaMRobot)
+    //     - botVel * thetaVelMRobot * Math.sin(thetaMRobot);
+    return 0;
   }
 
   /**
   * Get a module's Y Acceleration component
-  * @param botVel bot's velocity
-  * @param thetaMRobot should be thetaModule - thetaRobot
-  * @param thetaVelMRobot should be thetaVelModuule - thetaVelRobot
   */
-  public double getModulePositionAccelY(double botVel,
-      double thetaMRobot,
-      double thetaVelMRobot) {
-    double A_my = getBotAccel() * Math.sin(thetaMRobot) + botVel * thetaVelMRobot * Math.cos(thetaMRobot);
-    return A_my;
+  public double getModulePositionAccelYMetersPerSecondSquared() {
+
+    double[] moduleAccels = new double[4];
+    double[] modulePositionAccelY = { 0, 0, 0, 0 };
+    for (int i = 0; i < 4; i++) {
+      // modulePositionAccelY[i] = FullSwerveBase.getModuleAccels()[i];
+      // moduleAccels[i] = FullSwerveBase.getModuleAccels()[i];
+    }
+
+    // double A_my = getModuleAccelMatersPerSecondSquared() * Math.sin(thetaMRobot)
+    //     + botVel * thetaVelMRobot * Math.cos(thetaMRobot);
+    return 0;
   }
 
 }
