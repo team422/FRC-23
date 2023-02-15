@@ -121,6 +121,10 @@ public interface UserControls {
     return new Trigger();
   }
 
+  public default Trigger getXButtonOperator() {
+    return new Trigger();
+  }
+
   public default Trigger resetPoseTrigger() {
     return new Trigger();
   }

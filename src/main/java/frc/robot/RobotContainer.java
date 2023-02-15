@@ -29,10 +29,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.DriveToPoint;
 import frc.robot.commands.FullSwerveDrive;
+import frc.robot.commands.PartyMode;
 import frc.robot.commands.StartSwerveTestingMode;
 import frc.robot.commands.SwitchSwerveWheel;
 import frc.robot.oi.MixedXboxJoystickControls;
 import frc.robot.oi.UserControls;
+import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.swerve.FullSwerveBase;
 import frc.robot.subsystems.swerve.SwerveModule;
 import frc.robot.subsystems.vision.Vision;
@@ -62,6 +64,7 @@ public class RobotContainer {
   WPI_Pigeon2 m_Gyro;
   Vision m_Vision;
   SmartDashboard m_SmartDashboard;
+  LED m_LED;
 
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -103,6 +106,8 @@ public class RobotContainer {
         m_RightRearSwerveModule };
 
     m_Gyro = new WPI_Pigeon2(Constants.DriveConstants.kGyroPort);
+
+    m_LED = new LED(Constants.ElectricalConstants.LEDPWMPort, Constants.ElectricalConstants.LEDLength);
 
     // // m_RightFrontSwerveModule = new SwerveModule(Constants.DriveConstants.kFrontRightDriveMotor,
     // //         Constants.DriveConstants.kFrontRightTurningMotor, Constants.DriveConstants.kFrontRightEncoder,
@@ -155,6 +160,7 @@ public class RobotContainer {
     controls.getAButtonOperator().onTrue(new SwitchSwerveWheel(m_swerveBase));
     // while active once is now deprecated
     controls.getBButtonOperator().onTrue(new StartSwerveTestingMode(m_swerveBase));
+    controls.getXButtonOperator().onTrue(new PartyMode(m_LED));
     controls.resetPoseTrigger().onTrue(
         Commands.runOnce(() -> m_swerveBase.resetPose(new Pose2d(5, 3, new Rotation2d())), m_swerveBase));
     PIDController pidControllerXY = new PIDController(0.5, 0.0, 0.0);
