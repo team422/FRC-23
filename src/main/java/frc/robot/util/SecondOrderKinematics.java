@@ -1,13 +1,13 @@
 package frc.robot.util;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import frc.robot.Constants.DriveConstants;
 
 public class SecondOrderKinematics extends SwerveDriveKinematics {
 
-  Pigeon2 m_Gyro = new Pigeon2(DriveConstants.kGyroPort);
+  WPI_Pigeon2 m_Gyro = new WPI_Pigeon2(DriveConstants.kGyroPort);
   Pigeon2Accelerometer m_Accelerometer = new Pigeon2Accelerometer(m_Gyro);
 
   double[] accelXYT = m_Accelerometer.getAccelMetersPerSecond();

@@ -1,6 +1,6 @@
 package frc.robot.util;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
@@ -11,14 +11,14 @@ public class Pigeon2Accelerometer implements Accelerometer {
   private static final int kY = 1;
   private static final int kZ = 2;
   private static final double kGravityConstantMetersPerSecondSquared = 9.80665;
-  private final Pigeon2 m_pigeon;
+  private final WPI_Pigeon2 m_pigeon;
 
-  public Pigeon2Accelerometer(Pigeon2 pigeon) {
+  public Pigeon2Accelerometer(WPI_Pigeon2 pigeon) {
     m_pigeon = pigeon;
   }
 
   public Pigeon2Accelerometer(int port) {
-    this(new Pigeon2(port));
+    this(new WPI_Pigeon2(port));
   }
 
   @Override
