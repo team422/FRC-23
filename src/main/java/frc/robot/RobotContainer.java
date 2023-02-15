@@ -10,9 +10,12 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.PartyMode;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.OperatorControls;
+import frc.robot.oi.XboxOperatorController;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.led.LED;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -24,6 +27,7 @@ import frc.robot.subsystems.drive.Drive;
 public class RobotContainer {
   // Subsystems
   private Drive m_drive;
+  private LED m_LED;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -39,6 +43,7 @@ public class RobotContainer {
   private void configureSubsystems() {
     if (Robot.isReal()) {
       m_drive = new Drive();
+      m_LED = new LED(Constants.ElectricalConstants.kLEDPort, Constants.ElectricalConstants.kLEDLength);
     } else {
       m_drive = new Drive();
     }
@@ -51,13 +56,16 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    //define controllers
     DriverControls driverControls = new DriverControls() {
     };
-    OperatorControls operatorControls = new OperatorControls() {
+    OperatorControls operatorControls = new XboxOperatorController(5) {
     };
 
+    //define buttons
     driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
     operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
+    operatorControls.partyButton().onTrue(new PartyMode(m_LED));
   }
 
   /**
