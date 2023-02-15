@@ -41,7 +41,7 @@ public final class Constants {
 
   public static final class ElectricalConstants {
     // LED constants
-    public static final int kLEDLength = 422;
+    public static final int kLEDLength = 84;
     public static final int kLEDPort = 9;
 
     // Front Left Swerve Module Channels
