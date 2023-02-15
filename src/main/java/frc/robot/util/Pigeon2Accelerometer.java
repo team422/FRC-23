@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 
 public class Pigeon2Accelerometer implements Accelerometer {
   private static final double kMultiplier = 1;
-  private static final int kFixedShift = 14;
   private static final int kX = 0;
   private static final int kY = 1;
   private static final int kZ = 2;
@@ -75,14 +74,29 @@ public class Pigeon2Accelerometer implements Accelerometer {
   }
 
   private static double convertToActual(short raw) {
-    return fixedToDouble(raw, kFixedShift) * kMultiplier;
+    return fixedToDouble(raw) * kMultiplier;
   }
 
   private static double convertToActualMetersPerSecond(short raw) {
-    return fixedToDouble(raw, kFixedShift) * kMultiplier / kGravityConstantMetersPerSecondSquared;
+    return fixedToDouble(raw) * kMultiplier * kGravityConstantMetersPerSecondSquared;
+
+    //G*(m/s^2)/G = m/s^2
+
+  }
+
+  private static double fixedToDouble(short fixed) {
+    /** takes raw short and spits out a double Gs (gravitational constant on the surface of earth)
+     * first take short and force it to double type
+     * divide by magic number (pigeon 2 returns Gs in Q2.14 notation)
+     * Q2.14 notation dictates such format: 0000000000000000 -> 00.00000000000000
+     * therefore to get Gs we need to shift the decimal 14 bits to the left
+     * operation for this is to divide by 2^14 hence the divided by a 1 bit shifted to the left 14 times
+    */
+    return ((double) fixed) / (1 << 14);
   }
 
   private static double fixedToDouble(short fixed, int shift) {
+    //if for some reason this is changed, we can change the bit shift
     return ((double) fixed) / (1 << shift);
   }
 
