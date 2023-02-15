@@ -4,7 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.robot.subsystems.FullSwerveBase;
+import frc.robot.subsystems.swerve.FullSwerveBase;
 import frc.robot.util.CustomHolmonomicDrive;
 
 public class CustomAutoGen extends ParallelCommandGroup {

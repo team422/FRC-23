@@ -21,6 +21,11 @@ public final class Constants {
   }
 
   public static final class ElectricalConstants {
+
+    //LED Things
+    public static final int LEDPWMPort = 9;
+    public static final int LEDLength = 422;
+
     // public static final PneumaticsModuleType kPneumaticHub = PneumaticsModuleType.CTREPCM;
     // public static final ModuleType kPowerDistributionModule = ModuleType.kCTRE;
 

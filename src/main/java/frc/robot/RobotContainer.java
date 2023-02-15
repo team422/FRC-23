@@ -33,9 +33,9 @@ import frc.robot.commands.StartSwerveTestingMode;
 import frc.robot.commands.SwitchSwerveWheel;
 import frc.robot.oi.MixedXboxJoystickControls;
 import frc.robot.oi.UserControls;
-import frc.robot.subsystems.FullSwerveBase;
-import frc.robot.subsystems.SwerveModule;
-import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.swerve.FullSwerveBase;
+import frc.robot.subsystems.swerve.SwerveModule;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.CustomHolmonomicDrive;
 
 /**
