@@ -38,6 +38,7 @@ public class ElevatorIONeo implements ElevatorIO {
 
   @Override
   public void setHeight(double lengthInches) {
+    m_wantedHeight = lengthInches;
 
   }
 
@@ -46,7 +47,7 @@ public class ElevatorIONeo implements ElevatorIO {
   }
 
   @Override
-  public void updateInputs(ElevatorValues inputs) {
+  public void updateInputs(ElevatorInputs inputs) {
     // TODO Auto-generated method stub
 
   }

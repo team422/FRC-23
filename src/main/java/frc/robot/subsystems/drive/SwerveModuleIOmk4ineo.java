@@ -319,7 +319,7 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   }
 
   @Override
-  public void updateInputs(SwerveModuleIOInputs inputs) {
+  public void updateInputs(SwerveModuleInputs inputs) {
     // TODO Auto-generated method stub
 
   }

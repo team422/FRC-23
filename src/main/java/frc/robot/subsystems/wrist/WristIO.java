@@ -3,19 +3,19 @@ package frc.robot.subsystems.wrist;
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.lib.advantagekit.LoggedIO;
-import frc.robot.subsystems.wrist.WristIO.WristPosition;
+import frc.robot.subsystems.wrist.WristIO.WristInput;
 
-public interface WristIO extends LoggedIO<WristPosition> {
+public interface WristIO extends LoggedIO<WristInput> {
 
   @AutoLog
-  public static class WristPosition {
+  public static class WristInput {
     public double angle;
 
-    public WristPosition() {
+    public WristInput() {
       this(0);
     }
 
-    public WristPosition(double angle) {
+    public WristInput(double angle) {
       this.angle = angle;
     }
 
