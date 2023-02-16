@@ -17,8 +17,11 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Get a module's X Acceleration component
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelXMetersPerSecondSquared(
-      SwerveModuleAcceleration[] moduleAccelerations,
-      SwerveModuleState[] moduleStates, Rotation2d[] modulethetaVel, double robotVel, Rotation2d robotThetaVel) {
+      SwerveModuleAcceleration[] moduleAccelerations, //done
+      SwerveModuleState[] moduleStates, //done
+      Rotation2d[] modulethetaVel, //done
+      double robotVel, //TO-DO
+      Rotation2d robotThetaVel) { //done
     SwerveModuleAcceleration[] moduleAccelsX = new SwerveModuleAcceleration[4];
     Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
     Rotation2d[] modulesThetaVelMRobot = new Rotation2d[4];
@@ -47,8 +50,11 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Get a module's Y Acceleration component
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelYMetersPerSecondSquared(
-      SwerveModuleAcceleration[] moduleAccelerations,
-      SwerveModuleState[] moduleStates, Rotation2d[] modulethetaVel, double robotVel, Rotation2d robotThetaVel) {
+      SwerveModuleAcceleration[] moduleAccelerations, //done
+      SwerveModuleState[] moduleStates, //done
+      Rotation2d[] modulethetaVel, //done
+      double robotVel, //TO-DO
+      Rotation2d robotThetaVel) { //done
     SwerveModuleAcceleration[] moduleAccelsY = new SwerveModuleAcceleration[4];
     Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
     Rotation2d[] modulesThetaVelMRobot = new Rotation2d[4];
