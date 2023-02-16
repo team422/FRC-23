@@ -6,4 +6,6 @@ public interface OperatorControls {
   public default Trigger getExampleOperatorButton() {
     return new Trigger(() -> false);
   }
+
+  public Trigger partyButton();
 }
