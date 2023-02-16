@@ -29,6 +29,8 @@ public class FullSwerveBase extends SubsystemBase {
   // Swerve Drive Odometry with vision correction
   SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
   SwerveModuleAcceleration[] moduleAccelerations = new SwerveModuleAcceleration[4];
+  Rotation2d oldRobotTheta = new Rotation2d();
+  Rotation2d robotThetaVel = new Rotation2d();
   String m_swerveModuleNames[] = { "Left Front", "Right Front", "Left Rear", "Right Rear" };
   Double m_swerveModuleStopAngles[] = { 45.0, 135.0, -45.0, -135.0 };
 
@@ -38,7 +40,6 @@ public class FullSwerveBase extends SubsystemBase {
   int m_currentWheel = 0;
   Boolean m_singleWheelMode = false;
   double max_speed = 0;
-  double[] omegaRadiansPerSecond = { 0, 0, 0, 0 };
 
   public FullSwerveBase(SwerveModule[] swerveModules, Gyro gyro) {
     // Setting up all the modules
@@ -60,6 +61,10 @@ public class FullSwerveBase extends SubsystemBase {
     this.m_gyro = gyro;
     m_gyro.calibrate();
     m_gyro.reset();
+
+    //initializing robotThetaVel and oldRobotTheta
+    robotThetaVel = Rotation2d.fromDegrees(0);
+    oldRobotTheta = Rotation2d.fromDegrees(0);
 
     // odometry stuff
     // SwerveModulePositions[] modulePositions = new SwerveModulePositions[4];
@@ -98,17 +103,19 @@ public class FullSwerveBase extends SubsystemBase {
     /* 
     */
 
-    //Updates omegaRadiansPerSecond
-    // for (int i = 0; i < 4; i++) {
-    //   omegaRadiansPerSecond[i] = getSwerveStates()[i].angle.getDegrees() - omegaRadiansPerSecond[i];
-    // }
+    //Updates robotThetaVel and oldRobotTheta
+    robotThetaVel = getHeading().minus(oldRobotTheta);
+    oldRobotTheta = getHeading();
 
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition(m_swerveModules[i].getDriveDistanceMeters(),
           m_swerveModules[i].getTurnDegrees());
     }
 
+    //update moduleAccelerations
     moduleAccelerations = SwerveModuleAcceleration.calculateModuleAccels(getSwerveStates());
+    SwerveModuleAcceleration.updateStates(getSwerveStates());
+
     m_odometry.update(getGyroAngle(), modulePositions);
     // m_odometry.update(this.getHeading(), m_swerveModules[0].getState(), m_swerveModules[1].getState(),
     //         m_swerveModules[2].getState(), m_swerveModules[3].getState());
@@ -256,16 +263,12 @@ public class FullSwerveBase extends SubsystemBase {
   }
 
   public SwerveModuleAcceleration[] getSwerveAccelerations() {
-    return new SwerveModuleAcceleration[] {};
+    // SwerveModuleAcceleration[] newModuleAccels = new SwerveModuleAcceleration[getSwerveStates().length];
+    // newModuleAccels = SwerveModuleAcceleration.calculateModuleAccels(getSwerveStates());
+    // SwerveModuleAcceleration.updateStates(getSwerveStates());
+    // return newModuleAccels;
+    return moduleAccelerations;
   }
-
-  public double[] getModuleOmegas() {
-    return omegaRadiansPerSecond;
-  }
-
-  // public double[] getModuleAccels() {
-  //   return accelMetersPerSecondSquared;
-  // }
 
   public void resetPose(Pose2d pose) {
     m_odometry.resetPosition(getGyroAngle(), getSwervePositions(), pose);

@@ -56,9 +56,9 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
     return new SwerveModuleAcceleration(current.speedMetersPerSecond - previous.speedMetersPerSecond);
   }
 
-  // private void updateStates() {
-  //   states = FullSwerveBase.getSwerveStates();
-  // }
+  public static void updateStates(SwerveModuleState[] newStates) {
+    states = newStates;
+  }
 
   /**
    * Calculates the Module group's drive acceleration values
@@ -69,7 +69,6 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
     SwerveModuleAcceleration[] moduleAccels = new SwerveModuleAcceleration[current.length];
     for (int i = 0; i < current.length; i++) {
       moduleAccels[i] = calculate(current[i], states[i]);
-      //Note, there is currently no update function for states, if you want to add it please do as I was unable to do so.
     }
     return moduleAccels;
   }
