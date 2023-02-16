@@ -98,11 +98,11 @@ public class FullSwerveBase extends SubsystemBase {
     /* 
     */
 
-    //Updates accelMetersPerSecondSquaredSquared and omegaRadiansPerSecond
-    for (int i = 0; i < 4; i++) {
-      omegaRadiansPerSecond[i] = getSwerveStates()[i].angle.getDegrees() - omegaRadiansPerSecond[i];
-      accelMetersPerSecondSquared[i] = getSwerveStates()[0].speedMetersPerSecond - accelMetersPerSecondSquared[i];
-    }
+    // //Updates accelMetersPerSecondSquaredSquared and omegaRadiansPerSecond
+    // for (int i = 0; i < 4; i++) {
+    //   omegaRadiansPerSecond[i] = getSwerveStates()[i].angle.getDegrees() - omegaRadiansPerSecond[i];
+    //   accelMetersPerSecondSquared[i] = getSwerveStates()[0].speedMetersPerSecond - accelMetersPerSecondSquared[i];
+    // }
 
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition(m_swerveModules[i].getDriveDistanceMeters(),
@@ -254,13 +254,17 @@ public class FullSwerveBase extends SubsystemBase {
         m_swerveModules[2].getPosition(), m_swerveModules[3].getPosition() };
   }
 
-  public double[] getModuleOmegas() {
-    return omegaRadiansPerSecond;
+  public SwerveModuleAcceleration[] getSwerveAccelerations() {
+    return new SwerveModuleAcceleration[] {};
   }
 
-  public double[] getModuleAccels() {
-    return accelMetersPerSecondSquared;
-  }
+  // public double[] getModuleOmegas() {
+  //   return omegaRadiansPerSecond;
+  // }
+
+  // public double[] getModuleAccels() {
+  //   return accelMetersPerSecondSquared;
+  // }
 
   public void resetPose(Pose2d pose) {
     m_odometry.resetPosition(getGyroAngle(), getSwervePositions(), pose);
