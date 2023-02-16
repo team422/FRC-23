@@ -28,6 +28,7 @@ public class FullSwerveBase extends SubsystemBase {
   SwerveDrivePoseEstimator m_odometry;
   // Swerve Drive Odometry with vision correction
   SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+  SwerveModuleAcceleration[] moduleAccelerations = new SwerveModuleAcceleration[4];
   String m_swerveModuleNames[] = { "Left Front", "Right Front", "Left Rear", "Right Rear" };
   Double m_swerveModuleStopAngles[] = { 45.0, 135.0, -45.0, -135.0 };
 
@@ -37,7 +38,6 @@ public class FullSwerveBase extends SubsystemBase {
   int m_currentWheel = 0;
   Boolean m_singleWheelMode = false;
   double max_speed = 0;
-  double[] accelMetersPerSecondSquared = { 0, 0, 0, 0 };
   double[] omegaRadiansPerSecond = { 0, 0, 0, 0 };
 
   public FullSwerveBase(SwerveModule[] swerveModules, Gyro gyro) {
@@ -98,16 +98,17 @@ public class FullSwerveBase extends SubsystemBase {
     /* 
     */
 
-    // //Updates accelMetersPerSecondSquaredSquared and omegaRadiansPerSecond
+    //Updates omegaRadiansPerSecond
     // for (int i = 0; i < 4; i++) {
     //   omegaRadiansPerSecond[i] = getSwerveStates()[i].angle.getDegrees() - omegaRadiansPerSecond[i];
-    //   accelMetersPerSecondSquared[i] = getSwerveStates()[0].speedMetersPerSecond - accelMetersPerSecondSquared[i];
     // }
 
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition(m_swerveModules[i].getDriveDistanceMeters(),
           m_swerveModules[i].getTurnDegrees());
     }
+
+    moduleAccelerations = SwerveModuleAcceleration.calculateModuleAccels(getSwerveStates());
     m_odometry.update(getGyroAngle(), modulePositions);
     // m_odometry.update(this.getHeading(), m_swerveModules[0].getState(), m_swerveModules[1].getState(),
     //         m_swerveModules[2].getState(), m_swerveModules[3].getState());
@@ -258,9 +259,9 @@ public class FullSwerveBase extends SubsystemBase {
     return new SwerveModuleAcceleration[] {};
   }
 
-  // public double[] getModuleOmegas() {
-  //   return omegaRadiansPerSecond;
-  // }
+  public double[] getModuleOmegas() {
+    return omegaRadiansPerSecond;
+  }
 
   // public double[] getModuleAccels() {
   //   return accelMetersPerSecondSquared;

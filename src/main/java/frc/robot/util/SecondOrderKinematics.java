@@ -2,8 +2,11 @@ package frc.robot.util;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.SwerveModuleAcceleration;
 
 public class SecondOrderKinematics extends SwerveDriveKinematics {
 
@@ -13,33 +16,51 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   /**
   * Get a module's X Acceleration component
   */
-  public double getModulePositionAccelXMetersPerSecondSquared(double botVel,
-      double thetaMRobot,
-      double thetaVelMRobot) {
-
-    for (int i = 0; i < 0; i++) {
-
+  public SwerveModuleAcceleration[] calculateModulesPositionAccelXMetersPerSecondSquared(
+      SwerveModuleAcceleration[] moduleAccelerations,
+      SwerveModuleState[] moduleStates, Rotation2d[] modulethetaVel, double robotVel, Rotation2d robotThetaVel) {
+    SwerveModuleAcceleration[] moduleAccelsX = new SwerveModuleAcceleration[4];
+    Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
+    Rotation2d[] modulesThetaVelMRobot = new Rotation2d[4];
+    //Convert to robot-centered theta values
+    for (int i = 0; i < 4; i++) {
+      modulesThetaMRobot[i] = moduleStates[i].angle.minus(Rotation2d.fromDegrees(m_Gyro.getCompassHeading()));
+      modulesThetaVelMRobot[i] = modulethetaVel[i].minus(robotThetaVel);
     }
-    // double A_mx = getModuleAccelMatersPerSecondSquared() * Math.cos(thetaMRobot)
-    //     - botVel * thetaVelMRobot * Math.sin(thetaMRobot);
-    return 0;
+
+    for (int i = 0; i < 4; i++) {
+      moduleAccelsX[i] = new SwerveModuleAcceleration(
+          moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getCos())
+              - robotVel * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getSin());
+    }
+
+    // A_mx = getModuleAccelMatersPerSecondSquared() * Math.cos(thetaMRobot) - botVel * thetaVelMRobot * Math.sin(thetaMRobot);
+    return moduleAccelsX;
   }
 
   /**
   * Get a module's Y Acceleration component
   */
-  public double getModulePositionAccelYMetersPerSecondSquared() {
-
-    double[] moduleAccels = new double[4];
-    double[] modulePositionAccelY = { 0, 0, 0, 0 };
+  public SwerveModuleAcceleration[] calculateModulesPositionAccelYMetersPerSecondSquared(
+      SwerveModuleAcceleration[] moduleAccelerations,
+      SwerveModuleState[] moduleStates, Rotation2d[] modulethetaVel, double robotVel, Rotation2d robotThetaVel) {
+    SwerveModuleAcceleration[] moduleAccelsY = new SwerveModuleAcceleration[4];
+    Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
+    Rotation2d[] modulesThetaVelMRobot = new Rotation2d[4];
+    //Convert to robot-centered theta values
     for (int i = 0; i < 4; i++) {
-      // modulePositionAccelY[i] = FullSwerveBase.getModuleAccels()[i];
-      // moduleAccels[i] = FullSwerveBase.getModuleAccels()[i];
+      modulesThetaMRobot[i] = moduleStates[i].angle.minus(Rotation2d.fromDegrees(m_Gyro.getCompassHeading()));
+      modulesThetaVelMRobot[i] = modulethetaVel[i].minus(robotThetaVel);
     }
 
-    // double A_my = getModuleAccelMatersPerSecondSquared() * Math.sin(thetaMRobot)
-    //     + botVel * thetaVelMRobot * Math.cos(thetaMRobot);
-    return 0;
+    for (int i = 0; i < 4; i++) {
+      moduleAccelsY[i] = new SwerveModuleAcceleration(
+          moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getSin())
+              + robotVel * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getCos());
+    }
+
+    // A_my = getModuleAccelMatersPerSecondSquared() * Math.sin(thetaMRobot) + botVel * thetaVelMRobot * Math.cos(thetaMRobot);
+    return moduleAccelsY;
   }
 
 }
