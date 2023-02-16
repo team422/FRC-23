@@ -59,8 +59,7 @@ public class RobotContainer {
     //define controllers
     DriverControls driverControls = new DriverControls() {
     };
-    OperatorControls operatorControls = new XboxOperatorController(5) {
-    };
+    OperatorControls operatorControls = new XboxOperatorController(5);
 
     //define buttons
     driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
