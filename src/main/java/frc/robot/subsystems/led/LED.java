@@ -25,7 +25,7 @@ public class LED extends SubsystemBase {
   public void periodic() {
     //continiously sets the things can be replaced
     if (getPartyMode()) {
-      Rainbow();
+      SmoothRainbow();
       // CycleRainbow();
       // StrobeRainbow();
     } else {
@@ -66,12 +66,12 @@ public class LED extends SubsystemBase {
     m_LED_Strip.setData(m_LED_Strip_Buffer);
   }
 
-  private void Rainbow() {
+  private void SmoothRainbow() {
     // For every pixel
     for (var i = 0; i < m_LED_Strip_Buffer.getLength(); i++) {
       // Calculate the hue - hue is easier for rainbows because the color
       // shape is a circle so only one value needs to precess
-      final var hue = (m_rainbowFirstPixelHue + (i * 300 / m_LED_Strip_Buffer.getLength())) % 300; //larger range
+      final var hue = (m_rainbowFirstPixelHue + (i * 180 / m_LED_Strip_Buffer.getLength())) % 180; //larger range
       //final var hue = (m_rainbowFirstPixelHue + (i * 180 / m_LED_Strip_Buffer.getLength())) % 180; //cleaner loop
       // Set the value
       m_LED_Strip_Buffer.setHSV(i, hue, 255, 128);
@@ -87,7 +87,7 @@ public class LED extends SubsystemBase {
   /**
    * @param startHue the starting hue of the rainbow, default is 0 which is red
    */
-  public void Rainbow(int startHue) {
+  public void SmoothRainbow(int startHue) {
     m_rainbowFirstPixelHue = startHue;
     // For every pixel
     for (var i = 0; i < m_LED_Strip_Buffer.getLength(); i++) {
