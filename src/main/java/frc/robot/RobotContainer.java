@@ -24,7 +24,7 @@ import frc.robot.subsystems.drive.Drive;
 public class RobotContainer {
   // Subsystems
   private Drive m_drive;
-
+  public static RobotConstantsIO robotConstants;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
 
@@ -32,6 +32,17 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    switch (Constants.CURRENT_ROBOT) {
+      case MARK2:
+        robotConstants = new RobotConstantsIOMk2();
+        break;
+      case COMP23:
+        robotConstants = new RobotConstantsIOComp23();
+        break;
+      case Frank:
+        robotConstants = new RobotConstantsIOFrank();
+        break;
+    }
     configureSubsystems();
     configureButtonBindings();
   }

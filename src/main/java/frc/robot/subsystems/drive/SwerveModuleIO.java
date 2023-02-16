@@ -12,4 +12,5 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleIOInputs> {
     public double driveDistanceMeters;
     public double driveVelocityMetersPerSecond;
   }
+
 }
