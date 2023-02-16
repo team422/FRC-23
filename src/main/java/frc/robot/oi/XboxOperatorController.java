@@ -3,17 +3,17 @@ package frc.robot.oi;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class XboxOperatorController implements DriverControls, OperatorControls {
+public class XboxOperatorController implements OperatorControls {
 
-  private final CommandXboxController m_Controller;
+  private final CommandXboxController m_controller;
 
   public XboxOperatorController(int port) {
-    m_Controller = new CommandXboxController(port);
+    m_controller = new CommandXboxController(port);
   }
 
   @Override
   public Trigger partyButton() {
-    return m_Controller.rightBumper();
+    return m_controller.rightBumper();
   }
 
 }

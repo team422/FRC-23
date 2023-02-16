@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.PartyMode;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.OperatorControls;
 import frc.robot.oi.XboxOperatorController;
@@ -64,7 +63,7 @@ public class RobotContainer {
     //define buttons
     driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
     operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
-    operatorControls.partyButton().onTrue(new PartyMode(m_LED));
+    operatorControls.partyButton().onTrue(m_LED.togglePartyModeCommand());
   }
 
   /**
