@@ -182,7 +182,7 @@ public class GeometryUtil {
     Vector<N3> rxv = cross(r, v);
     Vector<N3> rxsvrxv = cross(r, sv.plus(rxv));
     double m = s * s + x * x + y * y + z * z;
-    var result = v.plus(rxsvrxv.times(2).div(m));
+    var result = v.plus(rxsvrxv.times(2 / m));
     return new Vector<>(result);
   }
 }
