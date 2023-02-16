@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.OperatorControls;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.gyro.GyroIOPigeon;
+import frc.robot.subsystems.gyro.GyroSub;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -24,6 +26,7 @@ import frc.robot.subsystems.drive.Drive;
 public class RobotContainer {
   // Subsystems
   private Drive m_drive;
+  private GyroSub m_gyro;
   public static RobotConstantsIO robotConstants;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -49,9 +52,10 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     if (Robot.isReal()) {
-      m_drive = new Drive();
+      m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
+      m_drive = new Drive(m_gyro, Constants.DriveConstants.startPose);
     } else {
-      m_drive = new Drive();
+      // m_drive = new Drive();
     }
   }
 

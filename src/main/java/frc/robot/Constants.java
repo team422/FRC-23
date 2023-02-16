@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -24,5 +28,24 @@ public final class Constants {
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
+  }
+
+  public static final class DriveConstants {
+    public static final double kWheelDiameter = Units.inchesToMeters(3.7);
+
+    public static final double kWheelBase = Units.inchesToMeters(23);
+    public static final double kTrackWidth = Units.inchesToMeters(23);
+    public static Translation2d[] kModuleTranslations = {
+        new Translation2d(kWheelBase / 2.0, kTrackWidth / 2.0), // front left
+        new Translation2d(kWheelBase / 2.0, -kTrackWidth / 2.0), // front right
+        new Translation2d(-kWheelBase / 2.0, kTrackWidth / 2.0), // rear left
+        new Translation2d(-kWheelBase / 2.0, -kTrackWidth / 2.0) // rear right
+    };
+    public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
+    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
+  }
+
+  public static final class Ports {
+    public static final int pigeonPort = 0;
   }
 }

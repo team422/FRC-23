@@ -168,6 +168,9 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   public RelativeEncoder getTurnEncoder() {
     return m_turningEncoder;
   }
+  public SwerveModulePosition getModulePosition() {
+    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getTurnDegrees());
+  }
 
   public double getAbsoluteEncoder() {
     return m_turningCANCoder.getAbsolutePosition();

@@ -4,8 +4,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.subsystems.wrist.WristIO.WristPosition;
-
 public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
   public CANSparkMax m_wristMotor;
   public RelativeEncoder m_wristEncoder;
