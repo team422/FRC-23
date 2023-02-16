@@ -15,11 +15,16 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
 
   /**
   * Get a module's X Acceleration component
+  * @param moduleAccelerations Accelerations of SwerveBase modules
+  * @param moduleStates SwerveModuleStates of the SwerveBase
+  * @param moduleThetaVel Theta Velocity of each module
+  * @param moduleVelocity Velocity of each module's drive motor
+  * @param robotThetaVel Theta Velocity of the robot
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelXMetersPerSecondSquared(
       SwerveModuleAcceleration[] moduleAccelerations, //done
       SwerveModuleState[] moduleStates, //done
-      Rotation2d[] modulethetaVel, //done
+      Rotation2d[] moduleThetaVel, //done
       double[] moduleVelocity, //will be done
       Rotation2d robotThetaVel) { //done
     SwerveModuleAcceleration[] moduleAccelsX = new SwerveModuleAcceleration[4];
@@ -29,7 +34,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     //Convert to robot-centered theta values
     for (int i = 0; i < 4; i++) {
       modulesThetaMRobot[i] = moduleStates[i].angle.minus(Rotation2d.fromDegrees(m_Gyro.getCompassHeading()));
-      modulesThetaVelMRobot[i] = modulethetaVel[i].minus(robotThetaVel);
+      modulesThetaVelMRobot[i] = moduleThetaVel[i].minus(robotThetaVel);
     }
 
     //Calcuate Module X Accels
@@ -48,11 +53,16 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
 
   /**
   * Get a module's Y Acceleration component
+  * @param moduleAccelerations Accelerations of SwerveBase modules
+  * @param moduleStates SwerveModuleStates of the SwerveBase
+  * @param moduleThetaVel Theta Velocity of each module
+  * @param moduleVelocity Velocity of each module's drive motor
+  * @param robotThetaVel Theta Velocity of the robot
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelYMetersPerSecondSquared(
       SwerveModuleAcceleration[] moduleAccelerations, //done
       SwerveModuleState[] moduleStates, //done
-      Rotation2d[] modulethetaVel, //done
+      Rotation2d[] moduleThetaVel, //done
       double[] moduleVelocity, //will be done
       Rotation2d robotThetaVel) { //done
     SwerveModuleAcceleration[] moduleAccelsY = new SwerveModuleAcceleration[4];
@@ -62,7 +72,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     //Convert to robot-centered theta values
     for (int i = 0; i < 4; i++) {
       modulesThetaMRobot[i] = moduleStates[i].angle.minus(Rotation2d.fromDegrees(m_Gyro.getCompassHeading()));
-      modulesThetaVelMRobot[i] = modulethetaVel[i].minus(robotThetaVel);
+      modulesThetaVelMRobot[i] = moduleThetaVel[i].minus(robotThetaVel);
     }
 
     //Calculate Module Y Accels
