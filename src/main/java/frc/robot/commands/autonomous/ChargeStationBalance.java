@@ -35,9 +35,10 @@ public class ChargeStationBalance extends CommandBase {
     var upVector = m_gyro.getUpVector();
 
     // This gets the angle of the robot in the XZ plane
+    // Calculates the angle between global up vector, and the up vector of the robot projected onto the XZ plane
     Rotation2d angle = new Rotation2d(upVector.get(2, 0), upVector.get(0, 0));
 
-    // Apply a deadband to the angle. Essentially telling the robot to stop moving as we approach level
+    // Apply a deadband to the angle. Essentially telling the robot to only move if the angle gets greater than the threshold
     double deadbandAngle = MathUtil.applyDeadband(angle.getRadians(), kLevelThreshold, kMaxIncline);
 
     // Calculate the speed based on the angle (bigger angle = bigger speed)
