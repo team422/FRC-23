@@ -33,7 +33,9 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
           moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getCos())
               - robotVel * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getSin());
     }
-
+    //Formulae used:
+    // thetaMRobot = thetaM - thetaRobot
+    // thetaVelMRobot = thetaVelM = thetaVelRobot
     // A_mx = getModuleAccelMatersPerSecondSquared() * Math.cos(thetaMRobot) - botVel * thetaVelMRobot * Math.sin(thetaMRobot);
     return moduleAccelsX;
   }
@@ -58,7 +60,9 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
           moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getSin())
               + robotVel * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getCos());
     }
-
+    //Formulae used:
+    // thetaMRobot = thetaM - thetaRobot
+    // thetaVelMRobot = thetaVelM = thetaVelRobot
     // A_my = getModuleAccelMatersPerSecondSquared() * Math.sin(thetaMRobot) + botVel * thetaVelMRobot * Math.cos(thetaMRobot);
     return moduleAccelsY;
   }
