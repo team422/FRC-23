@@ -20,7 +20,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
       SwerveModuleAcceleration[] moduleAccelerations, //done
       SwerveModuleState[] moduleStates, //done
       Rotation2d[] modulethetaVel, //done
-      double robotVel, //TO-DO
+      double[] moduleVelocity, //will be done
       Rotation2d robotThetaVel) { //done
     SwerveModuleAcceleration[] moduleAccelsX = new SwerveModuleAcceleration[4];
     Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
@@ -36,13 +36,13 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     for (int i = 0; i < 4; i++) {
       moduleAccelsX[i] = new SwerveModuleAcceleration(
           moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getCos())
-              - robotVel * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getSin());
+              - moduleVelocity[i] * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getSin());
     }
 
     //Formulae used:
     // thetaMRobot = thetaM - thetaRobot
     // thetaVelMRobot = thetaVelM = thetaVelRobot
-    // A_mx = getModuleAccelMatersPerSecondSquared() * Math.cos(thetaMRobot) - botVel * thetaVelMRobot * Math.sin(thetaMRobot);
+    // A_mx = getModuleAccelMatersPerSecondSquared() * Math.cos(thetaMRobot) - moduleVelocity * thetaVelMRobot * Math.sin(thetaMRobot);
     return moduleAccelsX;
   }
 
@@ -53,7 +53,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
       SwerveModuleAcceleration[] moduleAccelerations, //done
       SwerveModuleState[] moduleStates, //done
       Rotation2d[] modulethetaVel, //done
-      double robotVel, //TO-DO
+      double[] moduleVelocity, //will be done
       Rotation2d robotThetaVel) { //done
     SwerveModuleAcceleration[] moduleAccelsY = new SwerveModuleAcceleration[4];
     Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
@@ -69,13 +69,13 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     for (int i = 0; i < 4; i++) {
       moduleAccelsY[i] = new SwerveModuleAcceleration(
           moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getSin())
-              + robotVel * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getCos());
+              + moduleVelocity[i] * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getCos());
     }
 
     //Formulae used:
     // thetaMRobot = thetaM - thetaRobot
     // thetaVelMRobot = thetaVelM = thetaVelRobot
-    // A_my = getModuleAccelMatersPerSecondSquared() * Math.sin(thetaMRobot) + botVel * thetaVelMRobot * Math.cos(thetaMRobot);
+    // A_my = getModuleAccelMatersPerSecondSquared() * Math.sin(thetaMRobot) + moduleVelocity * thetaVelMRobot * Math.cos(thetaMRobot);
     return moduleAccelsY;
   }
 
