@@ -41,6 +41,11 @@ public class LED extends SubsystemBase {
     } else if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
       red();
     }
+    if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+      // blue(drive.getSpeed(), Constants.DriveConstants.maxSpeed);
+    } else if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
+      // red(drive.getSpeed(), Constants.DriveConstants.maxSpeed);
+    }
   }
 
   private void red() {
@@ -51,18 +56,44 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
 
-  private void green() {
+  /**
+   * @param val the value that you want to scale into an LED brightness ie. velocity
+   * @param maxVal the maximum value of that value ie. max velocity
+   */
+  private void red(double val, double maxVal) {
+    int brightness = (int) Math.round(val / maxVal * 128);
     for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
       // Sets the specified LED to the RGB values for red
-      m_LEDStripBuffer.setHSV(i, 240, 255, 128);
+      m_LEDStripBuffer.setHSV(i, 0, 255, brightness);
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
 
   private void blue() {
     for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
-      // Sets the specified LED to the RGB values for red
+      // Sets the specified LED to the RGB values for blue
       m_LEDStripBuffer.setHSV(i, 120, 255, 128);
+    }
+    m_LEDStrip.setData(m_LEDStripBuffer);
+  }
+
+  /**
+   * @param val the value that you want to scale into an LED brightness ie. velocity
+   * @param maxVal the maximum value of that value ie. max velocity
+   */
+  private void blue(double val, double maxVal) {
+    int brightness = (int) Math.round(val / maxVal * 128);
+    for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for blue
+      m_LEDStripBuffer.setHSV(i, 120, 255, brightness);
+    }
+    m_LEDStrip.setData(m_LEDStripBuffer);
+  }
+
+  private void green() {
+    for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for green
+      m_LEDStripBuffer.setHSV(i, 240, 255, 128);
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
@@ -85,7 +116,7 @@ public class LED extends SubsystemBase {
   /**
    * @param startHue the starting hue of the rainbow, default is 0 which is red
    */
-  public void smoothRainbow(int startHue) {
+  private void smoothRainbow(int startHue) {
     m_rainbowFirstPixelHue = startHue;
     // For every pixel
     for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
@@ -104,7 +135,7 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
 
-  public void cycleRainbow() {
+  private void cycleRainbow() {
     for (var i = 0; i < m_LEDStripBuffer.getLength(); i++) {
       m_LEDStripBuffer.setHSV(i, m_rainbowFirstPixelHue, 255, 128);
     }
@@ -114,7 +145,7 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
 
-  public void strobeRainbow() { //Warning Resource intensive
+  private void strobeRainbow() { //Warning Resource intensive
     int m_firstPixelHue = 0;
     for (var i = 0; i < m_LEDStripBuffer.getLength(); i++) {
       final var hue = (m_firstPixelHue + (i * 180 / m_LEDStripBuffer.getLength())) % 180;
@@ -126,6 +157,10 @@ public class LED extends SubsystemBase {
     }
     lastOn = !lastOn;
     m_LEDStrip.setData(m_LEDStripBuffer);
+  }
+
+  private void speedLED() {
+
   }
 
   public void togglePartyMode() {
