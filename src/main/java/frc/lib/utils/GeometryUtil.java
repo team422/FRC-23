@@ -171,6 +171,7 @@ public class GeometryUtil {
   }
 
   public static Vector<N3> rotateVector(Matrix<N3, N1> v, Quaternion q) {
+    // https://stackoverflow.com/a/58077034
     // v' = v + 2 * r x (s * v + r x v) / m
     double s = q.getW();
     double x = q.getX();
