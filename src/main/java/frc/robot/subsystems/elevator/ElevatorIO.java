@@ -11,5 +11,5 @@ public interface ElevatorIO extends LoggedIO<ElevatorInputs> {
     public double height;
   }
 
-  public void setHeight(double height);
+  public double getPosition();
 }

@@ -10,8 +10,8 @@ public interface IntakeIO extends LoggedIO<IntakeIO.IntakeIOInputs> {
     public double intakeSpeed;
   }
 
-  public void periodic();
+  public void setIntakeVoltage(double voltage);
 
-  public void setIntakeSpeed(double speed);
+  public double getIntakeSpeed();
 
 }

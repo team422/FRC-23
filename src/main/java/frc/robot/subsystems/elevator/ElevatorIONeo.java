@@ -26,29 +26,27 @@ public class ElevatorIONeo implements ElevatorIO {
 
     m_followerMotor.setInverted(true);
     m_followerMotor.follow(m_leaderMotor);
+    m_elevatorPIDController.setTolerance(0.3);
 
   }
 
-  public void execute() {
-    if (Math.abs(m_wantedHeight - m_leaderEncoder.getDistance()) > 0.3) {
-      double speed = m_elevatorPIDController.calculate(m_leaderEncoder.getDistance(), m_wantedHeight);
-      setElevatorSpeed(speed);
-    }
+  public double getPositionMeters() {
+    return m_leaderEncoder.getDistance();
   }
 
-  @Override
-  public void setHeight(double lengthInches) {
-    m_wantedHeight = lengthInches;
-
+  public void setVoltage(double voltage) {
+    m_leaderMotor.setVoltage(voltage);
   }
 
-  public void setElevatorSpeed(double speed) {
-    m_leaderMotor.set(speed);
+  public double getVelocityMetersPerSecond() {
+    return m_leaderEncoder.getRate();
   }
 
   @Override
   public void updateInputs(ElevatorInputs inputs) {
-    // TODO Auto-generated method stub
+    inputs.heightMeters = getPositionMeters();
+    inputs.outputVoltage = m_leaderMotor.getAppliedOutput();
+    inputs.velocityMetersPerSecond = getVelocityMetersPerSecond();
 
   }
 
