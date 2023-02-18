@@ -3,7 +3,6 @@ package frc.robot.subsystems.elevator;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
 
 public class ElevatorIONeo implements ElevatorIO {
@@ -12,10 +11,9 @@ public class ElevatorIONeo implements ElevatorIO {
   private final CANSparkMax m_followerMotor;
   private final Encoder m_leaderEncoder;
 
-  private final PIDController m_elevatorPIDController;
   // private final RelativeEncoder m_throughBoreEncoder;
 
-  public ElevatorIONeo(int leaderPort, int followerPort, PIDController elevatorPIDController,
+  public ElevatorIONeo(int leaderPort, int followerPort,
       int throughBoreEncoderPortA, int throughBoreEncoderPortB, double gearRatio, int encoderResolution) {
     m_leaderMotor = new CANSparkMax(leaderPort, MotorType.kBrushless);
     m_followerMotor = new CANSparkMax(followerPort, MotorType.kBrushless);
@@ -40,6 +38,10 @@ public class ElevatorIONeo implements ElevatorIO {
 
   public double getVelocityMetersPerSecond() {
     return m_leaderEncoder.getRate();
+  }
+
+  public void zeroHeight() {
+    m_leaderEncoder.reset();
   }
 
   @Override

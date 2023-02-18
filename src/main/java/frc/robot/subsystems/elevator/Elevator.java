@@ -33,12 +33,14 @@ public class Elevator extends SubsystemBase {
     Logger.getInstance().processInputs("Elevator", m_inputs);
     ;
     if (m_elevatorPIDController.atSetpoint() == false) {
-      double baseSpeed = m_elevatorFeedForward.calculate(m_inputs.velocityMetersPerSecond);
-      double speed = m_elevatorPIDController.calculate(m_io.getPositionMeters(), m_desiredHeight);
-      m_io.setVoltage(speed);
+      double baseVoltage = m_elevatorFeedForward.calculate(m_inputs.velocityMetersPerSecond);
+      double moveVoltage = m_elevatorPIDController.calculate(m_io.getPositionMeters(), m_desiredHeight);
+      if (baseVoltage + moveVoltage > 12) {
+        moveVoltage = 12 - baseVoltage;
+      }
+      m_io.setVoltage(baseVoltage + moveVoltage);
       // setElevatorSpeed(speed);
     }
-
   }
 
 }

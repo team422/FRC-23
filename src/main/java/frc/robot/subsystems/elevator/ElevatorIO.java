@@ -8,8 +8,15 @@ import frc.robot.subsystems.elevator.ElevatorIO.ElevatorInputs;
 public interface ElevatorIO extends LoggedIO<ElevatorInputs> {
   @AutoLog
   public static class ElevatorInputs {
-    public double height;
+    public double heightMeters;
+    public double outputVoltage;
+    public double temperature;
+    public double velocityMetersPerSecond;
+
   }
 
-  public double getPosition();
+  public double getPositionMeters();
+
+  public void setVoltage(double voltage);
+
 }

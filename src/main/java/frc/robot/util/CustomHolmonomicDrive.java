@@ -13,7 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.RobotContainer;
+import frc.robot.Constants;
 
 /**
  * This holonomic drive controller can be used to follow trajectories using a holonomic drivetrain
@@ -117,10 +117,10 @@ public class CustomHolmonomicDrive {
 
     // Return next output.
     // EricControls.addEricCurve(EricControls.addDeadzoneScaled(angleRef.get(), 0.1))
-    return ChassisSpeeds.fromFieldRelativeSpeeds(x * RobotContainer.robotConstants.kMaxSpeedMetersPerSecond,
-        y * RobotContainer.robotConstants.kMaxSpeedMetersPerSecond,
+    return ChassisSpeeds.fromFieldRelativeSpeeds(x * Constants.DriveConstants.kMaxSpeedMetersPerSecond,
+        y * Constants.DriveConstants.kMaxSpeedMetersPerSecond,
         angleRef.get()
-            * RobotContainer.robotConstants.kMaxAngularRotationsPerSecond,
+            * Constants.DriveConstants.kMaxAngularSpeedRadiansPerSecond,
         currentPose.getRotation());
   }
 }

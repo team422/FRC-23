@@ -4,13 +4,14 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
+
 public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
   public CANSparkMax m_wristMotor;
   public RelativeEncoder m_wristEncoder;
   public double m_currentDesiredAngle;
   public PIDController m_wristPIDController;
 
-  public WristIOThroughBoreSparkMaxAlternate(int wristMotorPort, int wristEncoderPortm, int wristEncoderCPR,
+  public WristIOThroughBoreSparkMaxAlternate(int wristMotorPort, int wristEncoderCPR,
       Double wristEncoderOffset, PIDController wristPIDController) {
     m_wristMotor = new CANSparkMax(wristMotorPort, CANSparkMax.MotorType.kBrushless);
     m_wristEncoder = m_wristMotor.getAlternateEncoder(wristEncoderCPR);

@@ -4,9 +4,9 @@ import org.littletonrobotics.junction.AutoLog;
 
 import frc.lib.advantagekit.LoggedIO;
 
-public interface IntakeIO extends LoggedIO<IntakeIO.IntakeIOInputs> {
+public interface IntakeIO extends LoggedIO<IntakeIO.IntakeInputs> {
   @AutoLog
-  public static class IntakeIOInputs {
+  public static class IntakeInputs {
     public double intakeSpeed;
   }
 

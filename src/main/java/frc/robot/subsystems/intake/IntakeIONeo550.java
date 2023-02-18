@@ -8,9 +8,10 @@ public class IntakeIONeo550 implements IntakeIO {
   private CANSparkMax m_intakeMotor;
   private RelativeEncoder m_intakeEncoder;
 
-  public IntakeIONeo550(int intakeMotorId) {
+  public IntakeIONeo550(int intakeMotorId, double gearRatio) {
     m_intakeMotor = new CANSparkMax(intakeMotorId, MotorType.kBrushless);
     m_intakeEncoder = m_intakeMotor.getEncoder();
+    m_intakeEncoder.setPositionConversionFactor(gearRatio);
 
   }
 
@@ -25,7 +26,7 @@ public class IntakeIONeo550 implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
+  public void updateInputs(IntakeInputs inputs) {
     inputs.intakeSpeed = m_intakeEncoder.getVelocity();
 
   }

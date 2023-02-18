@@ -14,9 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.util.TunableNumber;
 
 public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
@@ -44,12 +42,12 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   public static class ModuleConstants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
     public static final double kTurnPositionConversionFactor = 21.428;
-    public static final TunableNumber kDriveP = RobotContainer.robotConstants.kDriveP;
-    public static final TunableNumber kDriveI = RobotContainer.robotConstants.kDriveI;
-    public static final TunableNumber kDriveD = RobotContainer.robotConstants.kDriveD;
-    public static final TunableNumber kTurningP = RobotContainer.robotConstants.kTurningP;
-    public static final TunableNumber kTurningI = RobotContainer.robotConstants.kTurningI;
-    public static final TunableNumber kTurningD = RobotContainer.robotConstants.kTurningD;
+    public static final TunableNumber kDriveP = Constants.ModuleConstants.kDriveP;
+    public static final TunableNumber kDriveI = Constants.ModuleConstants.kDriveI;
+    public static final TunableNumber kDriveD = Constants.ModuleConstants.kDriveD;
+    public static final TunableNumber kTurningP = Constants.ModuleConstants.kTurningP;
+    public static final TunableNumber kTurningI = Constants.ModuleConstants.kTurningI;
+    public static final TunableNumber kTurningD = Constants.ModuleConstants.kTurningD;
     // public static final TunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
 
   }
@@ -77,16 +75,8 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
 
     m_turningCANCoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningCANCoder.configSensorDirection(false);
-    // m_turningCANCoder.setPosition(0);
 
     m_offset = offset;
-
-    // m_CANCoderOffset = Rotation2d.fromDegrees(turningCANCoderOffsetDegrees);
-    // Add smart dashboard items
-    // SmartDashboard.putNumber("Drive Offset " + turningCANCoderChannel, getAbsoluteRotation().getDegrees());
-
-    // m_driveMotor.setIdleMode(IdleMode.kBrake);
-    // m_turningMotor.setIdleMode(IdleMode.kCoast);
 
     m_driveMotor.setIdleMode(IdleMode.kCoast);
     m_turningMotor.setIdleMode(IdleMode.kBrake);
@@ -122,21 +112,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     m_driveController.setD(ModuleConstants.kDriveD.get());
   }
 
-  public void periodic() {
-    SmartDashboard.putNumber("Drive Velocity " + getName(), m_driveEncoder.getVelocity());
-    // SmartDashboard.putNumber("Drive Position " + getName(), m_driveEncoder.getPosition());
-    SmartDashboard.putNumber("Drive Expected Speed " + getName(), adjustedSpeed);
-
-    SmartDashboard.putNumber("Turn Expected Position " + getName(), m_turningDesiredPosition);
-    SmartDashboard.putNumber("Turn Position " + getName(), m_turningEncoder.getPosition());
-    if (ModuleConstants.kTurningP.hasChanged() || ModuleConstants.kTurningI.hasChanged()
-        || ModuleConstants.kTurningD.hasChanged()) {
-      m_turningController.setP(ModuleConstants.kTurningP.get());
-      m_turningController.setI(ModuleConstants.kTurningI.get());
-      m_turningController.setD(ModuleConstants.kTurningD.get());
-    }
-  }
-
   public String getName() {
     return name;
   }
@@ -147,13 +122,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
    * @return The current state of the module.
    */
   public SwerveModuleState getState() {
-    // getPosition() returns the number of cumulative rotations.
-    // Convert that to 0.0 to 1.0
-    // double m1 = m_turningEncoder.getPosition() % 360.0;
-    // double m2 = (m1 < 0) ? m1 + 360 : m1;
-
-    // double m2 = (this.getTurnDegrees() % 360 + 360) % 360;
-
     return new SwerveModuleState(m_driveEncoder.getVelocity(), this.getTurnDegrees());
   }
 
@@ -168,6 +136,7 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   public RelativeEncoder getTurnEncoder() {
     return m_turningEncoder;
   }
+
   public SwerveModulePosition getModulePosition() {
     return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getTurnDegrees());
   }
@@ -181,14 +150,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     return Rotation2d.fromDegrees(m_turningCANCoder.getAbsolutePosition());
   }
 
-  // public CANCoder getTurnCANcoder() {
-  //     return m_turningCANCoder;
-  // }
-
-  // public double getTurnCANcoderAngle() {
-  //     return m_turningCANCoder.getAbsolutePosition();
-  // }
-
   public Rotation2d adjustedAngle = new Rotation2d();
 
   /**
@@ -197,24 +158,9 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
    * @param state Desired state with speed (in meters per second?) and angle (in
    *              degrees).
    */
+  @Override
   public void setDesiredState(SwerveModuleState state) {
-
-    Rotation2d curAngle = this.getTurnDegrees();
-
-    // double delta = deltaAdjustedAngle((state.angle.getDegrees()) % 360, curAngle.getDegrees());
-
-    // // Calculate the drive motor output from the drive PID controller.
     double driveOutput = state.speedMetersPerSecond;
-
-    // if (Math.abs(delta) > 90) {
-    //     driveOutput *= -1;
-    //     delta -= Math.signum(delta) * 180;
-    // }
-
-    // adjustedAngle = Rotation2d.fromDegrees(delta + curAngle.getDegrees());
-    // if (Math.abs(curAngle.getDegrees() - state.angle.getDegrees()) < 45) {
-    //     state.angle = curAngle;
-    // }
     m_turningController.setReference(
         state.angle.getDegrees(),
         ControlType.kPosition);
@@ -223,14 +169,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     // SmartDashboard.putNumber("Desired Angle " + this.getName(), adjustedAngle.getDegrees());
 
     adjustedSpeed = driveOutput;
-    // System.out.println(adjustedSpeed);
-    // if (Math.abs(m_driveEncoder.getVelocity() - driveOutput) > 0.25) {
-    //   adjustedSpeed = Math.max(Math.min(m_driveEncoder.getVelocity() - driveOutput, 0.25), -0.25)
-    //       + m_driveEncoder.getVelocity();
-    //   System.out
-    //       .println("slip detected" + adjustedSpeed + " " + driveOutput + " " + m_driveEncoder.getVelocity());
-    // }
-    // System.out.println(adjustedSpeed);
     m_driveController.setReference(driveOutput, ControlType.kVelocity, 0,
         adjustedSpeed);
     if (Constants.tuningMode) {
@@ -246,34 +184,9 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     m_drivingDesiredSpeed = adjustedSpeed;
   }
 
-  public void setOpenLoopState(SwerveModuleState state) {
-    Rotation2d curAngle = this.getTurnDegrees();
-
-    // double delta = deltaAdjustedAngle(state.angle.getDegrees(), curAngle.getDegrees());
-
-    // // Calculate the drive motor output from the drive PID controller.
-    // double driveOutput = state.speedMetersPerSecond;
-
-    // if (Math.abs(delta) > 90) {
-    //     driveOutput *= -1;
-    //     delta -= Math.signum(delta) * 180;
-    // }
-
-    // adjustedAngle = Rotation2d.fromDegrees(delta + curAngle.getDegrees());
-
-    // m_turningController.setReference(
-    //         adjustedAngle.getDegrees(),
-    //         ControlType.kPosition);
-
-    // SmartDashboard.putNumber("Commanded Velocity", driveOutput);
-
-    // m_driveMotor.setVoltage(Constants.ModuleConstants.kDriveFF * driveOutput);
-  }
-
   //calculate the angle motor setpoint based on the desired angle and the current angle measurement
   // Arguments are in radians.
   public double deltaAdjustedAngle(double targetAngle, double currentAngle) {
-    // return targetAngle;
     return ((targetAngle - currentAngle + 180) % 360 + 360) % 360 - 180;
   }
 
@@ -285,24 +198,13 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     m_driveEncoder.setPosition(0.0);
   }
 
-  public void syncTurningEncoders() {
-    // System.out.println("SYNCING");
-    // System.out.println("absolute position: " + m_turningCANCoder.getAbsolutePosition());
-    // System.out.println("get correct degree " + getTurnDegrees());
-    // System.out.println("m_turningCANCoder.getAbsolutePosition() - m_offset:"
-    //         + (getAbsoluteRotation().getDegrees() - m_offset));
-    // m_turningEncoder.setPosition(getAbsoluteRotation().getDegrees() - m_offset);
-
-    // System.out.println("absolute position: " + m_turningCANCoder.getAbsolutePosition());
-    // System.out.println("get correct degree " + getTurnDegrees());
+  @Override
+  public void syncTurningEncoder() {
     m_turningEncoder.setPosition(getAbsoluteRotation().getDegrees());
   }
 
-  public void DONTUSETHISRESETTURNINGENCODER() {
-    m_turningEncoder.setPosition(0);
-  }
-
   /** Zeros all the SwerveModule encoders. */
+  @Override
   public void resetEncoders() {
     // Reset the cumulative rotation counts of the SparkMax motors
     m_turningEncoder.setPosition(0.0);
@@ -316,6 +218,7 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     return m_driveEncoder.getVelocity();
   }
 
+  @Override
   public Rotation2d getTurnDegrees() {
     double angle = Units.degreesToRadians(m_turningEncoder.getPosition());
     return new Rotation2d(MathUtil.angleModulus(angle));

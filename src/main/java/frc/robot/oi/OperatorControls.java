@@ -1,9 +1,10 @@
 package frc.robot.oi;
 
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+public class OperatorControls {
+  public OperatorControlsIO m_io;
 
-public interface OperatorControls {
-  public default Trigger getExampleOperatorButton() {
-    return new Trigger(() -> false);
+  public OperatorControls(OperatorControlsIO io) {
+    m_io = io;
   }
+
 }

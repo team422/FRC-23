@@ -1,9 +1,22 @@
 package frc.robot.oi;
 
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+public class DriverControls {
+  public DriverControlsIO m_io;
 
-public interface DriverControls {
-  public default Trigger getExampleDriverButton() {
-    return new Trigger(() -> false);
+  public DriverControls(DriverControlsIO io) {
+    m_io = io;
   }
+
+  public double getDriveX() {
+    return m_io.getDriveX();
+  }
+
+  public double getDriveY() {
+    return m_io.getDriveY();
+  }
+
+  public double getDriveZ() {
+    return m_io.getDriveZ();
+  }
+
 }
