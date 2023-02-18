@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.elevator.ElevatorIO.ElevatorInputs;
 
@@ -24,4 +25,7 @@ public class Elevator extends SubsystemBase {
     m_io.setHeight(height);
   }
 
+  public Command toHeight(double inchesHeight) {
+    return runOnce(() -> setHeight(inchesHeight));
+  }
 }
