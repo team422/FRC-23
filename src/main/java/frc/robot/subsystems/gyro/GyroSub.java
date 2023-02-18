@@ -17,4 +17,8 @@ public class GyroSub extends SubsystemBase {
   public Rotation2d getAngle() {
     return m_io.getAngle();
   }
+
+  public Rotation2d getPitch() {
+    return new Rotation2d();
+  }
 }
