@@ -47,7 +47,7 @@ public class ChargeStationBalance extends CommandBase {
     // Prevent the calculated speed from exceeding the max speed
     xSpeed = MathUtil.clamp(xSpeed, -kMaxBalanceSpeed, kMaxBalanceSpeed);
 
-    var outputSpeeds = new ChassisSpeeds(xSpeed, 0, 0);
+    var outputSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, 0, 0, m_drive.getPose().getRotation());
 
     m_drive.drive(outputSpeeds);
   }
