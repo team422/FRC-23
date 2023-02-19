@@ -60,6 +60,10 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
     states = newStates;
   }
 
+  public double getAccel() {
+    return accelMetersPerSecondSquared;
+  }
+
   /**
    * Calculates the Module group's drive acceleration values
    * 

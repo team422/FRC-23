@@ -9,6 +9,11 @@ import frc.robot.Constants.DriveConstants;
 
 public class SecondOrderKinematics extends SwerveDriveKinematics {
 
+  SwerveModuleState[] oldModuleStates = new SwerveModuleState[4];
+  SwerveModuleAcceleration[] oldModuleAccelerationsX = new SwerveModuleAcceleration[4];
+  SwerveModuleAcceleration[] oldModuleAccelerationsY = new SwerveModuleAcceleration[4];
+  Rotation2d[] oldModuleTheta = new Rotation2d[4];
+
   WPI_Pigeon2 m_Gyro = new WPI_Pigeon2(DriveConstants.kGyroPort);
   Pigeon2Accelerometer m_Accelerometer = new Pigeon2Accelerometer(m_Gyro);
 
@@ -88,8 +93,40 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     return moduleAccelsY;
   }
 
-  //calc integral of accel
-  //curr chassis speeds, 
-  //convert to pose 
+  //calc integral of accelXY and thetaVel
 
+  public SwerveModuleState[] getVelXYFromAccelXY(SwerveModuleAcceleration[] moduleAccelerations,
+      SwerveModuleState[] moduleStates,
+      Rotation2d[] moduleThetaVel,
+      double[] moduleVelocity,
+      Rotation2d robotThetaVel) {
+
+    //init values
+    SwerveModuleState[] velXYfromAccelXY = new SwerveModuleState[4];
+    SwerveModuleAcceleration[] accelX = calculateModulesPositionAccelXMetersPerSecondSquared(moduleAccelerations,
+        moduleStates, moduleThetaVel, moduleVelocity, robotThetaVel);
+    SwerveModuleAcceleration[] accelY = calculateModulesPositionAccelYMetersPerSecondSquared(moduleAccelerations,
+        moduleStates, moduleThetaVel, moduleVelocity, robotThetaVel);
+    double[] velXFromAccel = new double[4];
+    double[] velYFromAccel = new double[4];
+    Rotation2d[] thetaFromAccel = new Rotation2d[4];
+    //Create and set velX, velY, and theta from moduleaccels and modulethetavels
+    for (int i = 0; i < 4; i++) {
+      velXFromAccel[i] = (accelX[i].getAccel() - oldModuleAccelerationsX[i].getAccel()) * 0.01
+          + oldModuleStates[i].speedMetersPerSecond;
+      velYFromAccel[i] = (accelY[i].getAccel() - oldModuleAccelerationsY[i].getAccel()) * 0.01
+          + oldModuleStates[i].speedMetersPerSecond;
+      thetaFromAccel[i] = Rotation2d
+          .fromDegrees((moduleThetaVel[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * 0.01
+              + oldModuleStates[i].angle.getDegrees());
+    }
+    //Create ModuleStates from velx, velY, and Theta
+    for (int i = 0; i < 4; i++) {
+      double velXY = Math.sqrt(velXFromAccel[i] * velXFromAccel[i] + velYFromAccel[i] * velYFromAccel[i]);
+      velXYfromAccelXY[i] = new SwerveModuleState(velXY, thetaFromAccel[i]);
+    }
+    return velXYfromAccelXY;
+  }
+
+  //method to convert to pose2d??
 }
