@@ -112,12 +112,12 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     Rotation2d[] thetaFromAccel = new Rotation2d[4];
     //Create and set velX, velY, and theta from moduleaccels and modulethetavels
     for (int i = 0; i < 4; i++) {
-      velXFromAccel[i] = (accelX[i].getAccel() - oldModuleAccelerationsX[i].getAccel()) * 0.01
+      velXFromAccel[i] = (accelX[i].getAccel() - oldModuleAccelerationsX[i].getAccel()) * 0.01 //dt times 1/2 to get average and then multiply by height
           + oldModuleStates[i].speedMetersPerSecond;
-      velYFromAccel[i] = (accelY[i].getAccel() - oldModuleAccelerationsY[i].getAccel()) * 0.01
+      velYFromAccel[i] = (accelY[i].getAccel() - oldModuleAccelerationsY[i].getAccel()) * 0.01 //dt times 1/2 to get average and then multiply by height
           + oldModuleStates[i].speedMetersPerSecond;
       thetaFromAccel[i] = Rotation2d
-          .fromDegrees((moduleThetaVel[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * 0.01
+          .fromDegrees((moduleThetaVel[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * 0.01 //dt times 1/2 to get average and then multiply by height
               + oldModuleStates[i].angle.getDegrees());
     }
     //Create ModuleStates from velx, velY, and Theta
