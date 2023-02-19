@@ -93,8 +93,14 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     return moduleAccelsY;
   }
 
-  //calc integral of accelXY and thetaVel
-
+  /**
+  * Calculates integral of accelXY and thetaVel, returns SwerveModuleState[]
+  * @param moduleAccelerations Accelerations of SwerveBase modules
+  * @param moduleStates SwerveModuleStates of the SwerveBase
+  * @param moduleThetaVel Theta Velocity of each module
+  * @param moduleVelocity Velocity of each module's drive motor
+  * @param robotThetaVel Theta Velocity of the robot
+  */
   public SwerveModuleState[] getVelXYFromAccelXY(SwerveModuleAcceleration[] moduleAccelerations,
       SwerveModuleState[] moduleStates,
       Rotation2d[] moduleThetaVel,
