@@ -89,4 +89,8 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     return moduleAccelsY;
   }
 
+  //calc integral of accel
+  //curr chassis speeds, 
+  //convert to pose
+
 }
