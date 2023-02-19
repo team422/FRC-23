@@ -12,9 +12,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.OperatorControls;
+import frc.robot.oi.XboxOperatorControls;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.gyro.GyroIOPigeon;
 import frc.robot.subsystems.gyro.GyroSub;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOThroughBoreSparkMaxAlternate;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -28,6 +31,7 @@ public class RobotContainer {
   private Drive m_drive;
   private GyroSub m_gyro;
   public static RobotConstantsIO robotConstants;
+  private Wrist m_wrist;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
 
@@ -54,6 +58,8 @@ public class RobotContainer {
     if (Robot.isReal()) {
       m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
       m_drive = new Drive(m_gyro, Constants.DriveConstants.startPose);
+      m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(0, 0, 0, null, null));
+      //no idea what vals need to be for wrist so left them blank lmao
     } else {
       // m_drive = new Drive();
     }
@@ -68,11 +74,13 @@ public class RobotContainer {
   private void configureButtonBindings() {
     DriverControls driverControls = new DriverControls() {
     };
-    OperatorControls operatorControls = new OperatorControls() {
-    };
+    OperatorControls operatorControls = new XboxOperatorControls(1) {
+    }; //placeholder port number
 
     driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
     operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
+    operatorControls.wristUpButton().onTrue(m_wrist.setWrist(true));
+    operatorControls.wristDownButton().onTrue(m_wrist.setWrist(false));
   }
 
   /**
