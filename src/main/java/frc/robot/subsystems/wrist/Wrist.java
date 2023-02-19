@@ -1,5 +1,6 @@
 package frc.robot.subsystems.wrist;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.wrist.WristIO.WristInput;
 
@@ -22,6 +23,13 @@ public class Wrist extends SubsystemBase {
 
   public void setWristAngle(double angle) {
     m_io.setWristAngle(angle);
+  }
+
+  public Command setWrist(boolean isUp) {
+    if (isUp) {
+      return runOnce(() -> this.setWristAngle(90));
+    }
+    return runOnce(() -> this.setWristAngle(270));
   }
 
 }
