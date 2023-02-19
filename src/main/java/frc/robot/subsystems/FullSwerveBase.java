@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.util.FieldUtil;
+import frc.robot.util.SwerveModuleAcceleration;
 
 public class FullSwerveBase extends SubsystemBase {
   /**
