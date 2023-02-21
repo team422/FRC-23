@@ -6,15 +6,26 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.Ports;
+import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsIO;
 import frc.robot.oi.DriverControlsIOFlightStick;
 import frc.robot.oi.OperatorControls;
+import frc.robot.oi.OperatorControlsIOXbox;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModuleIOmk4ineo;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
 import frc.robot.subsystems.gyro.GyroIOPigeon;
@@ -42,8 +53,10 @@ public class RobotContainer {
   private Vision m_limelight;
   private Vision m_frontCamera;
   private Vision m_backCamera;
-  private Wrist m_wrist;
-  private Elevator m_elevator;
+  private static Wrist m_wrist;
+  private static Elevator m_elevator;
+  private CANSparkMax m_throughboreSparkMaxIntakeMotor;
+  private static RobotState m_robotState;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -59,9 +72,28 @@ public class RobotContainer {
   private void configureSubsystems() {
     if (Robot.isReal()) {
       m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
-      m_drive = new Drive(m_gyro, Constants.DriveConstants.startPose);
+      SwerveModuleIO[] m_swerveModuleIOs = {
+          new SwerveModuleIOmk4ineo(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
+              Ports.leftFrontCanCoderPort, 0),
+          new SwerveModuleIOmk4ineo(Constants.Ports.rightFrontDriveMotorPort, Ports.rightFrontTurningMotorPort,
+              Ports.rightFrontCanCoderPort, 0),
+          new SwerveModuleIOmk4ineo(Constants.Ports.leftRearDriveMotorPort, Ports.leftRearTurningMotorPort,
+              Ports.leftRearCanCoderPort, 0),
+          new SwerveModuleIOmk4ineo(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
+              Ports.rightRearCanCoderPort, 0) };
+      m_drive = new Drive(m_gyro, Constants.DriveConstants.startPose, m_swerveModuleIOs);
+      m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
+
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 500);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 500);
+
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 20);
+      m_throughboreSparkMaxIntakeMotor.burnFlash();
       m_intake = new Intake(
-          new IntakeIONeo550(Constants.Ports.intakeMotorPort, Constants.IntakeConstants.intakeGearRatio),
+          new IntakeIONeo550(m_throughboreSparkMaxIntakeMotor, Constants.IntakeConstants.intakeGearRatio),
           Constants.IntakeConstants.intakePIDController);
       m_limelight = new Vision(new VisionIOLimelight(Constants.VisionConstants.klimelightName,
           Constants.VisionConstants.kAprilTagPipelineIndex, Constants.VisionConstants.kReflectiveTapePipelineIndex),
@@ -71,12 +103,20 @@ public class RobotContainer {
       m_backCamera = new Vision(new VisionIOCamera(Constants.VisionConstants.kbackCameraName),
           Constants.VisionConstants.kbackCameraTransform, m_drive);
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
-          Constants.WristConstants.wristEncoderCPR, 0.0, Constants.WristConstants.wristPIDController));
+          Constants.WristConstants.wristEncoderCPR,
+          m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
+          253.91),
+          Constants.WristConstants.wristPIDController,
+          Constants.WristConstants.wristFeedForward);
       m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
-          Constants.Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
-          Constants.Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.elevatorGearRatio,
-          Constants.ElevatorConstants.elevatorEncoderCPR));
+          Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
+          Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.elevatorGearRatio,
+          Constants.ElevatorConstants.elevatorEncoderCPR), Constants.ElevatorConstants.elevatorPIDController,
+          Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.elevatorOffsetMeters,
+          Constants.ElevatorConstants.elevatorMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
+      m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
     } else {
       // m_drive = new Drive();
     }
@@ -89,13 +129,67 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    DriverControlsIO driverControls = new DriverControls(new DriverControlsIOFlightStick(
-        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort));
-    OperatorControls operatorControls = new OperatorControls() {
-    };
+    DriverControls driverControls = new DriverControlsIOFlightStick(
+        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
 
-    driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
-    operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
+    OperatorControls operatorControls = new OperatorControlsIOXbox(5);
+
+    Command pickUpConeVerticalCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(18.5)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-6)));
+
+    Command pickUpCubeGround = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(0)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(23.5)));
+    Command pickUpConeGroundCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(0)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-22.5)));
+
+    Command intakeFromLoadingStation = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(8.2)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(135)));
+    Command coneMidCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(45)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-2)));
+    Command coneHighCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(47)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(21)));
+
+    Command cubeMidCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(35)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(35)));
+    Command cubeHighCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Units.inchesToMeters(50)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(50)));
+
+    TeloepDrive teleopDrive = new TeloepDrive(m_drive,
+        () -> driverControls.getDriveX(),
+        () -> driverControls.getDriveY(),
+        () -> driverControls.getDriveZ(),
+        Constants.DriveConstants.kDriveDeadband);
+
+    operatorControls.setpointMidCone().onTrue(coneMidCommand);
+    operatorControls.setpointHighCone().onTrue(coneHighCommand);
+    operatorControls.setpointMidCube().onTrue(cubeMidCommand);
+    operatorControls.setpointHighCube().onTrue(cubeHighCommand);
+    operatorControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
+    operatorControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
+
+    operatorControls.setpointIntakeGroundCube().onTrue(pickUpCubeGround);
+
+    operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStation);
+
+    m_drive.setDefaultCommand(teleopDrive);
+    driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtSpeed(11));
+    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtSpeed(-11));
+
+    operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
+    operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
+  }
+
+  public void onEnabled() {
+    m_wrist.reset();
+    m_elevator.reset();
   }
 
   /**

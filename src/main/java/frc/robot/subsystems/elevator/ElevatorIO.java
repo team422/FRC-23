@@ -12,11 +12,13 @@ public interface ElevatorIO extends LoggedIO<ElevatorInputs> {
     public double outputVoltage;
     public double temperature;
     public double velocityMetersPerSecond;
-
+    public double setVoltage;
   }
 
   public double getPositionMeters();
 
   public void setVoltage(double voltage);
+
+  public void zeroHeight();
 
 }

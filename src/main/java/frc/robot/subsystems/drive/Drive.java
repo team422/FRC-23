@@ -30,7 +30,9 @@ public class Drive extends SubsystemBase {
     for (SwerveModuleIO module : m_modules) {
       module.resetDistance();
       module.syncTurningEncoder();
+      // module.resetEncoders();
     }
+
     m_inputs = new SwerveModuleInputsAutoLogged[modules.length];
     for (int i = 0; i < m_inputs.length; i++) {
       m_inputs[i] = new SwerveModuleInputsAutoLogged();
@@ -45,6 +47,7 @@ public class Drive extends SubsystemBase {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
     }
+    m_odometry.update(m_gyro.getAngle(), getSwerveModulePositions());
   }
 
   public SwerveModulePosition[] getSwerveModulePositions() {
@@ -60,14 +63,15 @@ public class Drive extends SubsystemBase {
     // Set chassis speeds
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveModuleState[] moduleStatesFinal = new SwerveModuleState[4];
-    if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
-      this.brake();
-    } else {
-      for (int i = 0; i < 4; i++) {
-        moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getTurnDegrees());
-      }
-      setModuleStates(moduleStatesFinal);
+    // if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
+    //   this.brake();
+    // } else {
+    for (int i = 0; i < 4; i++) {
+      moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getTurnDegrees());
     }
+    setModuleStates(moduleStatesFinal);
+    // }
+
   }
 
   public void setModuleStates(SwerveModuleState[] moduleStates) {
@@ -83,7 +87,7 @@ public class Drive extends SubsystemBase {
 
   public void brake() {
     // Set chassis speeds to 0
-    this.drive(new ChassisSpeeds(0, 0, 0));
+    // setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0)));
   }
 
   public void addVisionOdometryMeasurement(Pose3d pose, double timestampSeconds) {

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -39,11 +40,14 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(0.1, 0, 0,
-        new Constraints(.5, .2));
-    public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(0.1, 0.1, 0.1);
-    public static final double elevatorGearRatio = 1.0;
-    public static final int elevatorEncoderCPR = 4096;
+    public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(0.0, 0.28, 0.0);
+    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(12.5, 0.1, 0,
+        new Constraints(30, 6));
+    public static final double elevatorGearRatio = 2.256 * Math.PI;
+    public static final int elevatorEncoderCPR = 2048;
+    public static final double elevatorMaxHeightMeters = Units.inchesToMeters(48);// max is 53.87
+    public static final double elevatorOffsetMeters = Units.inchesToMeters(6.566);
+    public static final Rotation2d elevatorAngleFromGround = Rotation2d.fromDegrees(56);
   }
 
   public static final class IntakeConstants {
@@ -67,7 +71,7 @@ public final class Constants {
     };
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
-    public static final double kMaxSpeedMetersPerSecond = 0.5;
+    public static final double kMaxSpeedMetersPerSecond = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = 0.005 * Math.PI;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 0.000005 * Math.PI;
   }
@@ -78,7 +82,7 @@ public final class Constants {
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.10);
+    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
     public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
     public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
 
@@ -94,13 +98,25 @@ public final class Constants {
 
   public static final class Ports {
     public static final int pigeonPort = 23;
-    public static final int intakeMotorPort = 0;
-    public static final int wristMotorPort = 0;
-    public static final int wristThroughborePort = 0;
-    public static final int elevatorLeaderMotorPort = 0;
-    public static final int elevatorFollowerMotorPort = 0;
-    public static final int elevatorThroughBoreEncoderPortA = 0;
+    public static final int intakeMotorPort = 4;
+    public static final int wristMotorPort = 5;
+    public static final int wristThroughborePort = 4;
+    public static final int elevatorLeaderMotorPort = 1;
+    public static final int elevatorFollowerMotorPort = 2;
+    public static final int elevatorThroughBoreEncoderPortA = 1;
     public static final int elevatorThroughBoreEncoderPortB = 0;
+    public static final int rightFrontDriveMotorPort = 12;
+    public static final int rightFrontTurningMotorPort = 3;
+    public static final int leftFrontDrivingMotorPort = 11;
+    public static final int leftFrontTurningMotorPort = 6;
+    public static final int rightRearDriveMotorPort = 8;
+    public static final int rightRearTurningMotorPort = 10;
+    public static final int leftRearDriveMotorPort = 9;
+    public static final int leftRearTurningMotorPort = 7;
+    public static final int leftFrontCanCoderPort = 17;
+    public static final int rightFrontCanCoderPort = 16;
+    public static final int leftRearCanCoderPort = 18;
+    public static final int rightRearCanCoderPort = 15;
   }
 
   public static final class VisionConstants {
@@ -120,8 +136,11 @@ public final class Constants {
 
   public static final class WristConstants {
     public static final int wristEncoderCPR = 4096; // Counts per revolution
-    public static final PIDController wristPIDController = new PIDController(0.0001, 0, 0);
-
+    public static final ArmFeedforward wristFeedForward = new ArmFeedforward(0.05, 0.45, 0.05);
+    public static final ProfiledPIDController wristPIDController = new ProfiledPIDController(6.5, 0, 0.1,
+        new Constraints(Units.degreesToRadians(720), Units.degreesToRadians(720)));
+    // public static final PIDController wirstPIDController = new PIDController(5, 0, 0);
+    public static final double wristLengthMeters = Units.inchesToMeters(3);
   }
 
   public static final class OIConstants {

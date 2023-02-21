@@ -1,31 +1,35 @@
 package frc.robot.subsystems.elevator;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 
 public class ElevatorIONeo implements ElevatorIO {
-  private double m_wantedHeight;
   private final CANSparkMax m_leaderMotor;
   private final CANSparkMax m_followerMotor;
   private final Encoder m_leaderEncoder;
+  private double setVoltage = 0.0;
 
   // private final RelativeEncoder m_throughBoreEncoder;
 
   public ElevatorIONeo(int leaderPort, int followerPort,
       int throughBoreEncoderPortA, int throughBoreEncoderPortB, double gearRatio, int encoderResolution) {
     m_leaderMotor = new CANSparkMax(leaderPort, MotorType.kBrushless);
-    m_followerMotor = new CANSparkMax(followerPort, MotorType.kBrushless);
-    m_elevatorPIDController = elevatorPIDController;
-    m_leaderEncoder = new Encoder(throughBoreEncoderPortA, throughBoreEncoderPortB, false);
-    m_leaderEncoder.setDistancePerPulse(gearRatio / encoderResolution);
-    m_leaderEncoder.setMinRate(20);
+    m_leaderMotor.setIdleMode(IdleMode.kBrake);
 
+    m_followerMotor = new CANSparkMax(followerPort, MotorType.kBrushless);
+    m_followerMotor.setIdleMode(IdleMode.kBrake);
+    m_leaderEncoder = new Encoder(throughBoreEncoderPortA, throughBoreEncoderPortB, false);
+
+    m_leaderEncoder.setDistancePerPulse(Units.inchesToMeters(gearRatio / encoderResolution));
+
+    m_leaderMotor.setInverted(true);
     m_followerMotor.setInverted(true);
     m_followerMotor.follow(m_leaderMotor);
-    m_elevatorPIDController.setTolerance(0.3);
-
   }
 
   public double getPositionMeters() {
@@ -33,6 +37,7 @@ public class ElevatorIONeo implements ElevatorIO {
   }
 
   public void setVoltage(double voltage) {
+    voltage = MathUtil.clamp(voltage, -12.0, 12.0);
     m_leaderMotor.setVoltage(voltage);
   }
 
@@ -47,9 +52,9 @@ public class ElevatorIONeo implements ElevatorIO {
   @Override
   public void updateInputs(ElevatorInputs inputs) {
     inputs.heightMeters = getPositionMeters();
-    inputs.outputVoltage = m_leaderMotor.getAppliedOutput();
+    inputs.outputVoltage = m_leaderMotor.getBusVoltage();
+    inputs.setVoltage = setVoltage;
     inputs.velocityMetersPerSecond = getVelocityMetersPerSecond();
-
   }
 
 }

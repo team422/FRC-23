@@ -62,6 +62,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
+    robotContainer.onEnabled();
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -85,6 +86,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    robotContainer.onEnabled();
   }
 
   /** This function is called periodically during operator control. */

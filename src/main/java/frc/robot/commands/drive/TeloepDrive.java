@@ -27,6 +27,7 @@ public class TeloepDrive extends CommandBase {
     this.ySpeed = ySpeed;
     this.zRotation = zRotation;
     this.deadzone = deadzone;
+    m_controlsHandler = new EricNubControls();
     addRequirements(drive);
 
   }
@@ -35,6 +36,7 @@ public class TeloepDrive extends CommandBase {
     curXSpeed = xSpeed.get();
     curYSpeed = ySpeed.get();
     curZRotation = zRotation.get();
+
     curXSpeed = m_controlsHandler.addDeadzoneScaled(curXSpeed, deadzone);
     curYSpeed = m_controlsHandler.addDeadzoneScaled(curYSpeed, deadzone);
     curZRotation = m_controlsHandler.addDeadzoneScaled(curZRotation, deadzone);
@@ -42,6 +44,7 @@ public class TeloepDrive extends CommandBase {
     curXSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curYSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curZRotation *= DriveConstants.kMaxSpeedMetersPerSecond;
+    // System.out.println(curXSpeed);
 
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());

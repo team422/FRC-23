@@ -43,4 +43,5 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
   },
+  "java.debug.settings.onBuildFailureProceed": true,
 }

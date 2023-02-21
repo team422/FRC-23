@@ -1,22 +1,38 @@
 package frc.robot.oi;
 
-public class DriverControls {
-  public DriverControlsIO m_io;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-  public DriverControls(DriverControlsIO io) {
-    m_io = io;
+public interface DriverControls {
+  public default double getDriveX() {
+    return 0.0;
   }
 
-  public double getDriveX() {
-    return m_io.getDriveX();
+  public default double getDriveY() {
+    return 0.0;
   }
 
-  public double getDriveY() {
-    return m_io.getDriveY();
+  public default double getDriveZ() {
+    return 0.0;
   }
 
-  public double getDriveZ() {
-    return m_io.getDriveZ();
+  public default Trigger goAndBalance() {
+    return new Trigger();
+  }
+
+  public default Trigger goToNode() {
+    return new Trigger();
+  }
+
+  public default Trigger goToLoadingStation() {
+    return new Trigger();
+  }
+
+  public default Trigger startIntakeConeInCubeOut() {
+    return new Trigger();
+  }
+
+  public default Trigger startIntakeCubeInConeOut() {
+    return new Trigger();
   }
 
 }

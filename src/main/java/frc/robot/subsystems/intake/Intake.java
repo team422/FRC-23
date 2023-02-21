@@ -1,8 +1,12 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.math.controller.PIDController;
+import org.littletonrobotics.junction.Logger;
 
-public class Intake {
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class Intake extends SubsystemBase {
   public IntakeIO m_io;
   public double m_desiredSpeed;
   public PIDController m_intakePIDController;
@@ -16,13 +20,20 @@ public class Intake {
   }
 
   public void periodic() {
-    double speed = m_intakePIDController.calculate(m_io.getIntakeSpeed(), m_desiredSpeed);
-    m_io.setIntakeVoltage(speed);
     m_io.updateInputs(m_inputs);
+    Logger.getInstance().processInputs("Intake", m_inputs);
+    m_io.setIntakeVoltage(m_desiredSpeed * 12);
+
   }
 
   public void setDesiredSpeed(double speed) {
     m_desiredSpeed = speed;
+  }
+
+  public Command startIntakeAtSpeed(double speed) {
+    return runEnd(
+        () -> this.setDesiredSpeed(speed),
+        () -> this.setDesiredSpeed(0));
   }
 
 }

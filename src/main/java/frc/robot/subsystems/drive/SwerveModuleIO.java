@@ -2,7 +2,9 @@ package frc.robot.subsystems.drive;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.advantagekit.LoggedIO;
 import frc.robot.subsystems.drive.SwerveModuleIO.SwerveModuleInputs;
 
@@ -15,4 +17,14 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   }
 
   SwerveModulePosition getModulePosition();
+
+  public void resetDistance();
+
+  public void syncTurningEncoder();
+
+  public void resetEncoders();
+
+  public Rotation2d getTurnDegrees();
+
+  public void setDesiredState(SwerveModuleState swerveModuleState);
 }

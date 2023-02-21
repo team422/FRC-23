@@ -1,46 +1,44 @@
 package frc.robot.subsystems.wrist;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.MathUtil;
 
 public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
   public CANSparkMax m_wristMotor;
-  public RelativeEncoder m_wristEncoder;
+  public SparkMaxAbsoluteEncoder m_wristEncoder;
   public double m_currentDesiredAngle;
-  public PIDController m_wristPIDController;
 
   public WristIOThroughBoreSparkMaxAlternate(int wristMotorPort, int wristEncoderCPR,
-      Double wristEncoderOffset, PIDController wristPIDController) {
+      SparkMaxAbsoluteEncoder wristThroughbore,
+      Double wristEncoderOffset) {
     m_wristMotor = new CANSparkMax(wristMotorPort, CANSparkMax.MotorType.kBrushless);
-    m_wristEncoder = m_wristMotor.getAlternateEncoder(wristEncoderCPR);
-    m_wristEncoder.setPositionConversionFactor(360);
-    m_wristEncoder.setPosition(m_wristEncoder.getPosition() + wristEncoderOffset);
-    m_wristPIDController = wristPIDController;
+    m_wristEncoder = wristThroughbore;
+    m_wristMotor.setInverted(false);
+    m_wristMotor.setIdleMode(IdleMode.kBrake);
+    m_wristEncoder.setPositionConversionFactor(2 * Math.PI);
+    m_wristEncoder.setInverted(true);
+    m_wristEncoder.setZeroOffset(wristEncoderOffset);
 
   }
 
   @Override
-  public void periodic() {
-    if (Math.abs(m_currentDesiredAngle - m_wristEncoder.getPosition()) > 0.3) {
-      double speed = m_wristPIDController.calculate(m_wristEncoder.getPosition(), m_currentDesiredAngle);
-      m_wristMotor.set(speed);
-
-    }
-
+  public void setVoltage(double voltage) {
+    m_wristMotor.setVoltage(voltage);
   }
 
   @Override
-  public void setWristAngle(double angle) {
-    m_currentDesiredAngle = angle;
+  public void updateInputs(WristInputs inputs) {
+    inputs.angleRad = getAngleRad();
+    inputs.motorSpeed = m_wristMotor.getAppliedOutput();
+    inputs.velocity = m_wristEncoder.getVelocity();
 
   }
 
-  @Override
-  public void updateInputs(WristInput inputs) {
-    new WristInput(m_wristEncoder.getPosition());
-
+  private double getAngleRad() {
+    return MathUtil.angleModulus(m_wristEncoder.getPosition());
   }
 
 }
