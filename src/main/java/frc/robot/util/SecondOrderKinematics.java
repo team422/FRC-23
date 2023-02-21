@@ -18,6 +18,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * @param moduleThetaVel Theta Velocity of each module
   * @param moduleVelocity Velocity of each module's drive motor
   * @param robotThetaVel Theta Velocity of the robot
+  * @param robotTheta Robot Rotation2d
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelXMetersPerSecondSquared(
       SwerveModuleAcceleration[] moduleAccelerations, //done
@@ -57,6 +58,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * @param moduleThetaVel Theta Velocity of each module
   * @param moduleVelocity Velocity of each module's drive motor
   * @param robotThetaVel Theta Velocity of the robot
+  * @param robotTheta Robot Rotation2d
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelYMetersPerSecondSquared(
       SwerveModuleAcceleration[] moduleAccelerations, //done
@@ -96,6 +98,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * @param moduleThetaVel Theta Velocity of each module
   * @param moduleVelocity Velocity of each module's drive motor
   * @param robotThetaVel Theta Velocity of the robot
+  * @param robotTheta Robot Rotation2d
   */
   public SwerveModuleState[] getVelXYFromAccelXY(SwerveModuleAcceleration[] moduleAccelerations,
       SwerveModuleState[] moduleStates,
