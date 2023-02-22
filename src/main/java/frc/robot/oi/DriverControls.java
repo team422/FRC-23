@@ -35,4 +35,36 @@ public interface DriverControls {
     return new Trigger();
   }
 
+  public default Trigger setpointMidCone() {
+    return new Trigger();
+  }
+
+  public default Trigger setpointHighCone() {
+    return new Trigger();
+  }
+
+  public default Trigger setpointMidCube() {
+    return new Trigger();
+  }
+
+  public default Trigger setpointHighCube() {
+    return new Trigger();
+  }
+
+  public default Trigger setpointIntakeGroundCone() {
+    return new Trigger();
+  }
+
+  public default Trigger setpointIntakeVerticalCone() {
+    return new Trigger();
+  }
+
+  public default Trigger setpointIntakeGroundCube() {
+    return new Trigger();
+  }
+
+  public default Trigger intakeFromLoadingStation() {
+    return new Trigger();
+  }
+
 }

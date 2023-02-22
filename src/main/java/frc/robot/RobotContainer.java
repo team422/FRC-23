@@ -161,7 +161,6 @@ public class RobotContainer {
     Command cubeHighCommand = Commands.parallel(
         m_elevator.setHeightCommand(Units.inchesToMeters(50)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(50)));
-
     TeloepDrive teleopDrive = new TeloepDrive(m_drive,
         () -> driverControls.getDriveX(),
         () -> driverControls.getDriveY(),
@@ -174,14 +173,20 @@ public class RobotContainer {
     operatorControls.setpointHighCube().onTrue(cubeHighCommand);
     operatorControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
     operatorControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
-
     operatorControls.setpointIntakeGroundCube().onTrue(pickUpCubeGround);
-
     operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStation);
 
     m_drive.setDefaultCommand(teleopDrive);
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtSpeed(11));
     driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtSpeed(-11));
+    driverControls.setpointMidCone().onTrue(coneMidCommand);
+    driverControls.setpointHighCone().onTrue(coneHighCommand);
+    driverControls.setpointMidCube().onTrue(cubeMidCommand);
+    driverControls.setpointHighCube().onTrue(cubeHighCommand);
+    driverControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
+    driverControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
+    driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGround);
+    driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStation);
 
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
