@@ -121,7 +121,7 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
    *
    * @return The current state of the module.
    */
-  public SwerveModuleState getState() {
+  public SwerveModuleState getSwerveModuleState() {
     return new SwerveModuleState(m_driveEncoder.getVelocity(), this.getTurnDegrees());
   }
 

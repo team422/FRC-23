@@ -19,6 +19,7 @@ import frc.lib.advantagekit.LoggerUtil;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
+  private Command testCommand;
   private RobotContainer robotContainer;
 
   /**
@@ -99,6 +100,16 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    robotContainer.onEnabled();
+    testCommand = robotContainer.getTestCommand();
+    System.out.println();
+    if (testCommand != null) {
+      testCommand.schedule();
+      System.out.println("ran command");
+    } else {
+      System.out.println("No test command");
+    }
+
   }
 
   /** This function is called periodically during test mode. */

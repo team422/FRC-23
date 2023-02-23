@@ -37,6 +37,8 @@ public final class Constants {
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
+    public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
+        Rotation2d.fromDegrees(180));
   }
 
   public static final class ElevatorConstants {
@@ -45,9 +47,12 @@ public final class Constants {
         new Constraints(30, 6));
     public static final double elevatorGearRatio = 2.256 * Math.PI;
     public static final int elevatorEncoderCPR = 2048;
-    public static final double elevatorMaxHeightMeters = Units.inchesToMeters(48);// max is 53.87
+    public static final double elevatorMaxHeightMeters = Units.inchesToMeters(51);// max is 53.87
     public static final double elevatorOffsetMeters = Units.inchesToMeters(6.566);
     public static final Rotation2d elevatorAngleFromGround = Rotation2d.fromDegrees(56);
+    public static final double kElevatorMassKG = 5;
+    public static final double kDrumSize = Units.inchesToMeters(2.256);
+    public static final double elevatorMinHeightMeters = Units.inchesToMeters(0);;
   }
 
   public static final class IntakeConstants {
@@ -72,8 +77,8 @@ public final class Constants {
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxSpeedMetersPerSecond = 4;
-    public static final double kMaxAngularSpeedRadiansPerSecond = 0.005 * Math.PI;
-    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 0.000005 * Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
+    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 0.5 * Math.PI;
   }
 
   public static final class ModuleConstants {
@@ -141,6 +146,10 @@ public final class Constants {
         new Constraints(Units.degreesToRadians(720), Units.degreesToRadians(720)));
     // public static final PIDController wirstPIDController = new PIDController(5, 0, 0);
     public static final double wristLengthMeters = Units.inchesToMeters(3);
+    public static final double wristGearRatio = 38.24;
+    public static final Rotation2d maxAngle = Rotation2d.fromDegrees(90);
+    public static final Rotation2d minAngle = Rotation2d.fromDegrees(-90);
+
   }
 
   public static final class OIConstants {

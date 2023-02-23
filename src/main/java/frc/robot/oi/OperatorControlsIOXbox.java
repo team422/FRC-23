@@ -70,4 +70,5 @@ public class OperatorControlsIOXbox implements OperatorControls {
   public double moveElevatorInput() {
     return m_controls.addDeadzoneScaled(-m_controller.getLeftY(), .1) / 5;
   }
+
 }

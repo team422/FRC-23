@@ -43,7 +43,7 @@ public class TeloepDrive extends CommandBase {
 
     curXSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curYSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
-    curZRotation *= DriveConstants.kMaxSpeedMetersPerSecond;
+    curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond;
     // System.out.println(curXSpeed);
 
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,

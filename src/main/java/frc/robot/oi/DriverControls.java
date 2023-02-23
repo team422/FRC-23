@@ -67,4 +67,8 @@ public interface DriverControls {
     return new Trigger();
   }
 
+  public default Trigger resetFieldCentric() {
+    return new Trigger();
+  }
+
 }

@@ -22,6 +22,11 @@ public class GyroIOPigeon implements GyroIO {
 
   }
 
+  @Override
+  public void addAngle(Rotation2d angle) {
+    m_gyro.addYaw(angle.getDegrees());
+  }
+
   public void reset() { // pls never run this
     m_gyro.reset();
   }

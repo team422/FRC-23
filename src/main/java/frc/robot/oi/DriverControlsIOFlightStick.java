@@ -14,17 +14,17 @@ public class DriverControlsIOFlightStick implements DriverControls {
 
   @Override
   public double getDriveX() {
-    return -m_leftJoystick.getY();
+    return -Math.signum(m_leftJoystick.getY()) * Math.pow(m_leftJoystick.getY(), 2);
   }
 
   @Override
   public double getDriveY() {
-    return -m_leftJoystick.getX();
+    return -Math.signum(m_leftJoystick.getX()) * Math.pow(m_leftJoystick.getX(), 2);
   }
 
   @Override
   public double getDriveZ() {
-    return -m_rightJoystick.getX();
+    return -Math.signum(m_rightJoystick.getX()) * Math.pow(m_rightJoystick.getX(), 2);
   }
 
   @Override
@@ -85,6 +85,11 @@ public class DriverControlsIOFlightStick implements DriverControls {
   @Override
   public Trigger intakeFromLoadingStation() {
     return m_leftJoystick.button(2);
+  }
+
+  @Override
+  public Trigger resetFieldCentric() {
+    return m_rightJoystick.button(7);
   }
 
 }

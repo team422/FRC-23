@@ -11,13 +11,17 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
+import frc.robot.Constants.WristConstants;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsIOFlightStick;
@@ -25,17 +29,21 @@ import frc.robot.oi.OperatorControls;
 import frc.robot.oi.OperatorControlsIOXbox;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.SwerveModuleIOmk4ineo;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.gyro.GyroIOPigeon;
 import frc.robot.subsystems.gyro.GyroSub;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIONeo550;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOCamera;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristIOThroughBoreSparkMaxAlternate;
 
 /**
@@ -57,6 +65,7 @@ public class RobotContainer {
   private static Elevator m_elevator;
   private CANSparkMax m_throughboreSparkMaxIntakeMotor;
   private static RobotState m_robotState;
+  private static Command m_testCommand;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -107,7 +116,8 @@ public class RobotContainer {
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
           253.91),
           Constants.WristConstants.wristPIDController,
-          Constants.WristConstants.wristFeedForward);
+          Constants.WristConstants.wristFeedForward, Constants.WristConstants.minAngle,
+          Constants.WristConstants.maxAngle);
       m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
           Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
@@ -118,7 +128,15 @@ public class RobotContainer {
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
       m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
     } else {
-      // m_drive = new Drive();
+      m_drive = new Drive(new GyroSub(new GyroIOPigeon(22)), new Pose2d(), new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(), new SwerveModuleIOSim());
+      m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
+          ElevatorConstants.elevatorFeedForward, ElevatorConstants.elevatorOffsetMeters,
+          ElevatorConstants.elevatorMaxHeightMeters, ElevatorConstants.elevatorAngleFromGround);
+      m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
+          WristConstants.minAngle, WristConstants.maxAngle);
+      m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
     }
   }
 
@@ -131,6 +149,12 @@ public class RobotContainer {
   private void configureButtonBindings() {
     DriverControls driverControls = new DriverControlsIOFlightStick(
         Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
+    TeloepDrive teleopDrive = new TeloepDrive(m_drive,
+        () -> driverControls.getDriveX(),
+        () -> driverControls.getDriveY(),
+        () -> driverControls.getDriveZ(),
+        Constants.DriveConstants.kDriveDeadband);
+    m_drive.setDefaultCommand(teleopDrive);
 
     OperatorControls operatorControls = new OperatorControlsIOXbox(5);
 
@@ -142,8 +166,8 @@ public class RobotContainer {
         m_elevator.setHeightCommand(Units.inchesToMeters(0)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(23.5)));
     Command pickUpConeGroundCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(0)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-22.5)));
+        m_elevator.setHeightCommand(Units.inchesToMeters(7.8)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-5.0)));
 
     Command intakeFromLoadingStation = Commands.parallel(
         m_elevator.setHeightCommand(Units.inchesToMeters(8.2)),
@@ -152,8 +176,8 @@ public class RobotContainer {
         m_elevator.setHeightCommand(Units.inchesToMeters(45)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(-2)));
     Command coneHighCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(47)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(21)));
+        m_elevator.setHeightCommand(Units.inchesToMeters(51)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(9)));
 
     Command cubeMidCommand = Commands.parallel(
         m_elevator.setHeightCommand(Units.inchesToMeters(35)),
@@ -161,11 +185,6 @@ public class RobotContainer {
     Command cubeHighCommand = Commands.parallel(
         m_elevator.setHeightCommand(Units.inchesToMeters(50)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(50)));
-    TeloepDrive teleopDrive = new TeloepDrive(m_drive,
-        () -> driverControls.getDriveX(),
-        () -> driverControls.getDriveY(),
-        () -> driverControls.getDriveZ(),
-        Constants.DriveConstants.kDriveDeadband);
 
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
@@ -176,7 +195,7 @@ public class RobotContainer {
     operatorControls.setpointIntakeGroundCube().onTrue(pickUpCubeGround);
     operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStation);
 
-    m_drive.setDefaultCommand(teleopDrive);
+    driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtSpeed(11));
     driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtSpeed(-11));
     driverControls.setpointMidCone().onTrue(coneMidCommand);
@@ -190,6 +209,8 @@ public class RobotContainer {
 
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
+
+    m_testCommand = cubeHighCommand;
   }
 
   public void onEnabled() {
@@ -204,5 +225,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoChooser.get();
+  }
+
+  public Command getTestCommand() {
+    return m_testCommand;
   }
 }

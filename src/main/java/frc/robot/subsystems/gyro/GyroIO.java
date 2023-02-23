@@ -14,4 +14,5 @@ public interface GyroIO extends LoggedIO<GyroInputs> {
 
   public Rotation2d getAngle();
 
+  public void addAngle(Rotation2d angle);
 }

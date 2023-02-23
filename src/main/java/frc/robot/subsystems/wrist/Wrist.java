@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase {
-  private static final double kMinAngle = Units.degreesToRadians(-90);
-  private static final double kMaxAngle = Units.degreesToRadians(90);
+  private double kMinAngle;
+  private double kMaxAngle;
   private WristIO m_io;
   private WristInputsAutoLogged m_inputs;
   public Rotation2d m_desiredAngle = Rotation2d.fromDegrees(0);
@@ -26,13 +26,16 @@ public class Wrist extends SubsystemBase {
   private double m_lastTime;
   private double m_lastVelocitySetpoint;
 
-  public Wrist(WristIO io, ProfiledPIDController wristPIDController, ArmFeedforward feedForward) {
+  public Wrist(WristIO io, ProfiledPIDController wristPIDController, ArmFeedforward feedForward, Rotation2d minAngle,
+      Rotation2d maxAngle) {
     m_io = io;
     m_inputs = new WristInputsAutoLogged();
 
     m_controller = wristPIDController;
     m_feedforward = feedForward;
     m_controller.setTolerance(Units.degreesToRadians(2));
+    kMinAngle = minAngle.getRadians();
+    kMaxAngle = maxAngle.getRadians();
 
     // m_controller.reset(0);
   }
