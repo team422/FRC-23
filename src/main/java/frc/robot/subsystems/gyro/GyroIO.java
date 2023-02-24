@@ -10,9 +10,12 @@ public interface GyroIO extends LoggedIO<GyroInputs> {
   @AutoLog
   public static class GyroInputs {
     public double angle;
+    public double roll;
   }
 
   public Rotation2d getAngle();
 
   public void addAngle(Rotation2d angle);
+
+  public Rotation2d getRoll();
 }

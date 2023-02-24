@@ -30,6 +30,10 @@ public class Intake extends SubsystemBase {
     m_desiredSpeed = speed;
   }
 
+  public Command setDesiredSpeedCommand(double speed) {
+    return runOnce(() -> this.setDesiredSpeed(speed));
+  }
+
   public Command startIntakeAtSpeed(double speed) {
     return runEnd(
         () -> this.setDesiredSpeed(speed),

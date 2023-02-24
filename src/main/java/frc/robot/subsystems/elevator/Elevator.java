@@ -90,6 +90,10 @@ public class Elevator extends SubsystemBase {
     return m_inputs.heightMeters * Math.sin(m_elevatorAngle.getRadians());
   }
 
+  public double getTravelDistanceMeters() {
+    return m_inputs.heightMeters;
+  }
+
   public void setHeight(double heightMeters) {
     heightMeters = MathUtil.clamp(heightMeters, m_elevatorOffsetMeters, m_maxHeight);
     heightMeters -= m_elevatorOffsetMeters;

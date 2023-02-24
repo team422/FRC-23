@@ -19,12 +19,18 @@ public class GyroIOPigeon implements GyroIO {
   @Override
   public void updateInputs(GyroInputs inputs) {
     inputs.angle = getAngle().getDegrees();
+    inputs.roll = getRoll().getDegrees();
 
   }
 
   @Override
   public void addAngle(Rotation2d angle) {
     m_gyro.addYaw(angle.getDegrees());
+  }
+
+  @Override
+  public Rotation2d getRoll() {
+    return Rotation2d.fromRadians(m_gyro.getRoll());
   }
 
   public void reset() { // pls never run this

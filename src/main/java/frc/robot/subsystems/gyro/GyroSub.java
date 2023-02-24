@@ -28,4 +28,8 @@ public class GyroSub extends SubsystemBase {
   public void addAngle(Rotation2d angle) {
     m_io.addAngle(angle);
   }
+
+  public Rotation2d getRoll() {
+    return m_io.getRoll();
+  }
 }

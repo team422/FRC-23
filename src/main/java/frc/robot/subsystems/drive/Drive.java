@@ -82,6 +82,10 @@ public class Drive extends SubsystemBase {
     m_odometry.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), new Pose2d());
   }
 
+  public void resetPose(Pose2d pose) {
+    m_odometry.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
+  }
+
   public SwerveModulePosition[] getSwerveModulePositions() {
     SwerveModulePosition[] positions = new SwerveModulePosition[m_modules.length];
     for (int i = 0; i < m_modules.length; i++) {

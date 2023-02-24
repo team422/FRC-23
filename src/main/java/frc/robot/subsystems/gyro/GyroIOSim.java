@@ -28,4 +28,9 @@ public class GyroIOSim implements GyroIO {
     m_sim.setAngle(m_sim.getAngle() + angle.getDegrees());
   }
 
+  @Override
+  public Rotation2d getRoll() {
+    return Rotation2d.fromDegrees(0);
+  }
+
 }

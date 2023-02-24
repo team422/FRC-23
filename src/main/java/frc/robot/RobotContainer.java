@@ -18,10 +18,13 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.pathplanner.PathPlannerUtil;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
+import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.WristConstants;
+import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsIOFlightStick;
@@ -66,9 +69,10 @@ public class RobotContainer {
   private CANSparkMax m_throughboreSparkMaxIntakeMotor;
   private static RobotState m_robotState;
   private static Command m_testCommand;
+  private static AutoFactory m_autoFactory;
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+  private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -76,6 +80,20 @@ public class RobotContainer {
   public RobotContainer() {
     configureSubsystems();
     configureButtonBindings();
+    configureAuto();
+  }
+
+  private void configureAuto() {
+    m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+    m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake, m_gyro);
+
+    // Add basic autonomous commands
+    m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+
+    // Add PathPlanner Auto Commands
+    PathPlannerUtil.getExistingPaths().forEach(path -> {
+      m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path));
+    });
   }
 
   private void configureSubsystems() {
@@ -140,6 +158,15 @@ public class RobotContainer {
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
     }
+
+  }
+
+  private double getMorphedVelocityMultiplier() {
+    if (m_robotState != null) {
+      return m_robotState.getMorphedVelocityMultiplier();
+    } else {
+      return 1;
+    }
   }
 
   /**
@@ -155,38 +182,41 @@ public class RobotContainer {
         () -> driverControls.getDriveX(),
         () -> driverControls.getDriveY(),
         () -> driverControls.getDriveZ(),
-        Constants.DriveConstants.kDriveDeadband);
+        Constants.DriveConstants.kDriveDeadband, () -> {
+          return getMorphedVelocityMultiplier();
+        });
     m_drive.setDefaultCommand(teleopDrive);
 
     OperatorControls operatorControls = new OperatorControlsIOXbox(5);
 
     Command pickUpConeVerticalCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(18.5)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-6)));
+        m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeVerticalCommandSetpoints[1])));
 
-    Command pickUpCubeGround = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(0)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(23.5)));
+    Command pickUpCubeGroundCommand = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.pickUpCubeGroundCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpCubeGroundCommandSetpoints[1])));
+
     Command pickUpConeGroundCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(7.8)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-5.0)));
+        m_elevator.setHeightCommand(SetpointConstants.pickUpConeGroundCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeGroundCommandSetpoints[1])));
 
-    Command intakeFromLoadingStation = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(8.2)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(135)));
+    Command intakeFromLoadingStationCommand = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.intakeFromLoadingStationCommand[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeGroundCommandSetpoints[1])));
     Command coneMidCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(45)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(-2)));
+        m_elevator.setHeightCommand(SetpointConstants.coneMidCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneMidCommandSetpoints[1])));
     Command coneHighCommand = Commands.parallel(
         m_elevator.setHeightCommand(Units.inchesToMeters(51)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(9)));
 
     Command cubeMidCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(35)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(35)));
+        m_elevator.setHeightCommand(SetpointConstants.cubeMidCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.cubeMidCommandSetpoints[1])));
     Command cubeHighCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(50)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(50)));
+        m_elevator.setHeightCommand(SetpointConstants.cubeHighCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.cubeHighCommandSetpoints[1])));
 
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
@@ -194,8 +224,8 @@ public class RobotContainer {
     operatorControls.setpointHighCube().onTrue(cubeHighCommand);
     operatorControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
     operatorControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
-    operatorControls.setpointIntakeGroundCube().onTrue(pickUpCubeGround);
-    operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStation);
+    operatorControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
+    operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
 
     driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtSpeed(11));
@@ -206,8 +236,8 @@ public class RobotContainer {
     driverControls.setpointHighCube().onTrue(cubeHighCommand);
     driverControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
     driverControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
-    driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGround);
-    driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStation);
+    driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
+    driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
 
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
@@ -226,6 +256,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    if (Robot.isSimulation()) {
+      String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+      if (PathPlannerUtil.getExistingPaths().contains(selectedAuto)) {
+        return m_autoFactory.getAutoCommand(selectedAuto);
+      }
+    }
     return m_autoChooser.get();
   }
 

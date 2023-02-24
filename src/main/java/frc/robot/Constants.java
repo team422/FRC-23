@@ -34,6 +34,23 @@ public final class Constants {
   public static final boolean tuningMode = true;
   public static final MechTechRobots CURRENT_ROBOT = MechTechRobots.MARK2;
 
+  public static final class MetaConstants {
+    public static final boolean pathTuningMode = true;
+  }
+
+  public static final class SetpointConstants {
+    // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
+    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18.5), -6 };
+    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 23.5 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(7.8), -5.0 };
+    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 35 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(45), -2 };
+    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 35 };
+    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 9 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), 9 };
+    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), -90 };
+  }
+
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
@@ -57,6 +74,7 @@ public final class Constants {
     public static final double kDrumSize = Units.inchesToMeters(2.256);
     public static final double elevatorMinHeightMeters = Units.inchesToMeters(0);
     public static final double armLength = Units.inchesToMeters(16.556);
+    public static final double maxTravel = Units.inchesToMeters(54);
   }
 
   public static final class IntakeConstants {
@@ -81,6 +99,11 @@ public final class Constants {
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxSpeedMetersPerSecond = 4;
+    public static final double kMaxSpeedMetersPerSecondAccel = 2;
+
+    public static final double kMaxSpeedMetersPerSecondAuto = 2;
+    public static final double kMaxSpeedMetersPerSecondAccelAuto = 1;
+
     public static final double kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 0.5 * Math.PI;
   }
@@ -152,7 +175,7 @@ public final class Constants {
     public static final double wristLengthMeters = Units.inchesToMeters(3);
     public static final double wristGearRatio = 34.8444444444;
     public static final Rotation2d maxAngle = Rotation2d.fromDegrees(90);
-    public static final Rotation2d minAngle = Rotation2d.fromDegrees(-90);
+    public static final Rotation2d minAngle = Rotation2d.fromDegrees(-95);
 
   }
 
