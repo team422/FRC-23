@@ -8,7 +8,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import frc.robot.BuildConstants;
-// import frc.robot.BuildConstants;
 import frc.robot.Robot;
 
 public class LoggerUtil {
