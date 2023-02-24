@@ -9,8 +9,10 @@ public class WristIOSim implements WristIO {
   SingleJointedArmSim m_sim;
 
   public WristIOSim() {
-    m_sim = new SingleJointedArmSim(DCMotor.getNEO(1), WristConstants.wristGearRatio, 10, Units.inchesToMeters(7.85),
-        WristConstants.minAngle.getRadians(), WristConstants.maxAngle.getRadians(), true);
+    m_sim = new SingleJointedArmSim(DCMotor.getNEO(1), WristConstants.wristGearRatio, 0.5,
+        Units.inchesToMeters(7.85),
+        WristConstants.minAngle.getRadians(), WristConstants.maxAngle.getRadians(), false);
+
   }
 
   @Override

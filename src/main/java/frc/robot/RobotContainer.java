@@ -133,10 +133,12 @@ public class RobotContainer {
           new SwerveModuleIOSim(), new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
           ElevatorConstants.elevatorFeedForward, ElevatorConstants.elevatorOffsetMeters,
-          ElevatorConstants.elevatorMaxHeightMeters, ElevatorConstants.elevatorAngleFromGround);
+          ElevatorConstants.elevatorMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
       m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
           WristConstants.minAngle, WristConstants.maxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
+      m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
     }
   }
 
@@ -229,5 +231,12 @@ public class RobotContainer {
 
   public Command getTestCommand() {
     return m_testCommand;
+  }
+
+  public void updateRobotState() {
+    if (m_robotState != null) {
+      m_robotState.update();
+    }
+
   }
 }

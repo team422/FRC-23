@@ -49,7 +49,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   @Override
   public void updateInputs(SwerveModuleInputs inputs) {
     double oldAngleRads = m_curPos.angle.getRadians();
-    double updatedAngle = MathUtil.interpolate(m_curState.angle.getRadians(), m_desState.angle.getRadians(), 0.9);
+    double updatedAngle = MathUtil.interpolate(m_curState.angle.getRadians(), m_desState.angle.getRadians(), 1);
     m_curState.angle = Rotation2d.fromRadians(updatedAngle);
     m_curState.speedMetersPerSecond = MathUtil.interpolate(m_curState.speedMetersPerSecond,
         m_desState.speedMetersPerSecond, 0.9);

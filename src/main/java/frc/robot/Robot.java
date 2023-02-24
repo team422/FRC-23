@@ -45,6 +45,7 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    robotContainer.updateRobotState();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -102,10 +103,8 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().cancelAll();
     robotContainer.onEnabled();
     testCommand = robotContainer.getTestCommand();
-    System.out.println();
     if (testCommand != null) {
       testCommand.schedule();
-      System.out.println("ran command");
     } else {
       System.out.println("No test command");
     }

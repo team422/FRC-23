@@ -43,16 +43,20 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(0.0, 0.28, 0.0);
-    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(12.5, 0.1, 0,
+    // public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(12.5, 0.1, 0,
+    //     new Constraints(30, 6)); // real
+    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(55.5, 0.5, 0,
         new Constraints(30, 6));
     public static final double elevatorGearRatio = 2.256 * Math.PI;
     public static final int elevatorEncoderCPR = 2048;
     public static final double elevatorMaxHeightMeters = Units.inchesToMeters(51);// max is 53.87
+    public static final double elevatorMaxTravelMeters = Units.inchesToMeters(57);// max is 53.8
     public static final double elevatorOffsetMeters = Units.inchesToMeters(6.566);
     public static final Rotation2d elevatorAngleFromGround = Rotation2d.fromDegrees(56);
     public static final double kElevatorMassKG = 5;
     public static final double kDrumSize = Units.inchesToMeters(2.256);
-    public static final double elevatorMinHeightMeters = Units.inchesToMeters(0);;
+    public static final double elevatorMinHeightMeters = Units.inchesToMeters(0);
+    public static final double armLength = Units.inchesToMeters(16.556);
   }
 
   public static final class IntakeConstants {
@@ -146,7 +150,7 @@ public final class Constants {
         new Constraints(Units.degreesToRadians(720), Units.degreesToRadians(720)));
     // public static final PIDController wirstPIDController = new PIDController(5, 0, 0);
     public static final double wristLengthMeters = Units.inchesToMeters(3);
-    public static final double wristGearRatio = 38.24;
+    public static final double wristGearRatio = 34.8444444444;
     public static final Rotation2d maxAngle = Rotation2d.fromDegrees(90);
     public static final Rotation2d minAngle = Rotation2d.fromDegrees(-90);
 
