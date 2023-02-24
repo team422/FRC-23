@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -32,6 +33,7 @@ public class RobotState {
   public double elevatorXMeters;
   public Rotation2d wristAngleRotation2d;
   public Rotation2d realWantedWristRotation2d;
+  public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
 
   public RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
     m_drive = drive;
@@ -66,7 +68,19 @@ public class RobotState {
     Logger.getInstance().recordOutput("RobotState/Elevator", fullMech);
     Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
     Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
+    checkIfBreakElevator();
+  }
 
+  public void checkIfBreakElevator() {
+    if (m_intakePosition == null) {
+      System.out.println("null pos");
+      return;
+    }
+    // System.out.println(m_elevator.getDesiredMeters() < m_elevator.getCurrentHeightMeters());
+    if (fieldGeomUtil.overConesOrCubes(m_intakePosition)
+        && (m_elevator.getDesiredMeters() + Units.inchesToMeters(3) < m_elevator.getCurrentHeightMeters())) {
+      m_elevator.setHeightCommand(m_elevator.getPositionYMeters()).schedule();
+    }
   }
 
   public Pose3d getArmPosition(Pose2d robotPose, double elevatorXMeters, double elevatorYMeters,

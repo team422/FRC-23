@@ -92,4 +92,9 @@ public class DriverControlsIOFlightStick implements DriverControls {
     return m_rightJoystick.button(7);
   }
 
+  @Override
+  public Trigger goToLoadingStation() {
+    return m_leftJoystick.button(6);
+  }
+
 }

@@ -96,7 +96,9 @@ public class CustomHolmonomicDrive {
 
     // Calculate feedback velocities (based on position error).
     double xFeedback = m_xController.calculate(currentPose.getX(), poseRef.getX());
-    double yFeedback = m_yController.calculate(currentPose.getY(), poseRef.getY());
+    double yFeedback = m_xController.calculate(currentPose.getY(), poseRef.getY());
+    double thetaFeedback = m_yController.calculate(currentPose.getRotation().getDegrees(),
+        poseRef.getRotation().getDegrees());
 
     // EricNubControls EricControls = new EricNubControls();
     // double x_speed = EricControls.addDeadzoneScaled(xSpeed.get(), 0.1);
@@ -119,7 +121,7 @@ public class CustomHolmonomicDrive {
     // EricControls.addEricCurve(EricControls.addDeadzoneScaled(angleRef.get(), 0.1))
     return ChassisSpeeds.fromFieldRelativeSpeeds(x * Constants.DriveConstants.kMaxSpeedMetersPerSecond,
         y * Constants.DriveConstants.kMaxSpeedMetersPerSecond,
-        angleRef.get()
+        thetaFeedback
             * Constants.DriveConstants.kMaxAngularSpeedRadiansPerSecond,
         currentPose.getRotation());
   }

@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.robot.util.TunableNumber;
 
 /**
@@ -49,6 +50,52 @@ public final class Constants {
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 9 };
     public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), 9 };
     public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), -90 };
+    // side is considered the side of the field without drivers, wall has drivers
+    public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
+        new Translation2d(15.8, 7.37),
+        new Rotation2d(), Rotation2d.fromDegrees(0));
+    public static final ExtendedPathPoint blueRightWallLoadingStation = new ExtendedPathPoint(
+        new Translation2d(15.8, 6.0),
+        new Rotation2d(), Rotation2d.fromDegrees(0));
+    // Grid is labeled first to third from edge of field without 
+    public static final ExtendedPathPoint blueFirstGridLeftCone = new ExtendedPathPoint(new Translation2d(1.84, 0.43),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueFirstGridCube = new ExtendedPathPoint(new Translation2d(1.84, 1.08),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueFirstGridRightCone = new ExtendedPathPoint(new Translation2d(1.84, 1.61),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueSecondGridLeftCone = new ExtendedPathPoint(new Translation2d(1.84, 2.16),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueSecondGridCube = new ExtendedPathPoint(new Translation2d(1.84, 2.75),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueSecondGridRightCone = new ExtendedPathPoint(new Translation2d(1.84, 3.34),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueThirdGridLeftCone = new ExtendedPathPoint(new Translation2d(1.84, 3.89),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueThirdGridCube = new ExtendedPathPoint(new Translation2d(1.84, 4.42),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueThirdGridRightCone = new ExtendedPathPoint(new Translation2d(1.84, 4.97),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueLeftOfBalance = new ExtendedPathPoint(new Translation2d(3.74, 4.72),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint blueRightOfBalance = new ExtendedPathPoint(new Translation2d(3.74, 0.68),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint bluePreLoadingStation = new ExtendedPathPoint(new Translation2d(12.77, 6.36),
+        new Rotation2d(), Rotation2d.fromDegrees(0));
+    public static final ExtendedPathPoint redLeftWallLoadingStation = blueLeftWallLoadingStation.flipPathPoint();
+    public static final ExtendedPathPoint redRightWallLoadingStation = blueRightWallLoadingStation.flipPathPoint();
+    public static final ExtendedPathPoint redFirstGridLeftCone = blueFirstGridLeftCone.flipPathPoint();
+    public static final ExtendedPathPoint redFirstGridCube = blueFirstGridCube.flipPathPoint();
+    public static final ExtendedPathPoint redFirstGridRightCone = blueFirstGridRightCone.flipPathPoint();
+    public static final ExtendedPathPoint redSecondGridLeftCone = blueSecondGridLeftCone.flipPathPoint();
+    public static final ExtendedPathPoint redSecondGridCube = blueSecondGridCube.flipPathPoint();
+    public static final ExtendedPathPoint redSecondGridRightCone = blueSecondGridRightCone.flipPathPoint();
+    public static final ExtendedPathPoint redThirdGridLeftCone = blueThirdGridLeftCone.flipPathPoint();
+    public static final ExtendedPathPoint redThirdGridCube = blueThirdGridCube.flipPathPoint();
+    public static final ExtendedPathPoint redThirdGridRightCone = blueThirdGridRightCone.flipPathPoint();
+    public static final ExtendedPathPoint redLeftOfBalance = blueLeftOfBalance.flipPathPoint();
+    public static final ExtendedPathPoint redRightOfBalance = blueRightOfBalance.flipPathPoint();
+    public static final ExtendedPathPoint redPreLoadingStation = bluePreLoadingStation.flipPathPoint();
   }
 
   public static final class FieldConstants {

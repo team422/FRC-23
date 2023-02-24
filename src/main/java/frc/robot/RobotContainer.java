@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -25,6 +26,7 @@ import frc.robot.Constants.Ports;
 import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
+import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsIOFlightStick;
@@ -48,6 +50,7 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristIOThroughBoreSparkMaxAlternate;
+import frc.robot.util.CustomHolmonomicDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -217,7 +220,10 @@ public class RobotContainer {
     Command cubeHighCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.cubeHighCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.cubeHighCommandSetpoints[1])));
-
+    Command driveToLoadingStationCommand = new DriveToPoint(m_drive, new Pose2d(15.4, 7.2, Rotation2d.fromDegrees(0)),
+        new CustomHolmonomicDrive(new PIDController(.5, 0, 0), new PIDController(.01, 0, 0)),
+        () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
+    driverControls.goToLoadingStation().whileTrue(driveToLoadingStationCommand);
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
     operatorControls.setpointMidCube().onTrue(cubeMidCommand);
