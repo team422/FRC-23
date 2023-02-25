@@ -1,9 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 public interface ElevatorIO {
-  public void moveUp();
+  public void toSetPoint(double heightInches);
 
-  public void moveDown();
-
-  public void stop();
+  public void periodic();
 }
