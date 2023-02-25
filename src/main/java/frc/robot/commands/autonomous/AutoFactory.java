@@ -44,18 +44,14 @@ public class AutoFactory extends CommandBase {
         m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])),
         m_intake.setDesiredSpeedCommand(0));
-    Command coneHighElevator = Commands.parallel(
+    Command coneHigh = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
         Commands.print("coneHighElevator"));
-    Command cubeHighElevator = Commands.parallel(
-        m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
+    Command cubeHigh = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.cubeHighCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.cubeHighCommandSetpoints[1])),
         Commands.print("coneHighElevator"));
-    Command coneHighWrist = Commands.parallel(
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
-        m_intake.setDesiredSpeedCommand(0),
-        Commands.print("coneHighWrist"));
 
     Command cubeGround = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.pickUpCubeGroundCommandSetpoints[0]),
@@ -68,12 +64,16 @@ public class AutoFactory extends CommandBase {
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(
-        Map.entry("stow", stow),
-        Map.entry("cubeGround", cubeGround),
+        Map.entry("setpointStow", stow),
+        Map.entry("setpointCubeGround", cubeGround),
+        Map.entry("setpointConeHigh", coneHigh),
+        Map.entry("setpointCubeHigh", cubeHigh),
         Map.entry("intakeCubeIn", cubePickup),
-        Map.entry("stopIntake", stopIntake),
-        Map.entry("coneHighElevator", coneHighElevator),
-        Map.entry("cubeHighElevator", cubeHighElevator));
+        Map.entry("intakeCubeOut", cubeDrop),
+        Map.entry("intakeConeIn", conePickup),
+        Map.entry("intakeConeOut", coneDrop),
+        Map.entry("wait", Commands.waitSeconds(1.1)),
+        Map.entry("intakeStop", stopIntake));
     // m_eventMap = Map.ofEntries(
     //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
     //     Map.entry("stow", stow),

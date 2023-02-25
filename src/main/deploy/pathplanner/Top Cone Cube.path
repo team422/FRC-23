@@ -17,13 +17,13 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "coneHighElevator",
-          "intakeConeOut",
-          "a"
+          "setpointConeHigh",
+          "wait",
+          "intakeConeOut"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "minimum",
-        "waitTime": 2.0
+        "waitTime": 1.0
       }
     },
     {
@@ -70,12 +70,10 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [
-          "intakeCubeIn"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "minimum",
-        "waitTime": 2.0
+        "waitTime": 0.5
       }
     },
     {
@@ -120,12 +118,11 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "cubeWristHigh",
-          "cubeOut"
+          "intakeCubeOut"
         ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
-        "waitTime": 0
+        "waitTime": 1.0
       }
     }
   ],
@@ -136,13 +133,13 @@
     {
       "position": 0.30156250000000034,
       "names": [
-        "stow"
+        "setpointStow"
       ]
     },
     {
       "position": 1.843892045454545,
       "names": [
-        "cubeGround",
+        "setpointCubeGround",
         "intakeCubeIn"
       ]
     },
@@ -153,9 +150,9 @@
       ]
     },
     {
-      "position": 3.5955965909090897,
+      "position": 3.4545454545454555,
       "names": [
-        "cubeElevatorHigh"
+        "setpointCubeHigh"
       ]
     }
   ]

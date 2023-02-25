@@ -42,14 +42,14 @@ public final class Constants {
 
   public static final class SetpointConstants {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
-    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(17.7), -23.95 };
+    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 };
     public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
     public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -16 };
-    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 35 - 23 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(45), -2 - 23 };
-    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 35 - 23 };
-    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 45 - 23 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -19 };
+    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(45), -25 };
+    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 };
+    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 };
     public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 };
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(

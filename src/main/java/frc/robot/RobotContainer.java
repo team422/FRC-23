@@ -212,8 +212,8 @@ public class RobotContainer {
         m_elevator.setHeightCommand(SetpointConstants.coneMidCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneMidCommandSetpoints[1])));
     Command coneHighCommand = Commands.parallel(
-        m_elevator.setHeightCommand(Units.inchesToMeters(51)),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(9)));
+        m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])));
 
     Command cubeMidCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.cubeMidCommandSetpoints[0]),
