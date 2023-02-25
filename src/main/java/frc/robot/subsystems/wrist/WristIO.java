@@ -15,4 +15,6 @@ public interface WristIO extends LoggedIO<WristInputs> {
   }
 
   public void setVoltage(double voltage);
+
+  public void setBrakeMode(boolean mode);
 }

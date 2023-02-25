@@ -21,4 +21,6 @@ public interface ElevatorIO extends LoggedIO<ElevatorInputs> {
 
   public void zeroHeight();
 
+  public void setBrakeMode(boolean mode);
+
 }

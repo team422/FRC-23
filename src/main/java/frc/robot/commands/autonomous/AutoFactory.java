@@ -11,7 +11,6 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -47,24 +46,48 @@ public class AutoFactory extends CommandBase {
         m_intake.setDesiredSpeedCommand(0));
     Command coneHighElevator = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
-        m_intake.setDesiredSpeedCommand(0));
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
+        Commands.print("coneHighElevator"));
+    Command cubeHighElevator = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
+        Commands.print("coneHighElevator"));
     Command coneHighWrist = Commands.parallel(
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
-        m_intake.setDesiredSpeedCommand(0));
+        m_intake.setDesiredSpeedCommand(0),
+        Commands.print("coneHighWrist"));
+
+    Command cubeGround = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.pickUpCubeGroundCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpCubeGroundCommandSetpoints[1])),
+        m_intake.setDesiredSpeedCommand(0),
+        Commands.print("cubeGround"));
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
     Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.5);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
-
-    m_eventMap = Map.of(
-        "stow", stow,
-        "coneHighElevator", coneHighElevator,
-        "coneHighWrist", coneHighWrist,
-        "d", Commands.print("d"),
-        "brake", m_drive.brakeCommand(),
-        "pickUpConeLow", m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0]),
-        "elevatorHigh", m_elevator.setHeightCommand(Units.inchesToMeters(5)),
-        "charge", new ChargeStationBalance(drive));
+    Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
+    m_eventMap = Map.ofEntries(
+        Map.entry("stow", stow),
+        Map.entry("cubeGround", cubeGround),
+        Map.entry("intakeCubeIn", cubePickup),
+        Map.entry("stopIntake", stopIntake),
+        Map.entry("coneHighElevator", coneHighElevator),
+        Map.entry("cubeHighElevator", cubeHighElevator));
+    // m_eventMap = Map.ofEntries(
+    //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
+    //     Map.entry("stow", stow),
+    //     Map.entry("coneHighElevator", coneHighElevator),
+    //     Map.entry("coneHighWrist", coneHighWrist),
+    //     Map.entry("cubeGround", cubeGround),
+    //     Map.entry("intakeCubeIn", cubePickup),
+    //     Map.entry("cubeOut", cubeDrop),
+    //     Map.entry("stopIntake", stopIntake),
+    //     Map.entry("brake", m_drive.brakeCommand()),
+    //     Map.entry("pickUpConeLow",
+    //         m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0])),
+    //     Map.entry("elevatorHigh", m_elevator.setHeightCommand(Units.inchesToMeters(5))),
+    //     Map.entry("charge", new ChargeStationBalance(drive)));
 
     if (Constants.MetaConstants.pathTuningMode) {
       PathPlannerServer.startServer(5811);
@@ -74,8 +97,8 @@ public class AutoFactory extends CommandBase {
   public List<PathPlannerTrajectory> loadPathGroupByName(String name) {
     return PathPlanner.loadPathGroup(
         name,
-        DriveConstants.kMaxSpeedMetersPerSecond,
-        DriveConstants.kMaxSpeedMetersPerSecond);
+        DriveConstants.kMaxSpeedMetersPerSecondAuto,
+        DriveConstants.kMaxSpeedMetersPerSecondAccelAuto);
   }
 
   public CommandBase getAutoCommand(String name) {

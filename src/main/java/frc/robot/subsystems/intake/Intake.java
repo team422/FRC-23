@@ -8,36 +8,36 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
   public IntakeIO m_io;
-  public double m_desiredSpeed;
+  public double m_desiredVoltage;
   public PIDController m_intakePIDController;
   public IntakeInputsAutoLogged m_inputs;
 
   public Intake(IntakeIO io, PIDController intakePIDController) {
     m_io = io;
     m_intakePIDController = intakePIDController;
-    m_desiredSpeed = 0;
+    m_desiredVoltage = 0;
     m_inputs = new IntakeInputsAutoLogged();
   }
 
   public void periodic() {
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Intake", m_inputs);
-    m_io.setIntakeVoltage(m_desiredSpeed * 12);
+    m_io.setIntakeVoltage(m_desiredVoltage);
 
   }
 
-  public void setDesiredSpeed(double speed) {
-    m_desiredSpeed = speed;
+  public void setDesiredVoltage(double voltage) {
+    m_desiredVoltage = voltage;
   }
 
   public Command setDesiredSpeedCommand(double speed) {
-    return runOnce(() -> this.setDesiredSpeed(speed));
+    return runOnce(() -> this.setDesiredVoltage(speed * 12));
   }
 
-  public Command startIntakeAtSpeed(double speed) {
+  public Command startIntakeAtVoltage(double voltage) {
     return runEnd(
-        () -> this.setDesiredSpeed(speed),
-        () -> this.setDesiredSpeed(0));
+        () -> this.setDesiredVoltage(voltage),
+        () -> this.setDesiredVoltage(0));
   }
 
 }

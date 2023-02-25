@@ -41,4 +41,10 @@ public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
     return MathUtil.angleModulus(m_wristEncoder.getPosition());
   }
 
+  @Override
+  public void setBrakeMode(boolean mode) {
+    m_wristMotor.setIdleMode(mode ? IdleMode.kBrake : IdleMode.kCoast);
+
+  }
+
 }

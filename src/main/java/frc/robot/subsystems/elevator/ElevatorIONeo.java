@@ -19,10 +19,10 @@ public class ElevatorIONeo implements ElevatorIO {
   public ElevatorIONeo(int leaderPort, int followerPort,
       int throughBoreEncoderPortA, int throughBoreEncoderPortB, double gearRatio, int encoderResolution) {
     m_leaderMotor = new CANSparkMax(leaderPort, MotorType.kBrushless);
-    m_leaderMotor.setIdleMode(IdleMode.kBrake);
+    m_leaderMotor.setIdleMode(IdleMode.kCoast);
 
     m_followerMotor = new CANSparkMax(followerPort, MotorType.kBrushless);
-    m_followerMotor.setIdleMode(IdleMode.kBrake);
+    m_followerMotor.setIdleMode(IdleMode.kCoast);
     m_leaderEncoder = new Encoder(throughBoreEncoderPortA, throughBoreEncoderPortB, false);
 
     m_leaderEncoder.setDistancePerPulse(Units.inchesToMeters(gearRatio / encoderResolution));
@@ -55,6 +55,12 @@ public class ElevatorIONeo implements ElevatorIO {
     inputs.outputVoltage = m_leaderMotor.getBusVoltage();
     inputs.setVoltage = setVoltage;
     inputs.velocityMetersPerSecond = getVelocityMetersPerSecond();
+  }
+
+  @Override
+  public void setBrakeMode(boolean enabled) {
+    m_leaderMotor.setIdleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast);
+    m_followerMotor.setIdleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast);
   }
 
 }

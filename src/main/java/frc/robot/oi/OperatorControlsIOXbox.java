@@ -19,40 +19,41 @@ public class OperatorControlsIOXbox implements OperatorControls {
 
   @Override
   public Trigger setpointMidCone() {
-    return m_controller.povLeft();
+    return m_controller.x();
   }
 
   @Override
   public Trigger setpointHighCone() {
-    return m_controller.povRight();
+    return m_controller.y();
   }
 
   public Trigger setpointMidCube() {
-    return m_controller.x();
+    return m_controller.povLeft();
   }
 
   public Trigger setpointHighCube() {
-    return m_controller.b();
-  }
-
-  @Override
-  public Trigger setpointIntakeGroundCone() {
-    return m_controller.povDown();
-  }
-
-  @Override
-  public Trigger setpointIntakeVerticalCone() {
     return m_controller.povUp();
   }
 
   @Override
-  public Trigger setpointIntakeGroundCube() {
+  public Trigger setpointIntakeGroundCone() {
     return m_controller.a();
   }
 
   @Override
+  public Trigger setpointIntakeVerticalCone() {
+    return m_controller.b();
+  }
+
+  @Override
+  public Trigger setpointIntakeGroundCube() {
+    return m_controller.povDown();
+
+  }
+
+  @Override
   public Trigger intakeFromLoadingStation() {
-    return m_controller.y();
+    return m_controller.povRight();
   }
 
   @Override

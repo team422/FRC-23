@@ -30,4 +30,10 @@ public class WristIOSim implements WristIO {
 
   }
 
+  @Override
+  public void setBrakeMode(boolean mode) {
+    // TODO Auto-generated method stub
+
+  }
+
 }

@@ -63,6 +63,10 @@ public class Elevator extends SubsystemBase {
             ElevatorConstants.kElevatorkg.get(), ElevatorConstants.kElevatorkv.get());
       }
     }
+    if (ElevatorConstants.elevatorTuningMode && ElevatorConstants.kElevatorSetpoint.hasChanged()) {
+      setHeight(Units.inchesToMeters(ElevatorConstants.kElevatorSetpoint.get()));
+
+    }
 
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Elevator", m_inputs);
@@ -138,5 +142,10 @@ public class Elevator extends SubsystemBase {
 
   public Command moveCommand(Supplier<Double> heightDelta) {
     return run(() -> setHeight(m_desiredHeight + heightDelta.get()));
+  }
+
+  public void setBrakeMode(boolean mode) {
+    m_io.setBrakeMode(mode);
+
   }
 }

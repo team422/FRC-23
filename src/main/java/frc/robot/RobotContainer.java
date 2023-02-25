@@ -139,7 +139,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          253.91),
+          Units.degreesToRadians(33 + 90)), // 253
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.minAngle,
           Constants.WristConstants.maxAngle);
@@ -225,7 +225,11 @@ public class RobotContainer {
     Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
+    Command stowIntakeAndElevator = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])));
     driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
+    driverControls.stowIntakeAndElevator().onTrue(stowIntakeAndElevator);
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
     operatorControls.setpointMidCube().onTrue(cubeMidCommand);
@@ -236,8 +240,8 @@ public class RobotContainer {
     operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
 
     driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
-    driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtSpeed(11));
-    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtSpeed(-11));
+    driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtVoltage(11));
+    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtVoltage(-11));
     driverControls.setpointMidCone().onTrue(coneMidCommand);
     driverControls.setpointHighCone().onTrue(coneHighCommand);
     driverControls.setpointMidCube().onTrue(cubeMidCommand);
@@ -266,6 +270,13 @@ public class RobotContainer {
   public void onEnabled() {
     m_wrist.reset();
     m_elevator.reset();
+    m_elevator.setBrakeMode(false);
+    m_wrist.setBrakeMode(false);
+  }
+
+  public void onDisabled() {
+    m_elevator.setBrakeMode(true);
+    m_wrist.setBrakeMode(true);
   }
 
   /**

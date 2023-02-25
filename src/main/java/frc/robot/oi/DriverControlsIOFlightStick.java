@@ -85,7 +85,8 @@ public class DriverControlsIOFlightStick implements DriverControls {
 
   @Override
   public Trigger intakeFromLoadingStation() {
-    return m_leftJoystick.button(2);
+    // return m_leftJoystick.button(2);
+    return new Trigger();
   }
 
   @Override
@@ -102,5 +103,10 @@ public class DriverControlsIOFlightStick implements DriverControls {
   public Trigger driveToGridSetpoint() {
     // return m_leftJoystick.button(5);
     return new Trigger();
+  }
+
+  @Override
+  public Trigger stowIntakeAndElevator() {
+    return m_leftJoystick.button(2);
   }
 }

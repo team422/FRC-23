@@ -75,4 +75,8 @@ public interface DriverControls {
     return new Trigger();
   }
 
+  public default Trigger stowIntakeAndElevator() {
+    return new Trigger();
+  }
+
 }

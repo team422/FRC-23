@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
@@ -121,7 +121,7 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < 4; i++) {
       moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getTurnDegrees());
     }
-    // setModuleStates(moduleStatesFinal);
+    setModuleStates(moduleStatesFinal);
     // }
 
   }
@@ -154,11 +154,11 @@ public class Drive extends SubsystemBase {
     return m_odometry;
   }
 
-  public CommandBase brakeCommand() {
+  public Command brakeCommand() {
     return runOnce(this::brake);
   }
 
-  public CommandBase resetCommand() {
+  public Command resetCommand() {
     return runOnce(this::resetOdometry);
   }
 

@@ -121,8 +121,8 @@ public class RobotState {
     wristAngleRotation2d = m_wrist.getAngle();
     Rotation2d wristAngleDesired = m_wrist.m_desiredAngle;
     realWantedWristRotation2d = m_wrist.userWantedAngle;
-    checkIfWristBreak(elevatorXMeters, wristAngleDesired);
-    checkIfBreakElevator();
+    // checkIfWristBreak(elevatorXMeters, wristAngleDesired);
+    // checkIfBreakElevator();
     Pose3d armPosition = getArmPosition(m_drive.getPose(), m_elevator.getPositionXMeters(),
         m_elevator.getPositionYMeters(), wristAngleRotation2d,
         new Transform3d(new Translation3d(ElevatorConstants.armLength, 0, 0),
