@@ -174,14 +174,14 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     m_driveController.setReference(driveOutput, ControlType.kVelocity, 0,
         adjustedSpeed);
     if (Constants.tuningMode) {
-      m_turningController.setP(ModuleConstants.kTurningP.get());
-      m_turningController.setI(ModuleConstants.kTurningI.get());
-      m_turningController.setD(ModuleConstants.kTurningD.get());
-      // setDesiredState(new SwerveModuleState(0, new Rotation2d(m_turningCANCoder.getAbsolutePosition() * 2)));
-      // // 401 only sets P of the drive PID
-      m_driveController.setP(ModuleConstants.kDriveP.get());
-      m_driveController.setI(ModuleConstants.kDriveI.get());
-      m_driveController.setD(ModuleConstants.kDriveD.get());
+      // m_turningController.setP(ModuleConstants.kTurningP.get());
+      // m_turningController.setI(ModuleConstants.kTurningI.get());
+      // m_turningController.setD(ModuleConstants.kTurningD.get());
+      // // setDesiredState(new SwerveModuleState(0, new Rotation2d(m_turningCANCoder.getAbsolutePosition() * 2)));
+      // // // 401 only sets P of the drive PID
+      // m_driveController.setP(ModuleConstants.kDriveP.get());
+      // m_driveController.setI(ModuleConstants.kDriveI.get());
+      // m_driveController.setD(ModuleConstants.kDriveD.get());
     }
     m_drivingDesiredSpeed = adjustedSpeed;
   }

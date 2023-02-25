@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
 
 public class Elevator extends SubsystemBase {
   private final ElevatorInputsAutoLogged m_inputs;
@@ -49,6 +50,20 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
+    if (Constants.tuningMode) {
+      if (ElevatorConstants.kElevatorP.hasChanged() || ElevatorConstants.kElevatorI.hasChanged()
+          || ElevatorConstants.kElevatorD.hasChanged()) {
+        m_controller.setP(ElevatorConstants.kElevatorP.get());
+        m_controller.setI(ElevatorConstants.kElevatorI.get());
+        m_controller.setD(ElevatorConstants.kElevatorD.get());
+      }
+      if (ElevatorConstants.kElevatorks.hasChanged() || ElevatorConstants.kElevatorkv.hasChanged()
+          || ElevatorConstants.kElevatorkg.hasChanged()) {
+        m_elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorks.get(),
+            ElevatorConstants.kElevatorkg.get(), ElevatorConstants.kElevatorkv.get());
+      }
+    }
+
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Elevator", m_inputs);
 
@@ -76,6 +91,7 @@ public class Elevator extends SubsystemBase {
 
     m_lastVelocity = velocitySetpoint;
     m_lastTime = Timer.getFPGATimestamp();
+
   }
 
   public double getCurrentHeightMeters() {

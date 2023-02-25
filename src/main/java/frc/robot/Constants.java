@@ -113,8 +113,16 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(0.0, 0.28, 0.0);
-    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(12.5, 0.1, 0,
+    public static final TunableNumber kElevatorP = new TunableNumber("Elevator P", 0.0);
+    public static final TunableNumber kElevatorI = new TunableNumber("Elevator I", 0.0);
+    public static final TunableNumber kElevatorD = new TunableNumber("Elevator D", 0.00);
+    public static final TunableNumber kElevatorks = new TunableNumber("Elevator ks", 0.0);
+    public static final TunableNumber kElevatorkg = new TunableNumber("Elevator kg", 0.0);
+    public static final TunableNumber kElevatorkv = new TunableNumber("Elevator kg", 0.0);
+    public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(kElevatorks.get(),
+        kElevatorkg.get(), kElevatorkv.get());
+    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(kElevatorP.get(),
+        kElevatorI.get(), kElevatorD.get(),
         new Constraints(30, 6)); // real
     // public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(55.5, 0.5, 0,
     //     new Constraints(30, 6));

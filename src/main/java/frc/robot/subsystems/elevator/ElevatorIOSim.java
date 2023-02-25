@@ -13,7 +13,7 @@ public class ElevatorIOSim implements ElevatorIO {
   public ElevatorIOSim() {
     m_esim = new ElevatorSim(DCMotor.getNEO(2), ElevatorConstants.elevatorGearRatio, ElevatorConstants.kElevatorMassKG,
         ElevatorConstants.kDrumSize, 0,
-        3, true);
+        3, false);
   }
 
   @Override

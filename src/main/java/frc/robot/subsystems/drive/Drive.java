@@ -121,7 +121,7 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < 4; i++) {
       moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getTurnDegrees());
     }
-    setModuleStates(moduleStatesFinal);
+    // setModuleStates(moduleStatesFinal);
     // }
 
   }
