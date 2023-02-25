@@ -2,6 +2,7 @@ package frc.lib.pathplanner;
 
 import com.pathplanner.lib.PathPoint;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.FieldConstants;
@@ -10,12 +11,27 @@ public class ExtendedPathPoint extends PathPoint {
   public Translation2d m_pose;
   public Rotation2d m_heading;
   public Rotation2d m_holonomicHeading;
+  public Translation2d m_acceptedPoseError;
+  public Rotation2d m_acceptedAngularError;
 
   public ExtendedPathPoint(Translation2d pose, Rotation2d heading, Rotation2d holRotation2d) {
     super(pose, heading, heading);
     m_pose = pose;
     m_heading = heading;
     m_holonomicHeading = holRotation2d;
+    m_acceptedPoseError = new Translation2d(.5, .5);
+    m_acceptedAngularError = Rotation2d.fromDegrees(10);
+  }
+
+  public ExtendedPathPoint(Translation2d pose, Rotation2d heading, Rotation2d holRotation2d,
+      Translation2d acceptedPoseError,
+      Rotation2d acceptedAngularError) {
+    super(pose, heading, heading);
+    m_pose = pose;
+    m_heading = heading;
+    m_holonomicHeading = holRotation2d;
+    m_acceptedPoseError = acceptedPoseError;
+    m_acceptedAngularError = acceptedAngularError;
   }
 
   public Translation2d getTranslation() {
@@ -42,6 +58,14 @@ public class ExtendedPathPoint extends PathPoint {
     }
     return new ExtendedPathPoint(new Translation2d(FieldConstants.kFieldLengthMeters - m_pose.getX(), m_pose.getY()),
         newHeading, newHolonomicHeading);
+  }
+
+  public Pose2d getPose2d() {
+    return new Pose2d(m_pose, m_holonomicHeading);
+  }
+
+  public Pose2d getTolerance() {
+    return new Pose2d(m_acceptedPoseError, m_acceptedAngularError);
   }
 
 }

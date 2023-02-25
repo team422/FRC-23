@@ -65,6 +65,7 @@ public class DriverControlsIOFlightStick implements DriverControls {
   @Override
   public Trigger setpointHighCube() {
     return m_leftJoystick.button(5);
+    // return new Trigger();
   }
 
   @Override
@@ -97,4 +98,9 @@ public class DriverControlsIOFlightStick implements DriverControls {
     return m_leftJoystick.button(6);
   }
 
+  @Override
+  public Trigger driveToGridSetpoint() {
+    // return m_leftJoystick.button(5);
+    return new Trigger();
+  }
 }

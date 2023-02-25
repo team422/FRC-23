@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import frc.lib.utils.CanSparkMaxSetup;
 import frc.robot.Constants;
 import frc.robot.util.TunableNumber;
 
@@ -63,11 +64,12 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
       int turningMotorChannel,
       int turningCANCoderChannel,
       double offset) {
-
+    CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
+    setup.setupSparkMaxSlow(m_driveMotor);
     m_driveMotor.setInverted(true);
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
-
+    setup.setupSparkMaxSlow(m_turningMotor);
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
 

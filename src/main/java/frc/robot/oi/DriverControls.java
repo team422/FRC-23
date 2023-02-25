@@ -71,4 +71,8 @@ public interface DriverControls {
     return new Trigger();
   }
 
+  public default Trigger driveToGridSetpoint() {
+    return new Trigger();
+  }
+
 }

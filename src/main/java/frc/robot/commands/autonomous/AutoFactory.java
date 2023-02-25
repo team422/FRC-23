@@ -20,7 +20,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SetpointConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.gyro.GyroSub;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 
@@ -30,16 +29,14 @@ public class AutoFactory extends CommandBase {
 
   private final Drive m_drive;
   private final Elevator m_elevator;
-  private final GyroSub m_gyro;
   private final Wrist m_wrist;
   private final Intake m_intake;
 
   private final Map<String, Command> m_eventMap;
 
-  public AutoFactory(Drive drive, Elevator elevator, Wrist wrist, Intake intake, GyroSub gyro) {
+  public AutoFactory(Drive drive, Elevator elevator, Wrist wrist, Intake intake) {
     m_drive = drive;
     m_elevator = elevator;
-    m_gyro = gyro;
     m_wrist = wrist;
     m_intake = intake;
 
@@ -67,7 +64,7 @@ public class AutoFactory extends CommandBase {
         "brake", m_drive.brakeCommand(),
         "pickUpConeLow", m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0]),
         "elevatorHigh", m_elevator.setHeightCommand(Units.inchesToMeters(5)),
-        "charge", new ChargeStationBalance(drive, m_gyro));
+        "charge", new ChargeStationBalance(drive));
 
     if (Constants.MetaConstants.pathTuningMode) {
       PathPlannerServer.startServer(5811);

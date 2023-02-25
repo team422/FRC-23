@@ -1,7 +1,8 @@
 package frc.robot.subsystems.vision;
 
-import org.photonvision.common.hardware.VisionLEDMode;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.subsystems.drive.Drive;
@@ -23,11 +24,12 @@ public class Vision {
       m_drive.addVisionOdometryMeasurement(pose.estimatedPose, pose.timestampSeconds);
     });
     m_io.updateInputs(m_inputs);
+
   }
 
-  public void startLimeLight() {
-    m_io.setLEDMode(VisionLEDMode.kOn);
-
+  public void initPhotonPoseEstimator(Transform3d cameraToRobot, AprilTagFieldLayout tagLayout,
+      PoseStrategy poseStrategy) {
+    m_io.initPhotonPoseEstimator(cameraToRobot, tagLayout, poseStrategy);
   }
 
 }

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.gyro;
+package frc.robot.subsystems.drive.gyro;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 

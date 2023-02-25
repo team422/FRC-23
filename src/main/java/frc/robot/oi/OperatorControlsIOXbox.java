@@ -19,41 +19,40 @@ public class OperatorControlsIOXbox implements OperatorControls {
 
   @Override
   public Trigger setpointMidCone() {
-    // TODO Auto-generated method stub
-    return m_controller.b();
+    return m_controller.povLeft();
   }
 
   @Override
   public Trigger setpointHighCone() {
-    return m_controller.y();
-  }
-
-  public Trigger setpointMidCube() {
     return m_controller.povRight();
   }
 
+  public Trigger setpointMidCube() {
+    return m_controller.x();
+  }
+
   public Trigger setpointHighCube() {
-    return m_controller.povUp();
+    return m_controller.b();
   }
 
   @Override
   public Trigger setpointIntakeGroundCone() {
-    return m_controller.a();
-  }
-
-  @Override
-  public Trigger setpointIntakeVerticalCone() {
-    return m_controller.x();
-  }
-
-  @Override
-  public Trigger setpointIntakeGroundCube() {
     return m_controller.povDown();
   }
 
   @Override
+  public Trigger setpointIntakeVerticalCone() {
+    return m_controller.povUp();
+  }
+
+  @Override
+  public Trigger setpointIntakeGroundCube() {
+    return m_controller.a();
+  }
+
+  @Override
   public Trigger intakeFromLoadingStation() {
-    return m_controller.rightBumper();
+    return m_controller.y();
   }
 
   @Override
@@ -70,5 +69,45 @@ public class OperatorControlsIOXbox implements OperatorControls {
   public double moveElevatorInput() {
     return m_controls.addDeadzoneScaled(-m_controller.getLeftY(), .1) / 5;
   }
+
+  @Override
+  public Trigger increasePoseSetpoint() {
+    return m_controller.rightBumper();
+  }
+
+  @Override
+  public Trigger decreasePoseSetpoint() {
+    return m_controller.leftBumper();
+  }
+
+  // @Override
+  // public Trigger getLeftGrid() {
+  //   return m_controller.leftBumper();
+  // }
+
+  // @Override
+  // public Trigger getMiddleGrid() {
+  //   return m_controller.povDown();
+  // }
+
+  // @Override
+  // public Trigger getRightGrid() {
+  //   return m_controller.povRight();
+  // }
+
+  // @Override
+  // public Trigger getLeftNode() {
+  //   return m_controller.x();
+  // }
+
+  // @Override
+  // public Trigger getMiddleNode() {
+  //   return m_controller.a();
+  // }
+
+  // @Override
+  // public Trigger getRightNode() {
+  //   return m_controller.b();
+  // }
 
 }

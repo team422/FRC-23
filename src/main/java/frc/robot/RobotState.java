@@ -9,16 +9,23 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.SetpointConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 
 public class RobotState {
+
+  private static RobotState instance;
   public Drive m_drive;
   public Intake m_intake;
   public Elevator m_elevator;
@@ -34,13 +41,78 @@ public class RobotState {
   public Rotation2d wristAngleRotation2d;
   public Rotation2d realWantedWristRotation2d;
   public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
+  public int m_poseSetpoint;
 
-  public RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
     m_drive = drive;
     m_intake = intake;
     m_elevator = elevator;
     m_wrist = wrist;
+    m_poseSetpoint = 5;
+  }
 
+  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+    if (instance == null) {
+      instance = new RobotState(drive, intake, elevator, wrist);
+    }
+    return instance;
+  }
+
+  public static RobotState getInstance() {
+    if (instance == null) {
+      throw new RuntimeException("RobotState not initialized");
+    }
+    return instance;
+  }
+
+  public void increasePoseSetpoint() {
+    if (m_poseSetpoint < 9) {
+      m_poseSetpoint += 1;
+    }
+  }
+
+  public void decreasePoseSetpoint() {
+    if (m_poseSetpoint > 1) {
+      m_poseSetpoint -= 1;
+    }
+  }
+
+  public ExtendedPathPoint getPoseSetpoint() {
+    Alliance alliance = DriverStation.getAlliance();
+    ExtendedPathPoint point = SetpointConstants.blueFirstGridCube;
+    if (m_poseSetpoint == 1) {
+      point = SetpointConstants.blueFirstGridLeftCone;
+    }
+    if (m_poseSetpoint == 2) {
+      point = SetpointConstants.blueFirstGridCube;
+    }
+    if (m_poseSetpoint == 3) {
+      point = SetpointConstants.blueFirstGridRightCone;
+    }
+    if (m_poseSetpoint == 4) {
+      point = SetpointConstants.blueSecondGridLeftCone;
+    }
+    if (m_poseSetpoint == 5) {
+      point = SetpointConstants.blueSecondGridCube;
+    }
+    if (m_poseSetpoint == 6) {
+      point = SetpointConstants.blueSecondGridRightCone;
+    }
+    if (m_poseSetpoint == 7) {
+      point = SetpointConstants.blueThirdGridLeftCone;
+    }
+    if (m_poseSetpoint == 8) {
+      point = SetpointConstants.blueThirdGridCube;
+    }
+    if (m_poseSetpoint == 9) {
+      point = SetpointConstants.blueThirdGridRightCone;
+    }
+
+    if (alliance.equals(Alliance.Blue)) {
+      return point;
+    } else {
+      return point.flipPathPoint();
+    }
   }
 
   public void update() {
@@ -50,12 +122,13 @@ public class RobotState {
     Rotation2d wristAngleDesired = m_wrist.m_desiredAngle;
     realWantedWristRotation2d = m_wrist.userWantedAngle;
     checkIfWristBreak(elevatorXMeters, wristAngleDesired);
+    checkIfBreakElevator();
     Pose3d armPosition = getArmPosition(m_drive.getPose(), m_elevator.getPositionXMeters(),
         m_elevator.getPositionYMeters(), wristAngleRotation2d,
         new Transform3d(new Translation3d(ElevatorConstants.armLength, 0, 0),
             new Rotation3d(0, wristAngleRotation2d.getRadians(), 0)),
         new Translation3d(Units.inchesToMeters(16), 0, 0));
-    Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+
     Mechanism2d fullMech = new Mechanism2d(2, 2);
     fullMech.getRoot("ElevatorBottom", 0, ElevatorConstants.elevatorOffsetMeters)
         .append(new MechanismLigament2d("Elevator", m_elevator.getTravelDistanceMeters(),
@@ -68,7 +141,9 @@ public class RobotState {
     Logger.getInstance().recordOutput("RobotState/Elevator", fullMech);
     Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
     Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
-    checkIfBreakElevator();
+    Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+    SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
+
   }
 
   public void checkIfBreakElevator() {
@@ -106,6 +181,7 @@ public class RobotState {
   }
 
   public double getMorphedVelocityMultiplier() {
+
     return Math.sqrt(1 - (m_elevator.getTravelDistanceMeters() / ElevatorConstants.maxTravel));
   }
 

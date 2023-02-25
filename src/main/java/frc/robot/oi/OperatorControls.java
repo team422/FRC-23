@@ -29,4 +29,8 @@ public interface OperatorControls {
 
   public double moveElevatorInput();
 
+  public Trigger increasePoseSetpoint();
+
+  public Trigger decreasePoseSetpoint();
+
 }

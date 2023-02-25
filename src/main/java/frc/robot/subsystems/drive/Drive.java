@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.subsystems.gyro.GyroSub;
+import frc.robot.RobotState;
+import frc.robot.subsystems.drive.gyro.GyroIO;
+import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
 
 public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
@@ -23,13 +25,15 @@ public class Drive extends SubsystemBase {
   private Pose2d curPose = new Pose2d();
   private SwerveDrivePoseEstimator m_odometry;
   private SwerveModuleIO[] m_swerveModules;
-  private GyroSub m_gyro;
+  private GyroIO m_gyro;
+  private GyroInputsAutoLogged m_gyroInputs;
   private double m_simGyroLastUpdated;
 
   /** Creates a new Drive. */
-  public Drive(GyroSub gyro, Pose2d startPose, SwerveModuleIO... modules) {
+  public Drive(GyroIO gyro, Pose2d startPose, SwerveModuleIO... modules) {
     m_modules = modules;
     m_gyro = gyro;
+    m_gyroInputs = new GyroInputsAutoLogged();
     m_swerveModules = modules;
     for (SwerveModuleIO module : m_modules) {
       module.resetDistance();
@@ -47,6 +51,8 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    m_gyro.updateInputs(m_gyroInputs);
+    Logger.getInstance().processInputs("Gyro", m_gyroInputs);
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
@@ -105,6 +111,8 @@ public class Drive extends SubsystemBase {
   public void drive(ChassisSpeeds speeds) {
 
     // Set chassis speeds
+    double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
+    speeds.omegaRadiansPerSecond = speeds.omegaRadiansPerSecond * angularMultiplier;
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveModuleState[] moduleStatesFinal = new SwerveModuleState[4];
     // if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
@@ -138,6 +146,14 @@ public class Drive extends SubsystemBase {
     m_odometry.addVisionMeasurement(pose.toPose2d(), timestampSeconds);
   }
 
+  public GyroIO getGyro() {
+    return m_gyro;
+  }
+
+  public SwerveDrivePoseEstimator getPoseEstimator() {
+    return m_odometry;
+  }
+
   public CommandBase brakeCommand() {
     return runOnce(this::brake);
   }
@@ -145,4 +161,5 @@ public class Drive extends SubsystemBase {
   public CommandBase resetCommand() {
     return runOnce(this::resetOdometry);
   }
+
 }

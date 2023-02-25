@@ -51,14 +51,51 @@ public class FieldGeomUtil {
   }
 
   public boolean overConesOrCubes(Pose3d pose) {
-    if ((pose.getX() < 1 || pose.getX() > 15.5) && pose.getY() < 6) {
-      return true;
-    }
     return false;
+    // if ((pose.getX() < 1 || pose.getX() > 15.5) && pose.getY() < 6) {
+    //   return true;
+    // }
+    // return false;
   }
 
-  public ArrayList<ExtendedPathPoint> fastestPath(Pose2d curPose, String desiredSpot, Alliance allianceColor) {
+  public ArrayList<ExtendedPathPoint> fastestPathToLoadingStation(Pose2d curPose, Alliance allianceColor,
+      int loadingStationNumber) {
     // do all math on blue side and flip if necessary
+    ArrayList<ExtendedPathPoint> fastestPath = new ArrayList<>();
+    if (allianceColor == Alliance.Red) {
+      curPose = flipSidePose2d(curPose);
+    }
+
+    if (loadingStationNumber == 1) {
+      fastestPath.add(0, allPoints.get("blueLeftWallLoadingStation"));
+    } else if (loadingStationNumber == 2) {
+      fastestPath.add(0, allPoints.get("blueRightWallLoadingStation"));
+    }
+
+    if (curPose.getX() < 12 && curPose.getY() < 6) {
+      fastestPath.add(0, allPoints.get("bluePreLoadingStation"));
+
+    }
+
+    if (curPose.getX() < 2.5 && curPose.getY() < 2) {
+      fastestPath.add(0, allPoints.get("blueRightOfBalance"));
+    }
+    if (curPose.getX() < 2.5 && curPose.getY() >= 2) {
+      fastestPath.add(0, allPoints.get("blueLeftOfBalance"));
+    }
+
+    if (allianceColor == Alliance.Red) {
+      int i = 0;
+      for (ExtendedPathPoint point : fastestPath) {
+        fastestPath.set(i, point.flipPathPoint());
+        i += 1;
+      }
+    }
+    return fastestPath;
+  }
+
+  public ArrayList<ExtendedPathPoint> fastestPathToGamePieceDropoff(Pose2d curPose, int gridNumber, int pieceNum,
+      Alliance allianceColor) {
     ArrayList<ExtendedPathPoint> fastestPath = new ArrayList<>();
     if (allianceColor == Alliance.Red) {
       curPose = flipSidePose2d(curPose);
@@ -72,6 +109,7 @@ public class FieldGeomUtil {
       }
     }
     return fastestPath;
+
   }
 
   public Pose2d flipSidePose2d(Pose2d startPose) {

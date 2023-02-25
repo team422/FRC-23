@@ -19,16 +19,14 @@ public class TeloepDrive extends CommandBase {
   double deadzone;
   ChassisSpeeds speeds;
   EricNubControls m_controlsHandler;
-  Supplier<Double> m_angularVelocityMultiplier;
 
   public TeloepDrive(Drive drive, Supplier<Double> xSpeed, Supplier<Double> ySpeed,
-      Supplier<Double> zRotation, double deadzone, Supplier<Double> angularVelocityMultiplier) {
+      Supplier<Double> zRotation, double deadzone) {
     m_drive = drive;
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;
     this.zRotation = zRotation;
     this.deadzone = deadzone;
-    m_angularVelocityMultiplier = angularVelocityMultiplier;
     m_controlsHandler = new EricNubControls();
     addRequirements(drive);
 
@@ -45,7 +43,7 @@ public class TeloepDrive extends CommandBase {
 
     curXSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curYSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
-    curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond * m_angularVelocityMultiplier.get();
+    curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond;
     // System.out.println(curXSpeed);
 
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,

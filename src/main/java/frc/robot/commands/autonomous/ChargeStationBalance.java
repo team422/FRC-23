@@ -4,17 +4,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.gyro.GyroSub;
 
 public class ChargeStationBalance extends CommandBase {
   Drive m_drive;
-  GyroSub m_gyro;
   PIDController m_turnController;
   PIDController m_rollController;
 
-  public ChargeStationBalance(Drive drive, GyroSub gyro) {
+  public ChargeStationBalance(Drive drive) {
     m_drive = drive;
-    m_gyro = gyro;
     addRequirements(m_drive);
     m_turnController = new PIDController(0.1, 0, 0);
     m_rollController = new PIDController(0.1, 0, 0);
@@ -30,7 +27,7 @@ public class ChargeStationBalance extends CommandBase {
     } else {
       // if not, roll to 0
       m_drive
-          .drive(new ChassisSpeeds(m_rollController.calculate(m_gyro.getRoll().getDegrees(), 0), 0, 0));
+          .drive(new ChassisSpeeds(m_rollController.calculate(m_drive.getGyro().getRoll().getDegrees(), 0), 0, 0));
     }
   }
 }

@@ -4,15 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.wpilibj.Filesystem;
 
@@ -45,10 +39,5 @@ public class PathPlannerUtil {
     } catch (Exception e) {
       return "";
     }
-  }
-
-  public static PathPlannerTrajectory createTrajectoryToLoading(PathConstraints constraints) {
-    ArrayList<PathPoint> points = new ArrayList<>();
-    return PathPlanner.generatePath(constraints, null);
   }
 }

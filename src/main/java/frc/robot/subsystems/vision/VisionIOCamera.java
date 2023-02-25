@@ -21,6 +21,7 @@ public class VisionIOCamera implements VisionIO {
   public AprilTagFieldLayout m_tagLayout;
   public PoseStrategy m_poseStrategy;
   private Optional<EstimatedRobotPose> curPose;
+  private PhotonPipelineResult m_result;
 
   public VisionIOCamera(String cameraName) {
     m_cameraName = cameraName;
@@ -46,13 +47,13 @@ public class VisionIOCamera implements VisionIO {
   @Override
   public PhotonPipelineResult getPipelineResult() {
 
-    return m_camera.getLatestResult();
+    return m_result;
   }
 
   @Override
   public Optional<EstimatedRobotPose> getEstimatedRobotPose() {
     if (m_poseEstimator != null) {
-      curPose = m_poseEstimator.update();
+      curPose = m_poseEstimator.update(getPipelineResult());
       return curPose;
     } else {
       return Optional.empty();
@@ -63,11 +64,11 @@ public class VisionIOCamera implements VisionIO {
   public void updateInputs(VisionInputs inputs) {
     inputs.cameraName = m_cameraName;
     // while this may seem intensive, it's actually not. The camera is updating on a separate coprocessor
-    PhotonPipelineResult result = m_camera.getLatestResult();
-    inputs.hasTarget = result.hasTargets();
-    inputs.isTargetAprilTag = result.hasTargets() && true;
-    if (result.hasTargets()) {
-      PhotonTrackedTarget target = result.getBestTarget();
+    m_result = m_camera.getLatestResult();
+    inputs.hasTarget = m_result.hasTargets();
+    inputs.isTargetAprilTag = m_result.hasTargets() && true;
+    if (m_result.hasTargets()) {
+      PhotonTrackedTarget target = m_result.getBestTarget();
       inputs.targetX = target.getPitch();
       inputs.targetY = target.getYaw();
       inputs.targetArea = target.getArea();

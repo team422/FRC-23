@@ -4,14 +4,18 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -20,12 +24,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.SetpointConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
+import frc.robot.commands.drive.DriveThroughPointsToLoadingStation;
 import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
@@ -36,21 +43,17 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.SwerveModuleIOmk4ineo;
+import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.gyro.GyroIOPigeon;
-import frc.robot.subsystems.gyro.GyroSub;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIONeo550;
 import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIOCamera;
-import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.CameraAprilTag;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristIOThroughBoreSparkMaxAlternate;
-import frc.robot.util.CustomHolmonomicDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -62,17 +65,14 @@ import frc.robot.util.CustomHolmonomicDrive;
 public class RobotContainer {
   // Subsystems
   private Drive m_drive;
-  private GyroSub m_gyro;
   private Intake m_intake;
-  private Vision m_limelight;
-  private Vision m_frontCamera;
-  private Vision m_backCamera;
-  private static Wrist m_wrist;
-  private static Elevator m_elevator;
+  private CameraAprilTag[] m_cams;
+  private Wrist m_wrist;
+  private Elevator m_elevator;
   private CANSparkMax m_throughboreSparkMaxIntakeMotor;
-  private static RobotState m_robotState;
-  private static Command m_testCommand;
-  private static AutoFactory m_autoFactory;
+  private RobotState m_robotState;
+  private AutoFactory m_autoFactory;
+  private AprilTagFieldLayout m_layout;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -81,14 +81,25 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureAprilTags();
     configureSubsystems();
     configureButtonBindings();
     configureAuto();
   }
 
+  public void configureAprilTags() {
+    try {
+      m_layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+    } catch (IOException e) {
+      System.out.println("AprilTag field layout not found:" + e);
+
+    }
+
+  }
+
   private void configureAuto() {
     m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
-    m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake, m_gyro);
+    m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
 
     // Add basic autonomous commands
     m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
@@ -101,7 +112,6 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     if (Robot.isReal()) {
-      m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
       SwerveModuleIO[] m_swerveModuleIOs = {
           new SwerveModuleIOmk4ineo(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
               Ports.leftFrontCanCoderPort, 0),
@@ -111,10 +121,11 @@ public class RobotContainer {
               Ports.leftRearCanCoderPort, 0),
           new SwerveModuleIOmk4ineo(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
               Ports.rightRearCanCoderPort, 0) };
-      m_drive = new Drive(m_gyro, Constants.DriveConstants.startPose, m_swerveModuleIOs);
+      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort), Constants.DriveConstants.startPose,
+          m_swerveModuleIOs);
       m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
 
-      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
+      // m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 500);
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 500);
@@ -125,13 +136,6 @@ public class RobotContainer {
       m_intake = new Intake(
           new IntakeIONeo550(m_throughboreSparkMaxIntakeMotor, Constants.IntakeConstants.intakeGearRatio),
           Constants.IntakeConstants.intakePIDController);
-      m_limelight = new Vision(new VisionIOLimelight(Constants.VisionConstants.klimelightName,
-          Constants.VisionConstants.kAprilTagPipelineIndex, Constants.VisionConstants.kReflectiveTapePipelineIndex),
-          Constants.VisionConstants.klimelightTransform, m_drive);
-      m_frontCamera = new Vision(new VisionIOCamera(Constants.VisionConstants.kfrontCameraName),
-          Constants.VisionConstants.kfrontCameraTransform, m_drive);
-      m_backCamera = new Vision(new VisionIOCamera(Constants.VisionConstants.kbackCameraName),
-          Constants.VisionConstants.kbackCameraTransform, m_drive);
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
@@ -139,7 +143,6 @@ public class RobotContainer {
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.minAngle,
           Constants.WristConstants.maxAngle);
-      m_gyro = new GyroSub(new GyroIOPigeon(Constants.Ports.pigeonPort));
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
           Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
           Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.elevatorGearRatio,
@@ -147,9 +150,17 @@ public class RobotContainer {
           Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.elevatorOffsetMeters,
           Constants.ElevatorConstants.elevatorMaxHeightMeters,
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
-      m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
+      m_cams = new CameraAprilTag[] {
+          new CameraAprilTag(VisionConstants.kfrontCameraName, m_layout, VisionConstants.kfrontCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+          // new CameraAprilTag(VisionConstants.kbackCameraName, m_layout, VisionConstants.kbackCameraTransform,
+          //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+      };
+      // m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
+
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
-      m_drive = new Drive(new GyroSub(new GyroIOPigeon(22)), new Pose2d(), new SwerveModuleIOSim(),
+      m_drive = new Drive(new GyroIOPigeon(22), new Pose2d(), new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(), new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
@@ -159,17 +170,9 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
           WristConstants.minAngle, WristConstants.maxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
-      m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     }
 
-  }
-
-  private double getMorphedVelocityMultiplier() {
-    if (m_robotState != null) {
-      return m_robotState.getMorphedVelocityMultiplier();
-    } else {
-      return 1;
-    }
   }
 
   /**
@@ -185,9 +188,7 @@ public class RobotContainer {
         () -> driverControls.getDriveX(),
         () -> driverControls.getDriveY(),
         () -> driverControls.getDriveZ(),
-        Constants.DriveConstants.kDriveDeadband, () -> {
-          return getMorphedVelocityMultiplier();
-        });
+        Constants.DriveConstants.kDriveDeadband);
     m_drive.setDefaultCommand(teleopDrive);
 
     OperatorControls operatorControls = new OperatorControlsIOXbox(5);
@@ -220,10 +221,11 @@ public class RobotContainer {
     Command cubeHighCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.cubeHighCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.cubeHighCommandSetpoints[1])));
-    Command driveToLoadingStationCommand = new DriveToPoint(m_drive, new Pose2d(15.4, 7.2, Rotation2d.fromDegrees(0)),
-        new CustomHolmonomicDrive(new PIDController(.5, 0, 0), new PIDController(.01, 0, 0)),
+
+    Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
+        DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
-    driverControls.goToLoadingStation().whileTrue(driveToLoadingStationCommand);
+    driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
     operatorControls.setpointMidCube().onTrue(cubeMidCommand);
@@ -247,8 +249,18 @@ public class RobotContainer {
 
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
+    operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
+      m_robotState.increasePoseSetpoint();
+    }));
+    operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
+      m_robotState.decreasePoseSetpoint();
+    }));
 
-    m_testCommand = cubeHighCommand;
+    Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_robotState::getPoseSetpoint,
+        DriveConstants.holonomicDrive,
+        () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
+    driverControls.driveToGridSetpoint().whileTrue(driveToGridSetpointCommand);
+
   }
 
   public void onEnabled() {
@@ -269,10 +281,6 @@ public class RobotContainer {
       }
     }
     return m_autoChooser.get();
-  }
-
-  public Command getTestCommand() {
-    return m_testCommand;
   }
 
   public void updateRobotState() {

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.CustomHolmonomicDrive;
 
@@ -12,16 +13,17 @@ public class DriveToPoint extends CommandBase {
   Drive m_swerveBase;
   Pose2d m_targetPose;
   double m_maxSpeedWanted;
+  Supplier<ExtendedPathPoint> m_targetPoseSupplier;
   CustomHolmonomicDrive m_HolmDrive;
   Supplier<Double> xSpeed;
   Supplier<Double> ySpeed;
   Supplier<Double> zRotation;
 
-  public DriveToPoint(Drive swerveBase, Pose2d targetPose,
+  public DriveToPoint(Drive swerveBase, Supplier<ExtendedPathPoint> targetPose,
       CustomHolmonomicDrive HolmDrive, Supplier<Double> xSpeed, Supplier<Double> ySpeed,
       Supplier<Double> zRotation) {
     m_swerveBase = swerveBase;
-    m_targetPose = targetPose;
+    m_targetPoseSupplier = targetPose;
     m_HolmDrive = HolmDrive;
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;
@@ -32,6 +34,7 @@ public class DriveToPoint extends CommandBase {
 
   @Override
   public void initialize() {
+    m_targetPose = m_targetPoseSupplier.get().getPose2d();
 
   }
 

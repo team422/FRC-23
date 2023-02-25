@@ -1,10 +1,10 @@
-package frc.robot.subsystems.gyro;
+package frc.robot.subsystems.drive.gyro;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.advantagekit.LoggedIO;
-import frc.robot.subsystems.gyro.GyroIO.GyroInputs;
+import frc.robot.subsystems.drive.gyro.GyroIO.GyroInputs;
 
 public interface GyroIO extends LoggedIO<GyroInputs> {
   @AutoLog
