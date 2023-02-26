@@ -98,7 +98,7 @@ public class AutoFactory extends CommandBase {
     return PathPlanner.loadPathGroup(
         name,
         DriveConstants.kMaxSpeedMetersPerSecondAuto,
-        DriveConstants.kMaxSpeedMetersPerSecondAccelAuto);
+        DriveConstants.kMaxAccelMetersPerSecondSqAuto);
   }
 
   public CommandBase getAutoCommand(String name) {

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
@@ -109,25 +110,25 @@ public class Drive extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds speeds) {
-
-    // Set chassis speeds
-    double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
-    speeds.omegaRadiansPerSecond = speeds.omegaRadiansPerSecond * angularMultiplier;
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
-    SwerveModuleState[] moduleStatesFinal = new SwerveModuleState[4];
-    // if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
-    //   this.brake();
-    // } else {
-    for (int i = 0; i < 4; i++) {
-      moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getAngle());
-    }
-    setModuleStates(moduleStatesFinal);
-    // }
 
+    for (int i = 0; i < moduleStates.length; i++) {
+      moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getAngle());
+    }
+
+    double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        moduleStates,
+        speeds,
+        DriveConstants.kMaxModuleSpeedMetersPerSecond,
+        DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxAngularSpeedRadiansPerSecond * angularMultiplier);
+
+    setModuleStates(moduleStates);
   }
 
   public void setModuleStates(SwerveModuleState[] moduleStates) {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < moduleStates.length; i++) {
       m_swerveModules[i].setDesiredState(moduleStates[i]);
     }
   }

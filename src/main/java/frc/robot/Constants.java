@@ -168,14 +168,15 @@ public final class Constants {
     };
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
+    public static final double kMaxModuleSpeedMetersPerSecond = 5;
     public static final double kMaxSpeedMetersPerSecond = 4;
-    public static final double kMaxSpeedMetersPerSecondAccel = 2;
+    public static final double kMaxAccelMetersPerSecondSq = 2;
 
     public static final double kMaxSpeedMetersPerSecondAuto = 1;
-    public static final double kMaxSpeedMetersPerSecondAccelAuto = 1;
+    public static final double kMaxAccelMetersPerSecondSqAuto = 1;
 
-    public static final double kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
-    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 0.5 * Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
+    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
 
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
         new PIDController(.01, 0, 0));
