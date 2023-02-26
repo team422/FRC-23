@@ -25,7 +25,7 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public void resetEncoders();
 
-  public Rotation2d getTurnDegrees();
+  public Rotation2d getAngle();
 
   public void setDesiredState(SwerveModuleState swerveModuleState);
 

@@ -32,7 +32,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
   }
 
-  public Rotation2d getTurnDegrees() {
+  public Rotation2d getAngle() {
     return m_curPos.angle;
   }
 

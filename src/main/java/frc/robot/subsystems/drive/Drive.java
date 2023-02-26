@@ -119,7 +119,7 @@ public class Drive extends SubsystemBase {
     //   this.brake();
     // } else {
     for (int i = 0; i < 4; i++) {
-      moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getTurnDegrees());
+      moduleStatesFinal[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getAngle());
     }
     setModuleStates(moduleStatesFinal);
     // }

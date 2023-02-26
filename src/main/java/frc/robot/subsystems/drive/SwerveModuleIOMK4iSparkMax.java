@@ -18,7 +18,7 @@ import frc.lib.utils.CanSparkMaxSetup;
 import frc.robot.Constants;
 import frc.robot.util.TunableNumber;
 
-public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
+public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
   private final CANSparkMax m_driveMotor;
   private final CANSparkMax m_turningMotor;
@@ -34,9 +34,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   private final SparkMaxPIDController m_turningController;
   private final SparkMaxPIDController m_driveController;
 
-  private final double m_offset;
-  private double m_turningDesiredPosition = 0;
-  private double m_drivingDesiredSpeed = 0;
   private double adjustedSpeed;
   private String name;
 
@@ -59,11 +56,10 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
    * @param driveMotorChannel   ID for the drive motor.
    * @param turningMotorChannel ID for the turning motor.
    */
-  public SwerveModuleIOmk4ineo(
+  public SwerveModuleIOMK4iSparkMax(
       int driveMotorChannel,
       int turningMotorChannel,
-      int turningCANCoderChannel,
-      double offset) {
+      int turningCANCoderChannel) {
     CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
     setup.setupSparkMaxSlow(m_driveMotor);
@@ -77,8 +73,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
 
     m_turningCANCoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningCANCoder.configSensorDirection(false);
-
-    m_offset = offset;
 
     m_driveMotor.setIdleMode(IdleMode.kCoast);
     m_turningMotor.setIdleMode(IdleMode.kBrake);
@@ -124,11 +118,11 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
    * @return The current state of the module.
    */
   public SwerveModuleState getSwerveModuleState() {
-    return new SwerveModuleState(m_driveEncoder.getVelocity(), this.getTurnDegrees());
+    return new SwerveModuleState(m_driveEncoder.getVelocity(), this.getAngle());
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getTurnDegrees());
+    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getAngle());
   }
 
   public CANSparkMax getTurnMotor() {
@@ -140,7 +134,7 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   }
 
   public SwerveModulePosition getModulePosition() {
-    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getTurnDegrees());
+    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getAngle());
   }
 
   public double getAbsoluteEncoder() {
@@ -166,9 +160,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
     m_turningController.setReference(
         state.angle.getDegrees(),
         ControlType.kPosition);
-    // m_turningController.setReference(state.angle.getDegrees(), ControlType.kPosition);
-    m_turningDesiredPosition = state.angle.getDegrees();
-    // SmartDashboard.putNumber("Desired Angle " + this.getName(), adjustedAngle.getDegrees());
 
     adjustedSpeed = driveOutput;
     m_driveController.setReference(driveOutput, ControlType.kVelocity, 0,
@@ -183,7 +174,6 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
       // m_driveController.setI(ModuleConstants.kDriveI.get());
       // m_driveController.setD(ModuleConstants.kDriveD.get());
     }
-    m_drivingDesiredSpeed = adjustedSpeed;
   }
 
   //calculate the angle motor setpoint based on the desired angle and the current angle measurement
@@ -221,7 +211,7 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   }
 
   @Override
-  public Rotation2d getTurnDegrees() {
+  public Rotation2d getAngle() {
     double angle = Units.degreesToRadians(m_turningEncoder.getPosition());
     return new Rotation2d(MathUtil.angleModulus(angle));
   }
@@ -229,7 +219,10 @@ public class SwerveModuleIOmk4ineo implements SwerveModuleIO {
   @Override
   public void updateInputs(SwerveModuleInputs inputs) {
     // TODO Auto-generated method stub
-
+    inputs.driveDistanceMeters = getDriveDistanceMeters();
+    inputs.driveVelocityMetersPerSecond = getDriveVelocityMetersPerSecond();
+    inputs.turnAngleRads = getAngle().getRadians();
+    inputs.turnRadsPerSecond = Units.degreesToRadians(m_driveEncoder.getVelocity());
   }
 
 }

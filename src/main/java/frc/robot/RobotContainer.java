@@ -41,8 +41,8 @@ import frc.robot.oi.OperatorControls;
 import frc.robot.oi.OperatorControlsXbox;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModuleIOMK4iSparkMax;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
-import frc.robot.subsystems.drive.SwerveModuleIOmk4ineo;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
@@ -94,9 +94,7 @@ public class RobotContainer {
       m_layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
     } catch (IOException e) {
       System.out.println("AprilTag field layout not found:" + e);
-
     }
-
   }
 
   private void configureAuto() {
@@ -115,19 +113,18 @@ public class RobotContainer {
   private void configureSubsystems() {
     if (Robot.isReal()) {
       SwerveModuleIO[] m_swerveModuleIOs = {
-          new SwerveModuleIOmk4ineo(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
-              Ports.leftFrontCanCoderPort, 0),
-          new SwerveModuleIOmk4ineo(Constants.Ports.rightFrontDriveMotorPort, Ports.rightFrontTurningMotorPort,
-              Ports.rightFrontCanCoderPort, 0),
-          new SwerveModuleIOmk4ineo(Constants.Ports.leftRearDriveMotorPort, Ports.leftRearTurningMotorPort,
-              Ports.leftRearCanCoderPort, 0),
-          new SwerveModuleIOmk4ineo(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
-              Ports.rightRearCanCoderPort, 0) };
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
+              Ports.leftFrontCanCoderPort),
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightFrontDriveMotorPort, Ports.rightFrontTurningMotorPort,
+              Ports.rightFrontCanCoderPort),
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftRearDriveMotorPort, Ports.leftRearTurningMotorPort,
+              Ports.leftRearCanCoderPort),
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
+              Ports.rightRearCanCoderPort) };
       m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort), Constants.DriveConstants.startPose,
           m_swerveModuleIOs);
       m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
 
-      // m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 500);
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 500);
@@ -158,7 +155,6 @@ public class RobotContainer {
           // new CameraAprilTag(VisionConstants.kbackCameraName, m_layout, VisionConstants.kbackCameraTransform,
           //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
       };
-      // m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
