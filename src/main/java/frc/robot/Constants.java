@@ -112,6 +112,12 @@ public final class Constants {
         Rotation2d.fromDegrees(180));
   }
 
+  public static final class LEDConstants {
+    // LED constants
+    public static final int kLEDLength = 84;
+    public static final int kLEDPort = 9;
+  }
+
   public static final class ElevatorConstants {
     public static final TunableNumber kElevatorP = new TunableNumber("Elevator P", 12.8);
     public static final TunableNumber kElevatorSetpoint = new TunableNumber("Elevator Height", 0.0);

@@ -36,9 +36,9 @@ import frc.robot.commands.drive.DriveThroughPointsToLoadingStation;
 import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsIOFlightStick;
+import frc.robot.oi.DriverControlsDualFlightStick;
 import frc.robot.oi.OperatorControls;
-import frc.robot.oi.OperatorControlsIOXbox;
+import frc.robot.oi.OperatorControlsXbox;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
@@ -50,6 +50,7 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIONeo550;
 import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.vision.CameraAprilTag;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
@@ -73,6 +74,7 @@ public class RobotContainer {
   private RobotState m_robotState;
   private AutoFactory m_autoFactory;
   private AprilTagFieldLayout m_layout;
+  private LED m_LED;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -157,6 +159,7 @@ public class RobotContainer {
           //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
       };
       // m_robotState = new RobotState(m_drive, m_intake, m_elevator, m_wrist);
+      m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
@@ -182,7 +185,7 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    DriverControls driverControls = new DriverControlsIOFlightStick(
+    DriverControls driverControls = new DriverControlsDualFlightStick(
         Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
     TeloepDrive teleopDrive = new TeloepDrive(m_drive,
         () -> driverControls.getDriveX(),
@@ -191,7 +194,7 @@ public class RobotContainer {
         Constants.DriveConstants.kDriveDeadband);
     m_drive.setDefaultCommand(teleopDrive);
 
-    OperatorControls operatorControls = new OperatorControlsIOXbox(5);
+    OperatorControls operatorControls = new OperatorControlsXbox(5);
 
     Command pickUpConeVerticalCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0]),
@@ -259,6 +262,7 @@ public class RobotContainer {
     operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.decreasePoseSetpoint();
     }));
+    operatorControls.partyButton().onTrue(m_LED.togglePartyModeCommand());
 
     Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_robotState::getPoseSetpoint,
         DriveConstants.holonomicDrive,

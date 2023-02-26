@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.util.EricNubControls;
 
-public class OperatorControlsIOXbox implements OperatorControls {
+public class OperatorControlsXbox implements OperatorControls {
   public CommandXboxController m_controller;
   public EricNubControls m_controls;
 
-  public OperatorControlsIOXbox(int xboxControllerPort) {
+  public OperatorControlsXbox(int xboxControllerPort) {
     m_controller = new CommandXboxController(xboxControllerPort);
     m_controls = new EricNubControls();
   }
@@ -81,34 +81,8 @@ public class OperatorControlsIOXbox implements OperatorControls {
     return m_controller.leftBumper();
   }
 
-  // @Override
-  // public Trigger getLeftGrid() {
-  //   return m_controller.leftBumper();
-  // }
-
-  // @Override
-  // public Trigger getMiddleGrid() {
-  //   return m_controller.povDown();
-  // }
-
-  // @Override
-  // public Trigger getRightGrid() {
-  //   return m_controller.povRight();
-  // }
-
-  // @Override
-  // public Trigger getLeftNode() {
-  //   return m_controller.x();
-  // }
-
-  // @Override
-  // public Trigger getMiddleNode() {
-  //   return m_controller.a();
-  // }
-
-  // @Override
-  // public Trigger getRightNode() {
-  //   return m_controller.b();
-  // }
-
+  @Override
+  public Trigger partyButton() {
+    return m_controller.start();
+  }
 }

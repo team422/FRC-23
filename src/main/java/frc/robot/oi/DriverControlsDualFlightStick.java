@@ -3,11 +3,11 @@ package frc.robot.oi;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class DriverControlsIOFlightStick implements DriverControls {
+public class DriverControlsDualFlightStick implements DriverControls {
   public CommandJoystick m_leftJoystick;
   public CommandJoystick m_rightJoystick;
 
-  public DriverControlsIOFlightStick(int leftJoystick, int rightJoystick) {
+  public DriverControlsDualFlightStick(int leftJoystick, int rightJoystick) {
     m_leftJoystick = new CommandJoystick(leftJoystick);
     m_rightJoystick = new CommandJoystick(rightJoystick);
   }
