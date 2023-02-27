@@ -151,15 +151,15 @@ public class RobotContainer {
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
           Units.degreesToRadians(33 + 90)), // 253
           Constants.WristConstants.wristPIDController,
-          Constants.WristConstants.wristFeedForward, Constants.WristConstants.minAngle,
-          Constants.WristConstants.maxAngle);
+          Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
+          Constants.WristConstants.kMaxAngle);
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
           Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
-          Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.elevatorGearRatio,
-          Constants.ElevatorConstants.elevatorEncoderCPR), Constants.ElevatorConstants.elevatorPIDController,
-          Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.elevatorOffsetMeters,
-          Constants.ElevatorConstants.elevatorMaxHeightMeters,
-          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
+          Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.kGearRatio,
+          Constants.ElevatorConstants.kEncoderCPR), Constants.ElevatorConstants.elevatorPIDController,
+          Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.kMinHeightMeters,
+          Constants.ElevatorConstants.kMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_cams = new CameraAprilTag[] {
           new CameraAprilTag(VisionConstants.kfrontCameraName, m_layout, VisionConstants.kfrontCameraTransform,
               m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
@@ -174,11 +174,11 @@ public class RobotContainer {
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(), new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
-          ElevatorConstants.elevatorFeedForward, ElevatorConstants.elevatorOffsetMeters,
-          ElevatorConstants.elevatorMaxHeightMeters,
-          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
+          ElevatorConstants.elevatorFeedForward, ElevatorConstants.kMinHeightMeters,
+          ElevatorConstants.kMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
-          WristConstants.minAngle, WristConstants.maxAngle);
+          WristConstants.kMinAngle, WristConstants.kMaxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);

@@ -122,32 +122,34 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    public static final TunableNumber kElevatorP = new TunableNumber("Elevator P", 12.8);
-    public static final TunableNumber kElevatorSetpoint = new TunableNumber("Elevator Height", 0.0);
-    public static final TunableNumber kElevatorI = new TunableNumber("Elevator I", 1.6);
-    public static final TunableNumber kElevatorD = new TunableNumber("Elevator D", 0.3);
-    public static final TunableNumber kElevatorks = new TunableNumber("Elevator ks", .1);
-    public static final TunableNumber kElevatorkg = new TunableNumber("Elevator kg", .37);
-    public static final TunableNumber kElevatorkv = new TunableNumber("Elevator kv", 0.1);
-    public static final boolean elevatorTuningMode = true;
-    public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(kElevatorks.get(),
-        kElevatorkg.get(), kElevatorkv.get());
-    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(kElevatorP.get(),
-        kElevatorI.get(), kElevatorD.get(),
-        new Constraints(30, 6)); // real
-    // public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(55.5, 0.5, 0,
-    //     new Constraints(30, 6));
-    public static final double elevatorGearRatio = 2.256 * Math.PI;
-    public static final int elevatorEncoderCPR = 2048;
-    public static final double elevatorMaxHeightMeters = Units.inchesToMeters(51);// max is 53.87
-    public static final double elevatorMaxTravelMeters = Units.inchesToMeters(57);// max is 53.8
-    public static final double elevatorOffsetMeters = Units.inchesToMeters(6.566);
-    public static final Rotation2d elevatorAngleFromGround = Rotation2d.fromDegrees(56);
+    public static final boolean kTuningMode = true;
+
+    public static final TunableNumber kP = new TunableNumber("Elevator P", 12.8);
+    public static final TunableNumber kManualSetpoint = new TunableNumber("Elevator Height", 0.0);
+    public static final TunableNumber kI = new TunableNumber("Elevator I", 1.6);
+    public static final TunableNumber kD = new TunableNumber("Elevator D", 0.3);
+    public static final TunableNumber kKs = new TunableNumber("Elevator ks", .1);
+    public static final TunableNumber kKg = new TunableNumber("Elevator kg", .37);
+    public static final TunableNumber kKv = new TunableNumber("Elevator kv", 0.1);
+
+    public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(kKs.get(),
+        kKg.get(), kKv.get());
+    public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(kP.get(),
+        kI.get(), kD.get(),
+        new Constraints(30, 6));
+
+    public static final double kGearRatio = 2.256 * Math.PI;
+    public static final int kEncoderCPR = 2048;
+
+    public static final Rotation2d kAngle = Rotation2d.fromDegrees(56);
+    public static final double kMaxTravelMeters = Units.inchesToMeters(55);
+
+    public static final double kMinHeightMeters = Units.inchesToMeters(6.566);
+    public static final double kMaxHeightMeters = kMinHeightMeters + kMaxTravelMeters * kAngle.getSin();
+
     public static final double kElevatorMassKG = 5;
     public static final double kDrumSize = Units.inchesToMeters(2.256);
-    public static final double elevatorMinHeightMeters = Units.inchesToMeters(0);
-    public static final double armLength = Units.inchesToMeters(16.556);
-    public static final double maxTravel = Units.inchesToMeters(54);
+    public static final double kCarriageArmLength = Units.inchesToMeters(16.556);
   }
 
   public static final class IntakeConstants {
@@ -207,24 +209,36 @@ public final class Constants {
 
   public static final class Ports {
     public static final int pigeonPort = 23;
+
     public static final int intakeMotorPort = 4;
+
     public static final int wristMotorPort = 5;
     public static final int wristThroughborePort = 4;
+
     public static final int elevatorLeaderMotorPort = 1;
     public static final int elevatorFollowerMotorPort = 2;
+
     public static final int elevatorThroughBoreEncoderPortA = 1;
     public static final int elevatorThroughBoreEncoderPortB = 0;
-    public static final int rightFrontDriveMotorPort = 12;
-    public static final int rightFrontTurningMotorPort = 3;
+
+    // Left Front Ports
     public static final int leftFrontDrivingMotorPort = 11;
     public static final int leftFrontTurningMotorPort = 6;
-    public static final int rightRearDriveMotorPort = 8; // orig 8
-    public static final int rightRearTurningMotorPort = 39; // origin 10
+    public static final int leftFrontCanCoderPort = 17;
+
+    // Right Front Ports
+    public static final int rightFrontDriveMotorPort = 12;
+    public static final int rightFrontTurningMotorPort = 3;
+    public static final int rightFrontCanCoderPort = 16;
+
+    // Left Rear Ports
     public static final int leftRearDriveMotorPort = 9;
     public static final int leftRearTurningMotorPort = 7;
-    public static final int leftFrontCanCoderPort = 17;
-    public static final int rightFrontCanCoderPort = 16;
     public static final int leftRearCanCoderPort = 18;
+
+    // Right Rear Ports
+    public static final int rightRearDriveMotorPort = 8;
+    public static final int rightRearTurningMotorPort = 39;
     public static final int rightRearCanCoderPort = 15;
   }
 
@@ -242,7 +256,6 @@ public final class Constants {
     public static final Transform3d kbackCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
         new Rotation3d());
-
   }
 
   public static final class WristConstants {
@@ -259,22 +272,21 @@ public final class Constants {
     public static final boolean kWristTuning = false;
 
     public static final int wristEncoderCPR = 4096; // Counts per revolution
+
     public static final ArmFeedforward wristFeedForward = new ArmFeedforward(kWristks.get(), kWristkg.get(),
         kWristkv.get(), kWristka.get());
     public static final ProfiledPIDController wristPIDController = new ProfiledPIDController(kWristP.get(),
         kWristI.get(), kWristD.get(),
         new Constraints(kWristVelo.get(), kWristAccel.get()));
-    // public static final PIDController wirstPIDController = new PIDController(5, 0, 0);
-    public static final double wristLengthMeters = Units.inchesToMeters(3);
-    public static final double wristGearRatio = 34.8444444444;
-    public static final Rotation2d maxAngle = Rotation2d.fromDegrees(95); // move by 
-    public static final Rotation2d minAngle = Rotation2d.fromDegrees(-80);
 
+    public static final double kLengthMeters = Units.inchesToMeters(3);
+    public static final double kGearRatio = 34.8444444444;
+    public static final Rotation2d kMaxAngle = Rotation2d.fromDegrees(95);
+    public static final Rotation2d kMinAngle = Rotation2d.fromDegrees(-80);
   }
 
   public static final class OIConstants {
     public static final int kDriverLeftDriveStickPort = 0;
     public static final int kDriverRightDriveStickPort = 1;
-
   }
 }

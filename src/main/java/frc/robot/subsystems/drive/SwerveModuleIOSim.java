@@ -37,9 +37,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   public void setDesiredState(SwerveModuleState swerveModuleState) {
-    SwerveModuleState optimized = SwerveModuleState.optimize(swerveModuleState, m_curState.angle);
-
-    m_desState = optimized;
+    m_desState = swerveModuleState;
   }
 
   public SwerveModuleState getState() {
@@ -51,11 +49,12 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     double oldAngleRads = m_curPos.angle.getRadians();
     double updatedAngle = MathUtil.interpolate(m_curState.angle.getRadians(), m_desState.angle.getRadians(), 1);
     m_curState.angle = Rotation2d.fromRadians(updatedAngle);
-    m_curState.speedMetersPerSecond = MathUtil.interpolate(m_curState.speedMetersPerSecond,
-        m_desState.speedMetersPerSecond, 0.9);
+    m_curState.speedMetersPerSecond = m_desState.speedMetersPerSecond;
+
     m_curPos.distanceMeters += m_curState.speedMetersPerSecond * 0.02;
     m_curPos.angle = m_curState.angle;
     inputs.turnAngleRads = m_curPos.angle.getRadians();
+
     inputs.driveDistanceMeters = m_curPos.distanceMeters;
     inputs.driveVelocityMetersPerSecond = m_curState.speedMetersPerSecond;
     inputs.turnRadsPerSecond = (m_curPos.angle.getRotations() - oldAngleRads) / 0.02;
