@@ -32,6 +32,7 @@ import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
+import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.drive.DriveThroughPointsToLoadingStation;
 import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.commands.drive.TeloepDrive;
@@ -169,6 +170,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
           WristConstants.minAngle, WristConstants.maxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
+      m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     }
 
@@ -191,22 +193,26 @@ public class RobotContainer {
     m_drive.setDefaultCommand(teleopDrive);
 
     OperatorControls operatorControls = new OperatorControlsXbox(5);
-
+    Command intakeConeIn = m_intake.startIntakeAtVoltage(-11, -0);
+    Command intakeCubeIn = m_intake.startIntakeAtVoltage(11, 0);
     Command pickUpConeVerticalCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeVerticalCommandSetpoints[1])));
 
     Command pickUpCubeGroundCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.pickUpCubeGroundCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpCubeGroundCommandSetpoints[1])));
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpCubeGroundCommandSetpoints[1])),
+        intakeCubeIn);
 
     Command pickUpConeGroundCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.pickUpConeGroundCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeGroundCommandSetpoints[1])));
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeGroundCommandSetpoints[1])),
+        intakeConeIn);
 
     Command intakeFromLoadingStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.intakeFromLoadingStationCommand[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeGroundCommandSetpoints[1])));
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpConeGroundCommandSetpoints[1])),
+        m_intake.startIntakeAtVoltage(-11.0, -0.0));
     Command coneMidCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.coneMidCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneMidCommandSetpoints[1])));
@@ -224,34 +230,41 @@ public class RobotContainer {
     Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
-    Command stowIntakeAndElevator = Commands.parallel(
+    Command stowCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])));
+
+    Command dropLoaderStationCommand = Commands.parallel(
+        m_elevator.setHeightCommand(SetpointConstants.dropLoadingStationCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.dropLoadingStationCommandSetpoints[1])));
     driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
-    driverControls.stowIntakeAndElevator().onTrue(stowIntakeAndElevator);
+    driverControls.stowIntakeAndElevator().onTrue(stowCommand);
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
     operatorControls.setpointMidCube().onTrue(cubeMidCommand);
     operatorControls.setpointHighCube().onTrue(cubeHighCommand);
-    operatorControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
-    operatorControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
-    operatorControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
+    operatorControls.intakeConeTipped().whileTrue(pickUpConeGroundCommand).onFalse(stowCommand);
+    operatorControls.intakeConeVertical().whileTrue(pickUpConeVerticalCommand).onFalse(stowCommand);
+    operatorControls.intakeCubeGround().whileTrue(pickUpCubeGroundCommand).onFalse(stowCommand);
     operatorControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
+    operatorControls.stow().onTrue(stowCommand);
+    operatorControls.dropStationButton().onTrue(dropLoaderStationCommand);
 
     driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
-    driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtVoltage(11));
-    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtVoltage(-11));
-    driverControls.setpointMidCone().onTrue(coneMidCommand);
-    driverControls.setpointHighCone().onTrue(coneHighCommand);
-    driverControls.setpointMidCube().onTrue(cubeMidCommand);
-    driverControls.setpointHighCube().onTrue(cubeHighCommand);
-    driverControls.setpointIntakeGroundCone().onTrue(pickUpConeGroundCommand);
+    driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtVoltage(11, 0));
+    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtVoltage(-11, -0));
+    // driverControls.setpointMidCone().onTrue(coneMidCommand);
+    // driverControls.setpointHighCone().onTrue(coneHighCommand);
+    // driverControls.setpointMidCube().onTrue(cubeMidCommand);
+    // driverControls.setpointHighCube().onTrue(cubeHighCommand);
+    driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommand);
     driverControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
-    driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
-    driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
-
+    // driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
+    // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
+    Command chargeCommand = new ChargeStationBalance(m_drive);
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
+    operatorControls.charge().whileTrue(chargeCommand);
     operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.increasePoseSetpoint();
     }));

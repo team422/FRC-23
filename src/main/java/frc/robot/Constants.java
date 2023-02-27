@@ -42,10 +42,13 @@ public final class Constants {
 
   public static final class SetpointConstants {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
-    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 };
+    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
+    // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
+
     public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
     public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -16 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
+    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
     public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(45), -25 };
     public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 };
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 };
@@ -136,7 +139,7 @@ public final class Constants {
     //     new Constraints(30, 6));
     public static final double elevatorGearRatio = 2.256 * Math.PI;
     public static final int elevatorEncoderCPR = 2048;
-    public static final double elevatorMaxHeightMeters = Units.inchesToMeters(49);// max is 53.87
+    public static final double elevatorMaxHeightMeters = Units.inchesToMeters(51);// max is 53.87
     public static final double elevatorMaxTravelMeters = Units.inchesToMeters(57);// max is 53.8
     public static final double elevatorOffsetMeters = Units.inchesToMeters(6.566);
     public static final Rotation2d elevatorAngleFromGround = Rotation2d.fromDegrees(56);
@@ -215,8 +218,8 @@ public final class Constants {
     public static final int rightFrontTurningMotorPort = 3;
     public static final int leftFrontDrivingMotorPort = 11;
     public static final int leftFrontTurningMotorPort = 6;
-    public static final int rightRearDriveMotorPort = 8;
-    public static final int rightRearTurningMotorPort = 10;
+    public static final int rightRearDriveMotorPort = 8; // orig 8
+    public static final int rightRearTurningMotorPort = 39; // origin 10
     public static final int leftRearDriveMotorPort = 9;
     public static final int leftRearTurningMotorPort = 7;
     public static final int leftFrontCanCoderPort = 17;
@@ -231,21 +234,21 @@ public final class Constants {
     public static final String klimelightName = "limelight";
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
-    public static final String kfrontCameraName = "AprilTagCameraGreen";
+    public static final String kfrontCameraName = "AprilTagCameraGray";
     public static final Transform3d kfrontCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
         new Rotation3d(0, Units.degreesToRadians(-12), 0));
     public static final String kbackCameraName = "AprilTagCameraGreen";
     public static final Transform3d kbackCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(0), 0, Units.inchesToMeters(25.808)),
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
         new Rotation3d());
 
   }
 
   public static final class WristConstants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
-    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 7.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 5.0);
+    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 12.0);
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 7.0);
     public static final TunableNumber kWristP = new TunableNumber("Wrist P", 3.8);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);

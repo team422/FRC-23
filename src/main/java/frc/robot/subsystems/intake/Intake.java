@@ -40,4 +40,10 @@ public class Intake extends SubsystemBase {
         () -> this.setDesiredVoltage(0));
   }
 
+  public Command startIntakeAtVoltage(double voltage, double endVoltage) {
+    return runEnd(
+        () -> this.setDesiredVoltage(voltage),
+        () -> this.setDesiredVoltage(endVoltage));
+  }
+
 }

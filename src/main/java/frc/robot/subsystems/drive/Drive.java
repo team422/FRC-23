@@ -23,11 +23,12 @@ import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
 public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleInputsAutoLogged[] m_inputs;
-  private Pose2d curPose = new Pose2d();
-  private SwerveDrivePoseEstimator m_odometry;
-  private SwerveModuleIO[] m_swerveModules;
-  private GyroIO m_gyro;
-  private GyroInputsAutoLogged m_gyroInputs;
+
+  private final SwerveDrivePoseEstimator m_odometry;
+
+  private final GyroIO m_gyro;
+  private final GyroInputsAutoLogged m_gyroInputs;
+
   private double m_simGyroLastUpdated;
 
   /** Creates a new Drive. */
@@ -35,7 +36,6 @@ public class Drive extends SubsystemBase {
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
-    m_swerveModules = modules;
     for (SwerveModuleIO module : m_modules) {
       module.resetDistance();
       module.syncTurningEncoder();
@@ -57,7 +57,7 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
-      Logger.getInstance().recordOutput("Module" + i, m_modules[i].getSwerveModuleState());
+      Logger.getInstance().recordOutput("Module" + i, m_modules[i].getState());
 
     }
     m_odometry.update(m_gyro.getAngle(), getSwerveModulePositions());
@@ -65,7 +65,9 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().recordOutput("Drive/OdometryY", m_odometry.getEstimatedPosition().getY());
     Logger.getInstance().recordOutput("Drive/OdometryZ", m_odometry.getEstimatedPosition().getRotation().getDegrees());
     Logger.getInstance().recordOutput("Drive/Pose", m_odometry.getEstimatedPosition());
-    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getSwerveModuleStates(),
+    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
+    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
         DriveConstants.kModuleTranslations);
 
   }
@@ -82,7 +84,7 @@ public class Drive extends SubsystemBase {
   }
 
   public ChassisSpeeds getChassisSpeeds() {
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(getSwerveModuleStates());
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
   public void resetOdometry() {
@@ -96,40 +98,51 @@ public class Drive extends SubsystemBase {
   public SwerveModulePosition[] getSwerveModulePositions() {
     SwerveModulePosition[] positions = new SwerveModulePosition[m_modules.length];
     for (int i = 0; i < m_modules.length; i++) {
-      positions[i] = m_modules[i].getModulePosition();
+      positions[i] = m_modules[i].getPosition();
     }
     return positions;
   }
 
-  public SwerveModuleState[] getSwerveModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] positions = new SwerveModuleState[m_modules.length];
     for (int i = 0; i < m_modules.length; i++) {
-      positions[i] = m_modules[i].getSwerveModuleState();
+      positions[i] = m_modules[i].getState();
+    }
+    return positions;
+  }
+
+  public SwerveModuleState[] getModuleAbsoluteStates() {
+    SwerveModuleState[] positions = new SwerveModuleState[m_modules.length];
+    for (int i = 0; i < m_modules.length; i++) {
+      positions[i] = m_modules[i].getAbsoluteState();
     }
     return positions;
   }
 
   public void drive(ChassisSpeeds speeds) {
+    double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
+    speeds.omegaRadiansPerSecond *= angularMultiplier;
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
 
-    for (int i = 0; i < moduleStates.length; i++) {
-      moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_swerveModules[i].getAngle());
-    }
-
-    double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
     SwerveDriveKinematics.desaturateWheelSpeeds(
         moduleStates,
         speeds,
         DriveConstants.kMaxModuleSpeedMetersPerSecond,
         DriveConstants.kMaxSpeedMetersPerSecond,
-        DriveConstants.kMaxAngularSpeedRadiansPerSecond * angularMultiplier);
+        DriveConstants.kMaxAngularSpeedRadiansPerSecond);
+
+    for (int i = 0; i < moduleStates.length; i++) {
+      moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
+    }
+
+    // Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
 
     setModuleStates(moduleStates);
   }
 
   public void setModuleStates(SwerveModuleState[] moduleStates) {
     for (int i = 0; i < moduleStates.length; i++) {
-      m_swerveModules[i].setDesiredState(moduleStates[i]);
+      m_modules[i].setDesiredState(moduleStates[i]);
     }
   }
 

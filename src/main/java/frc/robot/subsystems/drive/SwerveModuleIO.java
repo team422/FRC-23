@@ -17,7 +17,7 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     public double driveVelocityMetersPerSecond;
   }
 
-  SwerveModulePosition getModulePosition();
+  public SwerveModulePosition getPosition();
 
   public void resetDistance();
 
@@ -29,5 +29,7 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public void setDesiredState(SwerveModuleState swerveModuleState);
 
-  public SwerveModuleState getSwerveModuleState();
+  public SwerveModuleState getState();
+
+  public SwerveModuleState getAbsoluteState();
 }

@@ -16,7 +16,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     m_curPos = new SwerveModulePosition();
   }
 
-  public SwerveModulePosition getModulePosition() {
+  public SwerveModulePosition getPosition() {
     return m_curPos;
   }
 
@@ -42,7 +42,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     m_desState = optimized;
   }
 
-  public SwerveModuleState getSwerveModuleState() {
+  public SwerveModuleState getState() {
     return m_curState;
   }
 
@@ -60,5 +60,10 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     inputs.driveVelocityMetersPerSecond = m_curState.speedMetersPerSecond;
     inputs.turnRadsPerSecond = (m_curPos.angle.getRotations() - oldAngleRads) / 0.02;
 
+  }
+
+  @Override
+  public SwerveModuleState getAbsoluteState() {
+    return getState();
   }
 }

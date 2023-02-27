@@ -51,7 +51,7 @@ public interface DriverControls {
     return new Trigger();
   }
 
-  public default Trigger setpointIntakeGroundCone() {
+  public default Trigger intakeTippedCone() {
     return new Trigger();
   }
 

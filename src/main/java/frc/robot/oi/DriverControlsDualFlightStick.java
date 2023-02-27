@@ -69,7 +69,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
   }
 
   @Override
-  public Trigger setpointIntakeGroundCone() {
+  public Trigger intakeTippedCone() {
     return m_rightJoystick.button(3);
   }
 

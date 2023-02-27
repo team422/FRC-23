@@ -62,9 +62,11 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
       int turningCANCoderChannel) {
     CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
+    m_driveMotor.burnFlash();
     setup.setupSparkMaxSlow(m_driveMotor);
     m_driveMotor.setInverted(true);
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
+    m_turningMotor.burnFlash();
     setup.setupSparkMaxSlow(m_turningMotor);
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
@@ -117,12 +119,17 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
    *
    * @return The current state of the module.
    */
-  public SwerveModuleState getSwerveModuleState() {
-    return new SwerveModuleState(m_driveEncoder.getVelocity(), this.getAngle());
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(m_driveEncoder.getVelocity(), getAngle());
+  }
+
+  @Override
+  public SwerveModuleState getAbsoluteState() {
+    return new SwerveModuleState(getDriveVelocityMetersPerSecond(), getAbsoluteRotation());
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getAngle());
+    return new SwerveModulePosition(m_driveEncoder.getPosition(), getAngle());
   }
 
   public CANSparkMax getTurnMotor() {
@@ -131,10 +138,6 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
   public RelativeEncoder getTurnEncoder() {
     return m_turningEncoder;
-  }
-
-  public SwerveModulePosition getModulePosition() {
-    return new SwerveModulePosition(m_driveEncoder.getPosition(), this.getAngle());
   }
 
   public double getAbsoluteEncoder() {

@@ -36,17 +36,17 @@ public class OperatorControlsXbox implements OperatorControls {
   }
 
   @Override
-  public Trigger setpointIntakeGroundCone() {
+  public Trigger intakeConeTipped() {
     return m_controller.a();
   }
 
   @Override
-  public Trigger setpointIntakeVerticalCone() {
+  public Trigger intakeConeVertical() {
     return m_controller.b();
   }
 
   @Override
-  public Trigger setpointIntakeGroundCube() {
+  public Trigger intakeCubeGround() {
     return m_controller.povDown();
 
   }
@@ -68,7 +68,7 @@ public class OperatorControlsXbox implements OperatorControls {
 
   @Override
   public double moveElevatorInput() {
-    return m_controls.addDeadzoneScaled(-m_controller.getLeftY(), .1) / 5;
+    return m_controls.addDeadzoneScaled(-m_controller.getLeftY(), .1) / 20;
   }
 
   @Override
@@ -84,5 +84,20 @@ public class OperatorControlsXbox implements OperatorControls {
   @Override
   public Trigger partyButton() {
     return m_controller.start();
+  }
+
+  @Override
+  public Trigger stow() {
+    return m_controller.leftTrigger(0.4);
+  }
+
+  @Override
+  public Trigger dropStationButton() {
+    return m_controller.povRight();
+  }
+
+  @Override
+  public Trigger charge() {
+    return m_controller.rightTrigger(0.4);
   }
 }

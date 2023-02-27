@@ -72,8 +72,10 @@ public class AutoFactory extends CommandBase {
         Map.entry("intakeCubeOut", cubeDrop),
         Map.entry("intakeConeIn", conePickup),
         Map.entry("intakeConeOut", coneDrop),
-        Map.entry("wait", Commands.waitSeconds(1.1)),
+
         Map.entry("intakeStop", stopIntake));
+    // 
+
     // m_eventMap = Map.ofEntries(
     //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
     //     Map.entry("stow", stow),
@@ -113,7 +115,7 @@ public class AutoFactory extends CommandBase {
         linearPIDConstants, angularPIDConstants,
         m_drive::drive,
         m_eventMap,
-        false, // TODO: ENABLE (AND TEST) BEFORE COMP
+        true, // TODO: ENABLE (AND TEST) BEFORE COMP
         m_drive);
 
     return autoBuilder.fullAuto(paths).andThen(m_drive.brakeCommand());

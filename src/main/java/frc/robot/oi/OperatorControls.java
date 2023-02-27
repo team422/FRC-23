@@ -11,11 +11,11 @@ public interface OperatorControls {
 
   public Trigger setpointHighCube();
 
-  public Trigger setpointIntakeGroundCone();
+  public Trigger intakeConeTipped();
 
-  public Trigger setpointIntakeVerticalCone();
+  public Trigger intakeConeVertical();
 
-  public Trigger setpointIntakeGroundCube();
+  public Trigger intakeCubeGround();
 
   public Trigger intakeFromLoadingStation();
 
@@ -30,4 +30,10 @@ public interface OperatorControls {
   public Trigger decreasePoseSetpoint();
 
   public Trigger partyButton();
+
+  public Trigger stow();
+
+  public Trigger dropStationButton();
+
+  public Trigger charge();
 }
