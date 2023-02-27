@@ -4,31 +4,18 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    {
-      "type": "java",
-      "name": "Launch Wrist",
-      "request": "launch",
-      "mainClass": "frc.robot.subsystems.wrist.Wrist",
-      "projectName": "FRC-23-new_code"
-    },
-    {
-      "type": "java",
-      "name": "Launch Elevator",
-      "request": "launch",
-      "mainClass": "frc.robot.subsystems.elevator.Elevator",
-      "projectName": "FRC-23-new_code"
-    },
+
     {
       "type": "wpilib",
       "name": "WPILib Desktop Debug",
       "request": "launch",
-      "desktop": true
+      "desktop": true,
     },
     {
       "type": "wpilib",
       "name": "WPILib roboRIO Debug",
       "request": "launch",
-      "desktop": false
+      "desktop": false,
     }
   ]
 }
