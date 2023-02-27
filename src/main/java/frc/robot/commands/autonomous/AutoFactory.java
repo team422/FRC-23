@@ -24,7 +24,7 @@ import frc.robot.subsystems.wrist.Wrist;
 
 public class AutoFactory extends CommandBase {
   public static final PIDConstants linearPIDConstants = new PIDConstants(6, 0, 0);
-  public static final PIDConstants angularPIDConstants = new PIDConstants(2, 0, 0);
+  public static final PIDConstants angularPIDConstants = new PIDConstants(4, 0, 0);
 
   private final Drive m_drive;
   private final Elevator m_elevator;
@@ -112,7 +112,8 @@ public class AutoFactory extends CommandBase {
     BaseAutoBuilder autoBuilder = new SwerveAutoBuilder(
         m_drive::getPose,
         m_drive::resetPose,
-        linearPIDConstants, angularPIDConstants,
+        linearPIDConstants,
+        angularPIDConstants,
         m_drive::drive,
         m_eventMap,
         true, // TODO: ENABLE (AND TEST) BEFORE COMP

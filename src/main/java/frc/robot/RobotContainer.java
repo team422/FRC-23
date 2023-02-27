@@ -15,10 +15,13 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -96,6 +99,13 @@ public class RobotContainer {
     } catch (IOException e) {
       System.out.println("AprilTag field layout not found:" + e);
     }
+  }
+
+  private void configureAllianceSettings() {
+    var origin = DriverStation.getAlliance() == Alliance.Blue
+        ? OriginPosition.kBlueAllianceWallRightSide
+        : OriginPosition.kRedAllianceWallRightSide;
+    m_layout.setOrigin(origin);
   }
 
   private void configureAuto() {
@@ -281,15 +291,18 @@ public class RobotContainer {
   }
 
   public void onEnabled() {
-    m_wrist.reset();
-    m_elevator.reset();
+    configureAllianceSettings();
     m_elevator.setBrakeMode(false);
     m_wrist.setBrakeMode(false);
+    m_wrist.reset();
+    m_elevator.reset();
   }
 
   public void onDisabled() {
     m_elevator.setBrakeMode(true);
     m_wrist.setBrakeMode(true);
+    m_wrist.reset();
+    m_elevator.reset();
   }
 
   /**
