@@ -281,7 +281,7 @@ public class RobotContainer {
     operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.decreasePoseSetpoint();
     }));
-    operatorControls.partyButton().onTrue(m_LED.togglePartyModeCommand());
+    operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
 
     Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_robotState::getPoseSetpoint,
         DriveConstants.holonomicDrive,
