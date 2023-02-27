@@ -248,11 +248,11 @@ public final class Constants {
     public static final String klimelightName = "limelight";
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
-    public static final String kfrontCameraName = "AprilTagCameraGray";
+    public static final String kfrontCameraName = "AprilTagCameraGreen";
     public static final Transform3d kfrontCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
         new Rotation3d(0, Units.degreesToRadians(-12), 0));
-    public static final String kbackCameraName = "AprilTagCameraGreen";
+    public static final String kbackCameraName = "AprilTagCameraGray";
     public static final Transform3d kbackCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
         new Rotation3d());
