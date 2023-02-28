@@ -20,18 +20,16 @@ public class ZeroHeading extends CommandBase {
   public void execute() {
     m_drive.drive(
         new ChassisSpeeds(
-            0,
-            0,
-            Math.min(m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(), 0),
-                Math.min(m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(), 180),
-                    m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(), -180)))));
+          0,
+          0,
+          m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(),
+          0)));
   }
 
   @Override
   public boolean isFinished() {
     //TODO: make it so that 176-184 degrees is acceptable
-    return Math.abs(m_drive.getPose().getRotation().getDegrees()) <= 4
-        || Math.abs(m_drive.getPose().getRotation().getDegrees()) <= 176;
+    return Math.abs(m_drive.getPose().getRotation().getDegrees()) <= 4;
   }
 
 }
