@@ -103,7 +103,8 @@ public class RobotContainer {
     m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
 
     // Add basic autonomous commands
-    m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+    // m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+    m_autoChooser.addDefaultOption("Top Cone Cube Balance", Commands.none());
 
     // Add PathPlanner Auto Commands
     PathPlannerUtil.getExistingPaths().forEach(path -> {
@@ -151,10 +152,10 @@ public class RobotContainer {
           Constants.ElevatorConstants.elevatorMaxHeightMeters,
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
       m_cams = new CameraAprilTag[] {
-          new CameraAprilTag(VisionConstants.kfrontCameraName, m_layout, VisionConstants.kfrontCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
-          // new CameraAprilTag(VisionConstants.kbackCameraName, m_layout, VisionConstants.kbackCameraTransform,
+          // new CameraAprilTag(VisionConstants.kfrontCameraName, m_layout, VisionConstants.kfrontCameraTransform,
           //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+          new CameraAprilTag(VisionConstants.khighCamera, m_layout, VisionConstants.khighCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
       };
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
 
@@ -290,6 +291,8 @@ public class RobotContainer {
   public void onDisabled() {
     m_elevator.setBrakeMode(true);
     m_wrist.setBrakeMode(true);
+    m_wrist.reset();
+    m_elevator.reset();
   }
 
   /**

@@ -58,7 +58,7 @@ public class CameraAprilTag extends SubsystemBase {
     }
     Pose2d finalTagPose = tagPose.get().toPose2d();
     double distance = finalTagPose.getTranslation().getDistance(curRobotPose.estimatedPose.toPose2d().getTranslation());
-    return VecBuilder.fill(distance * 5, distance * 5, 50);
+    return VecBuilder.fill(distance * 1, distance * 1, 50);
   }
 
   public PhotonPipelineResult getPipelineResult() {

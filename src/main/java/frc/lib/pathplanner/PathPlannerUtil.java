@@ -14,8 +14,8 @@ public class PathPlannerUtil {
   public static List<String> getExistingPaths() {
     var path = Path.of(Filesystem.getDeployDirectory().getAbsolutePath(), "pathplanner");
     try (Stream<Path> stream = Files.walk(path)) {
-      return stream
-          .filter(x -> getFileExtension(x.toFile()).equals(".path"))
+      return stream.filter(x -> getFileExtension(x.toFile())
+          .equals(".path"))
           .map(x -> getFileStem(x.toFile()))
           .toList();
     } catch (IOException e) {

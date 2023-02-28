@@ -172,7 +172,7 @@ public final class Constants {
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 5;
-    public static final double kMaxSpeedMetersPerSecond = 4;
+    public static final double kMaxSpeedMetersPerSecond = 5;
     public static final double kMaxAccelMetersPerSecondSq = 2;
 
     public static final double kMaxSpeedMetersPerSecondAuto = 1;
@@ -234,12 +234,12 @@ public final class Constants {
     public static final String klimelightName = "limelight";
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
-    public static final String kfrontCameraName = "AprilTagCameraGray";
-    public static final Transform3d kfrontCameraTransform = new Transform3d(
+    public static final String khighCamera = "AprilTagCameraGreen";
+    public static final Transform3d khighCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
-        new Rotation3d(0, Units.degreesToRadians(-12), 0));
-    public static final String kbackCameraName = "AprilTagCameraGreen";
-    public static final Transform3d kbackCameraTransform = new Transform3d(
+        new Rotation3d(0, Units.degreesToRadians(12), 0));
+    public static final String klowCameraName = "AprilTagCameraGray";
+    public static final Transform3d klowCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
         new Rotation3d());
 
@@ -248,7 +248,7 @@ public final class Constants {
   public static final class WristConstants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
     public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 12.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 7.0);
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 4.0);
     public static final TunableNumber kWristP = new TunableNumber("Wrist P", 3.8);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);

@@ -23,8 +23,8 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 
 public class AutoFactory extends CommandBase {
-  public static final PIDConstants linearPIDConstants = new PIDConstants(6, 0, 0);
-  public static final PIDConstants angularPIDConstants = new PIDConstants(2, 0, 0);
+  public static final PIDConstants linearPIDConstants = new PIDConstants(10, 0, 0);
+  public static final PIDConstants angularPIDConstants = new PIDConstants(4, 0, 0);
 
   private final Drive m_drive;
   private final Elevator m_elevator;
@@ -53,6 +53,13 @@ public class AutoFactory extends CommandBase {
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.cubeHighCommandSetpoints[1])),
         Commands.print("coneHighElevator"));
 
+    Command autoConeHigh = Commands.sequence(
+        Commands.parallel(
+            m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
+            m_wrist.setAngleCommand(Rotation2d.fromDegrees(85))),
+        Commands.waitSeconds(0.5),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])));
+
     Command cubeGround = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.pickUpCubeGroundCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.pickUpCubeGroundCommandSetpoints[1])),
@@ -75,7 +82,8 @@ public class AutoFactory extends CommandBase {
         Map.entry("intakeConeOut", coneDrop),
         Map.entry("wait", Commands.waitSeconds(1.1)),
         Map.entry("intakeStop", stopIntake),
-        Map.entry("balance", balanceStation));
+        Map.entry("balance", balanceStation),
+        Map.entry("setpointConeHighWait", autoConeHigh));
     // m_eventMap = Map.ofEntries(
     //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
     //     Map.entry("stow", stow),
