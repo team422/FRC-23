@@ -34,7 +34,6 @@ import frc.robot.util.TunableNumber;
 
 public final class Constants {
   public static final boolean tuningMode = true;
-  public static final MechTechRobots CURRENT_ROBOT = MechTechRobots.MARK2;
 
   public static final class MetaConstants {
     public static final boolean pathTuningMode = true;
