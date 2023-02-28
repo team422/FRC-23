@@ -36,6 +36,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
+import frc.robot.commands.autonomous.ZeroHeading;
 import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
@@ -234,7 +235,8 @@ public class RobotContainer {
         m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])));
 
-    Command chargeCommand = new ChargeStationBalance(m_drive);
+    Command chargeCommand = Commands.parallel(new ZeroHeading(m_drive),
+        new ChargeStationBalance(m_drive));
 
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.dropLoadingStationCommandSetpoints[0]),

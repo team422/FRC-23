@@ -7,27 +7,23 @@ import frc.robot.subsystems.drive.Drive;
 
 public class ChargeStationBalance extends CommandBase {
   Drive m_drive;
-  PIDController m_turnController;
   PIDController m_rollController;
 
   public ChargeStationBalance(Drive drive) {
     m_drive = drive;
     addRequirements(m_drive);
-    m_turnController = new PIDController(0.1, 0, 0);
-    m_rollController = new PIDController(0.1, 0, 0);
+    m_rollController = new PIDController(0.1, 0, 0); //TODO: tune these values so that it doesn't drive full speed
   }
 
   @Override
   public void execute() {
-    // check if turn to 0 is complete
-    if (Math.abs(m_drive.getPose().getRotation().getDegrees()) < 4) {
-      // if so, check if roll to 0 is complete
-      m_drive
-          .drive(new ChassisSpeeds(0, 0, m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(), 0)));
-    } else {
-      // if not, roll to 0
-      m_drive
-          .drive(new ChassisSpeeds(m_rollController.calculate(m_drive.getGyro().getRoll().getDegrees(), 0), 0, 0));
-    }
+    //tells drive base to drive in the opposite direction of the roll
+    //uses field relative so it shouldn't care for if it is forward or backwards
+    m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
+        m_rollController.calculate(m_drive.getGyro().getRoll().getDegrees(), 0), 0, 0,
+        m_drive.getPose().getRotation()));
+
+    //tells drive base to drive in the opposite direction of the roll if it is forward
+    // m_drive.drive(new ChassisSpeeds(m_rollController.calculate(m_drive.getGyro().getRoll().getDegrees(), 0), 0, 0));
   }
 }

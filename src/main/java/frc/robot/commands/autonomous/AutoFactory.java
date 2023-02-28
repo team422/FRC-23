@@ -66,6 +66,7 @@ public class AutoFactory extends CommandBase {
         m_intake.setDesiredSpeedCommand(0),
         Commands.print("cubeGround"));
     Command balanceStation = new ChargeStationBalance(m_drive);
+    Command zeroHeading = new ZeroHeading(m_drive);
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
     Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.5);
@@ -83,6 +84,7 @@ public class AutoFactory extends CommandBase {
         Map.entry("wait", Commands.waitSeconds(1.1)),
         Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
+        Map.entry("zeroHeading", zeroHeading),
         Map.entry("setpointConeHighWait", autoConeHigh));
     // m_eventMap = Map.ofEntries(
     //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
