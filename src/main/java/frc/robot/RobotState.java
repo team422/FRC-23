@@ -2,6 +2,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -125,16 +126,16 @@ public class RobotState {
     // checkIfBreakElevator();
     Pose3d armPosition = getArmPosition(m_drive.getPose(), m_elevator.getPositionXMeters(),
         m_elevator.getPositionYMeters(), wristAngleRotation2d,
-        new Transform3d(new Translation3d(ElevatorConstants.armLength, 0, 0),
+        new Transform3d(new Translation3d(ElevatorConstants.kCarriageArmLength, 0, 0),
             new Rotation3d(0, wristAngleRotation2d.getRadians(), 0)),
         new Translation3d(Units.inchesToMeters(16), 0, 0));
 
     Mechanism2d fullMech = new Mechanism2d(2, 2);
-    fullMech.getRoot("ElevatorBottom", 0, ElevatorConstants.elevatorOffsetMeters)
+    fullMech.getRoot("ElevatorBottom", 0, ElevatorConstants.kMinHeightMeters)
         .append(new MechanismLigament2d("Elevator", m_elevator.getTravelDistanceMeters(),
-            ElevatorConstants.elevatorAngleFromGround.getDegrees()))
-        .append(new MechanismLigament2d("Arm", Constants.ElevatorConstants.armLength,
-            0 - ElevatorConstants.elevatorAngleFromGround.getDegrees()))
+            ElevatorConstants.kAngle.getDegrees()))
+        .append(new MechanismLigament2d("Arm", Constants.ElevatorConstants.kCarriageArmLength,
+            0 - ElevatorConstants.kAngle.getDegrees()))
         .append(new MechanismLigament2d("Wrist", Units.inchesToMeters(12),
             -wristAngleRotation2d.getDegrees()));
 
@@ -181,7 +182,9 @@ public class RobotState {
   }
 
   public double getMorphedVelocityMultiplier() {
-    return Math.sqrt(1 - (m_elevator.getTravelDistanceMeters() / ElevatorConstants.maxTravel));
+    double travelPercent = MathUtil.clamp(m_elevator.getTravelDistanceMeters() / ElevatorConstants.kMaxTravelMeters, 0,
+        1);
+    return Math.sqrt(1 - travelPercent);
   }
 
 }

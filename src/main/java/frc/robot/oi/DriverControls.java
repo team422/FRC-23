@@ -3,80 +3,42 @@ package frc.robot.oi;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public interface DriverControls {
-  public default double getDriveX() {
-    return 0.0;
-  }
+  public double getDriveX();
 
-  public default double getDriveY() {
-    return 0.0;
-  }
+  public double getDriveY();
 
-  public default double getDriveZ() {
-    return 0.0;
-  }
+  public double getDriveZ();
 
-  public default Trigger goAndBalance() {
-    return new Trigger();
-  }
+  public Trigger goAndBalance();
 
-  public default Trigger goToNode() {
-    return new Trigger();
-  }
+  public Trigger goToNode();
 
-  public default Trigger goToLoadingStation() {
-    return new Trigger();
-  }
+  public Trigger goToLoadingStation();
 
-  public default Trigger startIntakeConeInCubeOut() {
-    return new Trigger();
-  }
+  public Trigger startIntakeConeInCubeOut();
 
-  public default Trigger startIntakeCubeInConeOut() {
-    return new Trigger();
-  }
+  public Trigger startIntakeCubeInConeOut();
 
-  public default Trigger setpointMidCone() {
-    return new Trigger();
-  }
+  public Trigger setpointMidCone();
 
-  public default Trigger setpointHighCone() {
-    return new Trigger();
-  }
+  public Trigger setpointHighCone();
 
-  public default Trigger setpointMidCube() {
-    return new Trigger();
-  }
+  public Trigger setpointMidCube();
 
-  public default Trigger setpointHighCube() {
-    return new Trigger();
-  }
+  public Trigger setpointHighCube();
 
-  public default Trigger intakeTippedCone() {
-    return new Trigger();
-  }
+  public Trigger intakeTippedCone();
 
-  public default Trigger setpointIntakeVerticalCone() {
-    return new Trigger();
-  }
+  public Trigger setpointIntakeVerticalCone();
 
-  public default Trigger setpointIntakeGroundCube() {
-    return new Trigger();
-  }
+  public Trigger setpointIntakeGroundCube();
 
-  public default Trigger intakeFromLoadingStation() {
-    return new Trigger();
-  }
+  public Trigger intakeFromLoadingStation();
 
-  public default Trigger resetFieldCentric() {
-    return new Trigger();
-  }
+  public Trigger resetFieldCentric();
 
-  public default Trigger driveToGridSetpoint() {
-    return new Trigger();
-  }
+  public Trigger driveToGridSetpoint();
 
-  public default Trigger stowIntakeAndElevator() {
-    return new Trigger();
-  }
+  public Trigger stowIntakeAndElevator();
 
 }

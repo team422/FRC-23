@@ -120,7 +120,8 @@ public class AutoFactory extends CommandBase {
     BaseAutoBuilder autoBuilder = new SwerveAutoBuilder(
         m_drive::getPose,
         m_drive::resetPose,
-        linearPIDConstants, angularPIDConstants,
+        linearPIDConstants,
+        angularPIDConstants,
         m_drive::drive,
         m_eventMap,
         true, // TODO: ENABLE (AND TEST) BEFORE COMP

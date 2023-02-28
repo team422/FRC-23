@@ -51,21 +51,20 @@ public class Elevator extends SubsystemBase {
 
   public void periodic() {
     if (Constants.tuningMode) {
-      if (ElevatorConstants.kElevatorP.hasChanged() || ElevatorConstants.kElevatorI.hasChanged()
-          || ElevatorConstants.kElevatorD.hasChanged()) {
-        m_controller.setP(ElevatorConstants.kElevatorP.get());
-        m_controller.setI(ElevatorConstants.kElevatorI.get());
-        m_controller.setD(ElevatorConstants.kElevatorD.get());
+      if (ElevatorConstants.kP.hasChanged() || ElevatorConstants.kI.hasChanged()
+          || ElevatorConstants.kD.hasChanged()) {
+        m_controller.setP(ElevatorConstants.kP.get());
+        m_controller.setI(ElevatorConstants.kI.get());
+        m_controller.setD(ElevatorConstants.kD.get());
       }
-      if (ElevatorConstants.kElevatorks.hasChanged() || ElevatorConstants.kElevatorkv.hasChanged()
-          || ElevatorConstants.kElevatorkg.hasChanged()) {
-        m_elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorks.get(),
-            ElevatorConstants.kElevatorkg.get(), ElevatorConstants.kElevatorkv.get());
+      if (ElevatorConstants.kKs.hasChanged() || ElevatorConstants.kKv.hasChanged()
+          || ElevatorConstants.kKg.hasChanged()) {
+        m_elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kKs.get(),
+            ElevatorConstants.kKg.get(), ElevatorConstants.kKv.get());
       }
     }
-    if (ElevatorConstants.elevatorTuningMode && ElevatorConstants.kElevatorSetpoint.hasChanged()) {
-      setHeight(Units.inchesToMeters(ElevatorConstants.kElevatorSetpoint.get()));
-
+    if (ElevatorConstants.kTuningMode && ElevatorConstants.kManualSetpoint.hasChanged()) {
+      setHeight(Units.inchesToMeters(ElevatorConstants.kManualSetpoint.get()));
     }
 
     m_io.updateInputs(m_inputs);

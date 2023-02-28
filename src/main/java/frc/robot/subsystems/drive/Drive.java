@@ -24,7 +24,7 @@ public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleInputsAutoLogged[] m_inputs;
 
-  private final SwerveDrivePoseEstimator m_odometry;
+  private final SwerveDrivePoseEstimator m_poseEstimator;
 
   private final GyroIO m_gyro;
   private final GyroInputsAutoLogged m_gyroInputs;
@@ -46,7 +46,7 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < m_inputs.length; i++) {
       m_inputs[i] = new SwerveModuleInputsAutoLogged();
     }
-    m_odometry = new SwerveDrivePoseEstimator(
+    m_poseEstimator = new SwerveDrivePoseEstimator(
         Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
   }
 
@@ -54,17 +54,13 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     m_gyro.updateInputs(m_gyroInputs);
     Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
-      Logger.getInstance().recordOutput("Module" + i, m_modules[i].getState());
-
     }
-    m_odometry.update(m_gyro.getAngle(), getSwerveModulePositions());
-    Logger.getInstance().recordOutput("Drive/OdometryX", m_odometry.getEstimatedPosition().getX());
-    Logger.getInstance().recordOutput("Drive/OdometryY", m_odometry.getEstimatedPosition().getY());
-    Logger.getInstance().recordOutput("Drive/OdometryZ", m_odometry.getEstimatedPosition().getRotation().getDegrees());
-    Logger.getInstance().recordOutput("Drive/Pose", m_odometry.getEstimatedPosition());
+    m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
+    Logger.getInstance().recordOutput("Drive/Pose", getPose());
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
     Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
     FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
@@ -88,11 +84,11 @@ public class Drive extends SubsystemBase {
   }
 
   public void resetOdometry() {
-    m_odometry.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), new Pose2d());
+    m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), new Pose2d());
   }
 
   public void resetPose(Pose2d pose) {
-    m_odometry.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
+    m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
   }
 
   public SwerveModulePosition[] getSwerveModulePositions() {
@@ -122,6 +118,7 @@ public class Drive extends SubsystemBase {
   public void drive(ChassisSpeeds speeds) {
     double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
     speeds.omegaRadiansPerSecond *= angularMultiplier;
+
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -148,7 +145,7 @@ public class Drive extends SubsystemBase {
 
   public Pose2d getPose() {
     // Return the current pose
-    return m_odometry.getEstimatedPosition();
+    return m_poseEstimator.getEstimatedPosition();
   }
 
   public void brake() {
@@ -157,7 +154,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void addVisionOdometryMeasurement(Pose3d pose, double timestampSeconds) {
-    m_odometry.addVisionMeasurement(pose.toPose2d(), timestampSeconds);
+    m_poseEstimator.addVisionMeasurement(pose.toPose2d(), timestampSeconds);
   }
 
   public GyroIO getGyro() {
@@ -165,7 +162,7 @@ public class Drive extends SubsystemBase {
   }
 
   public SwerveDrivePoseEstimator getPoseEstimator() {
-    return m_odometry;
+    return m_poseEstimator;
   }
 
   public Command brakeCommand() {

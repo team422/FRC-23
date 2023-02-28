@@ -15,10 +15,13 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -98,6 +101,13 @@ public class RobotContainer {
     }
   }
 
+  private void configureAllianceSettings() {
+    var origin = DriverStation.getAlliance() == Alliance.Blue
+        ? OriginPosition.kBlueAllianceWallRightSide
+        : OriginPosition.kRedAllianceWallRightSide;
+    m_layout.setOrigin(origin);
+  }
+
   private void configureAuto() {
     m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
@@ -142,15 +152,15 @@ public class RobotContainer {
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
           Units.degreesToRadians(33 + 90)), // 253
           Constants.WristConstants.wristPIDController,
-          Constants.WristConstants.wristFeedForward, Constants.WristConstants.minAngle,
-          Constants.WristConstants.maxAngle);
+          Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
+          Constants.WristConstants.kMaxAngle);
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
           Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
-          Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.elevatorGearRatio,
-          Constants.ElevatorConstants.elevatorEncoderCPR), Constants.ElevatorConstants.elevatorPIDController,
-          Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.elevatorOffsetMeters,
-          Constants.ElevatorConstants.elevatorMaxHeightMeters,
-          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
+          Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.kGearRatio,
+          Constants.ElevatorConstants.kEncoderCPR), Constants.ElevatorConstants.elevatorPIDController,
+          Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.kMinHeightMeters,
+          Constants.ElevatorConstants.kMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_cams = new CameraAprilTag[] {
           // new CameraAprilTag(VisionConstants.kfrontCameraName, m_layout, VisionConstants.kfrontCameraTransform,
           //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
@@ -165,11 +175,11 @@ public class RobotContainer {
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(), new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
-          ElevatorConstants.elevatorFeedForward, ElevatorConstants.elevatorOffsetMeters,
-          ElevatorConstants.elevatorMaxHeightMeters,
-          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.elevatorAngleFromGround));
+          ElevatorConstants.elevatorFeedForward, ElevatorConstants.kMinHeightMeters,
+          ElevatorConstants.kMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
-          WristConstants.minAngle, WristConstants.maxAngle);
+          WristConstants.kMinAngle, WristConstants.kMaxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
@@ -272,7 +282,7 @@ public class RobotContainer {
     operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.decreasePoseSetpoint();
     }));
-    operatorControls.partyButton().onTrue(m_LED.togglePartyModeCommand());
+    operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
 
     Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_robotState::getPoseSetpoint,
         DriveConstants.holonomicDrive,
@@ -282,10 +292,11 @@ public class RobotContainer {
   }
 
   public void onEnabled() {
-    m_wrist.reset();
-    m_elevator.reset();
+    configureAllianceSettings();
     m_elevator.setBrakeMode(false);
     m_wrist.setBrakeMode(false);
+    m_wrist.reset();
+    m_elevator.reset();
   }
 
   public void onDisabled() {
