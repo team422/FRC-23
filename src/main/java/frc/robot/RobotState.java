@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.ElevatorConstants;
@@ -185,6 +187,12 @@ public class RobotState {
     double travelPercent = MathUtil.clamp(m_elevator.getTravelDistanceMeters() / ElevatorConstants.kMaxTravelMeters, 0,
         1);
     return Math.sqrt(1 - travelPercent);
+  }
+
+  public Command setpointCommand(double[] setpoint) {
+    return Commands.parallel(
+        m_elevator.setHeightCommand(setpoint[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
   }
 
 }

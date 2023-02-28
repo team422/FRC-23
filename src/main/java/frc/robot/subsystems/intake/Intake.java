@@ -40,10 +40,34 @@ public class Intake extends SubsystemBase {
         () -> this.setDesiredVoltage(0));
   }
 
-  public Command startIntakeAtVoltage(double voltage, double endVoltage) {
-    return runEnd(
-        () -> this.setDesiredVoltage(voltage),
-        () -> this.setDesiredVoltage(endVoltage));
+  public static final double kIntakeVoltage = 11;
+  public static final double kIntakeHoldVoltage = 3;
+
+  public Command intakeCubeCommand() {
+    return startIntakeAtVoltage(kIntakeVoltage);
   }
 
+  public Command dropCubeCommand() {
+    return startIntakeAtVoltage(-kIntakeVoltage);
+  }
+
+  public Command intakeConeCommand() {
+    return dropCubeCommand();
+  }
+
+  public Command dropConeCommand() {
+    return intakeCubeCommand();
+  }
+
+  public Command holdCubeCommand() {
+    return startIntakeAtVoltage(kIntakeHoldVoltage);
+  }
+
+  public Command holdConeCommand() {
+    return startIntakeAtVoltage(-kIntakeHoldVoltage);
+  }
+
+  public Command stopCommand() {
+    return runOnce(() -> setDesiredVoltage(0));
+  }
 }

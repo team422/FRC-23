@@ -3,11 +3,11 @@ package frc.robot.oi;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public interface DriverControls {
-  public double getDriveX();
+  public double getDriveForward();
 
-  public double getDriveY();
+  public double getDriveLeft();
 
-  public double getDriveZ();
+  public double getDriveRotation();
 
   public Trigger goAndBalance();
 
@@ -29,7 +29,7 @@ public interface DriverControls {
 
   public Trigger intakeTippedCone();
 
-  public Trigger setpointIntakeVerticalCone();
+  public Trigger intakeVerticalCone();
 
   public Trigger setpointIntakeGroundCube();
 

@@ -107,7 +107,7 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command setAngleCommand(Rotation2d angle) {
-    return runOnce(() -> setAngle(angle));
+    return run(() -> setAngle(angle)).until(m_controller::atGoal);
   }
 
   public Command moveCommand(Supplier<Double> delta) {

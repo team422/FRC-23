@@ -136,7 +136,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setHeightCommand(double heightMeters) {
-    return runOnce(() -> setHeight(heightMeters));
+    return run(() -> setHeight(heightMeters)).until(m_controller::atGoal);
   }
 
   public Command moveCommand(Supplier<Double> heightDelta) {
