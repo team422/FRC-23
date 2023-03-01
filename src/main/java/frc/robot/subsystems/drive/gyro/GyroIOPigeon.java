@@ -33,6 +33,11 @@ public class GyroIOPigeon implements GyroIO {
     return Rotation2d.fromRadians(m_gyro.getRoll());
   }
 
+  @Override
+  public Rotation2d getPitch() {
+    return Rotation2d.fromRadians(m_gyro.getRoll());
+  }
+
   public void reset() { // pls never run this
     m_gyro.reset();
   }

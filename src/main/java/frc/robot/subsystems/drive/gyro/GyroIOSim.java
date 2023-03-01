@@ -33,4 +33,9 @@ public class GyroIOSim implements GyroIO {
     return Rotation2d.fromDegrees(0);
   }
 
+  @Override
+  public Rotation2d getPitch() {
+    return Rotation2d.fromDegrees(0);
+  }
+
 }
