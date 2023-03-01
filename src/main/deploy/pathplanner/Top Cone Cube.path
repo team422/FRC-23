@@ -17,7 +17,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "setpointConeHighWait",
+          "setpointConeHigh",
           "wait",
           "intakeConeOut"
         ],
@@ -103,16 +103,16 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8233636467272936,
-        "y": 4.4118728237456475
+        "x": 1.8061889356009102,
+        "y": 4.421767532260556
       },
       "prevControl": {
-        "x": 2.1883841198237954,
-        "y": 4.822353576998821
+        "x": 2.171209408697413,
+        "y": 4.832248285513729
       },
       "nextControl": {
-        "x": 2.1883841198237954,
-        "y": 4.822353576998821
+        "x": 2.171209408697413,
+        "y": 4.832248285513729
       },
       "holonomicAngle": 180.0,
       "isReversal": true,

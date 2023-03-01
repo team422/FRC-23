@@ -29,6 +29,8 @@ public class Elevator extends SubsystemBase {
   private double m_lastVelocity;
   private double m_lastTime;
 
+  private boolean m_curZeroing;
+
   public Elevator(ElevatorIO io, ProfiledPIDController elevatorPIDController, ElevatorFeedforward elevatorFeedForward,
       double ElevatorOffsetMeters, double maxHeight, Rotation2d elevatorAngle) {
     m_io = io;
@@ -46,6 +48,7 @@ public class Elevator extends SubsystemBase {
     m_maxHeight = maxHeight;
     m_lastVelocity = 0;
     m_lastTime = Timer.getFPGATimestamp();
+    m_curZeroing = false;
 
   }
 
@@ -79,8 +82,12 @@ public class Elevator extends SubsystemBase {
         accelerationSetpoint);
 
     double outputVoltage = pidVoltage + feedForwardVoltage;
-
-    m_io.setVoltage(outputVoltage);
+    if (m_curZeroing) {
+      m_io.setVoltage(-1);
+      m_io.zeroHeight();
+    } else {
+      m_io.setVoltage(outputVoltage);
+    }
     // m_io.setVoltage(feedForwardVoltage);
 
     Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);
@@ -141,6 +148,14 @@ public class Elevator extends SubsystemBase {
 
   public Command moveCommand(Supplier<Double> heightDelta) {
     return run(() -> setHeight(m_desiredHeight + heightDelta.get()));
+  }
+
+  public Command zeroHeightCommand() {
+    return runEnd(() -> {
+      m_curZeroing = true;
+    }, () -> {
+      m_curZeroing = false;
+    });
   }
 
   public void setBrakeMode(boolean mode) {

@@ -38,7 +38,7 @@ import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.drive.DriveThroughPointsToLoadingStation;
-import frc.robot.commands.drive.DriveToPoint;
+import frc.robot.commands.drive.DriveToNode;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsDualFlightStick;
@@ -266,7 +266,7 @@ public class RobotContainer {
     operatorControls.stow().onTrue(stowCommand);
     operatorControls.dropStationButton().onTrue(dropLoaderStationCommand);
 
-    driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
+    driverControls.resetFieldCentric().onTrue(m_drive.resetPoseAngleCommand());
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.startIntakeAtVoltage(11, 0));
     driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.startIntakeAtVoltage(-11, -0));
     // driverControls.setpointMidCone().onTrue(coneMidCommand);
@@ -275,6 +275,10 @@ public class RobotContainer {
     // driverControls.setpointHighCube().onTrue(cubeHighCommand);
     driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommand);
     driverControls.setpointIntakeVerticalCone().onTrue(pickUpConeVerticalCommand);
+    driverControls.zeroElevator().whileTrue(m_elevator.zeroHeightCommand());
+    driverControls.toggleLedColor().onTrue(Commands.runOnce(() -> {
+      m_LED.toggleColor();
+    }));
     // driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
     // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
     Command chargeCommand = new ChargeStationBalance(m_drive);
@@ -287,9 +291,10 @@ public class RobotContainer {
     operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.decreasePoseSetpoint();
     }));
-    operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
+    // operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
+
     FieldGeomUtil m_fieldGeom = new FieldGeomUtil();
-    Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_fieldGeom,
+    Command driveToGridSetpointCommand = new DriveToNode(m_drive, m_fieldGeom,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
     driverControls.driveToGridSetpoint().whileTrue(driveToGridSetpointCommand);

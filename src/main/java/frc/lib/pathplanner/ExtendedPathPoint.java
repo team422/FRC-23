@@ -68,4 +68,8 @@ public class ExtendedPathPoint extends PathPoint {
     return new Pose2d(m_acceptedPoseError, m_acceptedAngularError);
   }
 
+  public void addTransform(Translation2d transform) {
+    m_pose = m_pose.plus(transform);
+  }
+
 }

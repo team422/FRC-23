@@ -34,7 +34,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger goToNode() {
-    return m_leftJoystick.button(10);
+    return m_rightJoystick.button(4);
   }
 
   @Override
@@ -59,7 +59,8 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger setpointMidCube() {
-    return m_leftJoystick.button(4);
+    // return m_leftJoystick.button(4);
+    return new Trigger();
   }
 
   @Override
@@ -108,5 +109,15 @@ public class DriverControlsDualFlightStick implements DriverControls {
   @Override
   public Trigger stowIntakeAndElevator() {
     return m_leftJoystick.button(2);
+  }
+
+  @Override
+  public Trigger toggleLedColor() {
+    return m_rightJoystick.button(3);
+  }
+
+  @Override
+  public Trigger zeroElevator() {
+    return m_leftJoystick.button(11);
   }
 }
