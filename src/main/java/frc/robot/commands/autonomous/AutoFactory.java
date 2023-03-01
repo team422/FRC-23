@@ -43,7 +43,7 @@ public class AutoFactory extends CommandBase {
     Command stow = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])),
-        m_intake.setDesiredSpeedCommand(0));
+        m_intake.setDesiredSpeedCommand(0), Commands.print("stow"));
     Command coneHigh = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.coneHighCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.coneHighCommandSetpoints[1])),
@@ -73,7 +73,7 @@ public class AutoFactory extends CommandBase {
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(
-        Map.entry("setpointStow", stow),
+        Map.entry("stow", stow),
         Map.entry("setpointCubeGround", cubeGround),
         Map.entry("setpointConeHigh", coneHigh),
         Map.entry("setpointCubeHigh", cubeHigh),

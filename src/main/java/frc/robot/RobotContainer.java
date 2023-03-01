@@ -36,7 +36,6 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
-import frc.robot.commands.autonomous.ZeroHeading;
 import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
@@ -133,7 +132,8 @@ public class RobotContainer {
               Ports.leftRearCanCoderPort),
           new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
               Ports.rightRearCanCoderPort) };
-      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort), Constants.DriveConstants.startPose,
+      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort, Constants.DriveConstants.pitchAngle),
+          Constants.DriveConstants.startPose,
           m_swerveModuleIOs);
       m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
 
@@ -171,7 +171,8 @@ public class RobotContainer {
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
-      m_drive = new Drive(new GyroIOPigeon(22), new Pose2d(), new SwerveModuleIOSim(),
+      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
+          new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(), new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
@@ -235,8 +236,9 @@ public class RobotContainer {
         m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])));
 
-    Command chargeCommand = Commands.parallel(new ZeroHeading(m_drive),
-        new ChargeStationBalance(m_drive));
+    // Command chargeCommand = Commands.sequence(new ZeroHeading(m_drive),
+    //     new ChargeStationBalance(m_drive));
+    Command chargeCommand = new ChargeStationBalance(m_drive);
 
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.dropLoadingStationCommandSetpoints[0]),
@@ -269,7 +271,7 @@ public class RobotContainer {
 
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
-    // operatorControls.charge().whileTrue(chargeCommand);
+    operatorControls.charge().whileTrue(chargeCommand);
     operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.increasePoseSetpoint();
     }));

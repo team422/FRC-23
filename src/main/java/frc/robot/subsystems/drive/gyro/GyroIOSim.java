@@ -29,7 +29,7 @@ public class GyroIOSim implements GyroIO {
   }
 
   @Override
-  public Rotation2d getRoll() {
+  public Rotation2d getPitch() {
     return Rotation2d.fromDegrees(0);
   }
 

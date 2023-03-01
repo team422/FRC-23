@@ -176,12 +176,12 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 5;
     public static final double kMaxAccelMetersPerSecondSq = 2;
 
-    public static final double kMaxSpeedMetersPerSecondAuto = 1;
+    public static final double kMaxSpeedMetersPerSecondAuto = 2;
     public static final double kMaxAccelMetersPerSecondSqAuto = 1;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
-
+    public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
         new PIDController(.01, 0, 0));
   }

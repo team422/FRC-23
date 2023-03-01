@@ -60,6 +60,7 @@ public class Drive extends SubsystemBase {
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
     }
     m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
+
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
     Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());

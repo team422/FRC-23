@@ -7,8 +7,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class GyroIOPigeon implements GyroIO {
   WPI_Pigeon2 m_gyro;
 
-  public GyroIOPigeon(int gyroPort) {
+  public GyroIOPigeon(int gyroPort, Rotation2d pitchAngle) {
     m_gyro = new WPI_Pigeon2(gyroPort);
+    m_gyro.calibrate();
+    m_gyro.configMountPosePitch(pitchAngle.getDegrees());
+    // m_gyro.configMountPose(0, 30, 0);
+
   }
 
   @Override
@@ -19,7 +23,7 @@ public class GyroIOPigeon implements GyroIO {
   @Override
   public void updateInputs(GyroInputs inputs) {
     inputs.angle = getAngle().getDegrees();
-    inputs.roll = getRoll().getDegrees();
+    inputs.pitch = getPitch().getDegrees();
 
   }
 
@@ -29,8 +33,8 @@ public class GyroIOPigeon implements GyroIO {
   }
 
   @Override
-  public Rotation2d getRoll() {
-    return Rotation2d.fromRadians(m_gyro.getRoll());
+  public Rotation2d getPitch() {
+    return Rotation2d.fromDegrees(m_gyro.getPitch());
   }
 
   public void reset() { // pls never run this

@@ -92,8 +92,8 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_driveController = m_driveMotor.getPIDController();
 
     m_driveMotor.enableVoltageCompensation(12);
-    m_driveMotor.setSmartCurrentLimit(40);
-    m_turningMotor.setSmartCurrentLimit(40);
+    m_driveMotor.setSmartCurrentLimit(60);
+    m_turningMotor.setSmartCurrentLimit(60);
     m_turningMotor.enableVoltageCompensation(12);
 
     m_turningController.setPositionPIDWrappingEnabled(true);

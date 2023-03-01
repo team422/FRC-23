@@ -22,7 +22,7 @@
           "intakeConeOut"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
+        "waitBehavior": "minimum",
         "waitTime": 1.0
       }
     },
@@ -151,48 +151,5 @@
       }
     }
   ],
-  "maxVelocity": 2.0,
-  "maxAcceleration": 2.0,
-  "isReversed": null,
-  "markers": [
-    {
-      "position": 0.4815340909090905,
-      "names": [
-        "setpointStow"
-      ]
-    },
-    {
-      "position": 1.843892045454545,
-      "names": [
-        "setpointCubeGround",
-        "intakeCubeIn"
-      ]
-    },
-    {
-      "position": 2.123721590909089,
-      "names": [
-        "stopIntake"
-      ]
-    },
-    {
-      "position": 3.4545454545454555,
-      "names": [
-        "setpointCubeHigh"
-      ]
-    },
-    {
-      "position": 1.0363636363636366,
-      "names": [
-        "event",
-        "setpointCubeGround"
-      ]
-    },
-    {
-      "position": 4.690909090909094,
-      "names": [
-        "event",
-        "setpointStow"
-      ]
-    }
-  ]
+  "markers": []
 }
