@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
   }
 
   public static final double kIntakeVoltage = 11;
-  public static final double kIntakeHoldVoltage = 3;
+  public static final double kIntakeHoldVoltage = 4;
 
   public Command intakeCubeCommand() {
     return startIntakeAtVoltage(kIntakeVoltage);

@@ -160,8 +160,8 @@ public class RobotContainer {
           Constants.ElevatorConstants.kMaxHeightMeters,
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_cams = new CameraAprilTag[] {
-          // new CameraAprilTag(VisionConstants.kfrontCameraName, m_layout, VisionConstants.kfrontCameraTransform,
-          //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+          new CameraAprilTag(VisionConstants.klowCameraName, m_layout, VisionConstants.klowCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
           new CameraAprilTag(VisionConstants.khighCamera, m_layout, VisionConstants.khighCameraTransform,
               m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
       };
@@ -228,6 +228,14 @@ public class RobotContainer {
     Command cubeMidCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeMid);
     Command cubeHighCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeHigh);
 
+    Command stowAndHoldCone = Commands.parallel(
+        RobotState.getInstance().setpointCommand(Setpoints.stow),
+        m_intake.holdConeCommand().asProxy());
+
+    Command stowAndHoldCube = Commands.parallel(
+        RobotState.getInstance().setpointCommand(Setpoints.stow),
+        m_intake.holdCubeCommand().asProxy());
+
     // Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
     //     DriveConstants.holonomicDrive,
     //     () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
@@ -248,12 +256,25 @@ public class RobotContainer {
     operatorControls.setpointHighCone().onTrue(coneHighCommand);
     operatorControls.setpointMidCube().onTrue(cubeMidCommand);
     operatorControls.setpointHighCube().onTrue(cubeHighCommand);
-    operatorControls.intakeConeTipped().whileTrue(pickUpConeGroundCommand).onFalse(stowCommand);
-    operatorControls.intakeConeVertical().whileTrue(pickUpConeVerticalCommand).onFalse(stowCommand);
-    operatorControls.intakeCubeGround().whileTrue(pickUpCubeGroundCommand).onFalse(stowCommand);
-    operatorControls.intakeFromLoadingStation().whileTrue(intakeFromLoadingStationCommand).onFalse(stowCommand);
+
+    operatorControls.intakeConeTipped()
+        .whileTrue(pickUpConeGroundCommand)
+        .onFalse(stowAndHoldCone);
+    operatorControls.intakeConeVertical()
+        .whileTrue(pickUpConeVerticalCommand)
+        .onFalse(stowAndHoldCone);
+    operatorControls.intakeCubeGround()
+        .whileTrue(pickUpCubeGroundCommand)
+        .onFalse(stowAndHoldCube);
+    operatorControls.intakeFromLoadingStation()
+        .whileTrue(intakeFromLoadingStationCommand)
+        .onFalse(stowAndHoldCone);
+
     operatorControls.stow().onTrue(stowCommand);
-    operatorControls.dropStationButton().onTrue(dropLoaderStationCommand);
+
+    operatorControls.dropStationButton()
+        .onTrue(dropLoaderStationCommand)
+        .onFalse(stowAndHoldCone);
 
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.intakeConeCommand());
     driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.intakeCubeCommand());
@@ -264,6 +285,7 @@ public class RobotContainer {
     // driverControls.setpointHighCube().onTrue(cubeHighCommand);
     driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommand);
     driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommand);
+
     driverControls.zeroElevator().whileTrue(m_elevator.zeroHeightCommand());
     driverControls.toggleLedColor().onTrue(Commands.runOnce(() -> {
       m_LED.toggleColor();
@@ -287,7 +309,7 @@ public class RobotContainer {
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());
-    driverControls.driveToGridSetpoint().whileTrue(driveToGridSetpointCommand);
+    driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
   }
 
   public void onEnabled() {

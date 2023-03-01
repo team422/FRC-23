@@ -63,7 +63,7 @@ public final class Constants {
         Rotation2d.fromDegrees(74.4));
 
     public static final Setpoint coneMid = new Setpoint(
-        Units.inchesToMeters(45),
+        Units.inchesToMeters(42.5),
         Rotation2d.fromDegrees(-25));
 
     public static final Setpoint cubeMid = new Setpoint(
@@ -206,8 +206,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 10;
     public static final double kMaxAccelMetersPerSecondSq = 2;
 
-    public static final double kMaxSpeedMetersPerSecondAuto = 2;
-    public static final double kMaxAccelMetersPerSecondSqAuto = 2;
+    public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
+    public static final double kMaxAccelMetersPerSecondSqAuto = 2.7;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
@@ -285,9 +285,12 @@ public final class Constants {
             Units.inchesToMeters(36.695)),
         new Rotation3d(0, Units.degreesToRadians(12), 0)).minus(new Pose3d());
     public static final String klowCameraName = "AprilTagCameraGray";
-    public static final Transform3d klowCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
-        new Rotation3d());
+    public static final Transform3d klowCameraTransform = new Pose3d(new Translation3d(
+        Units.inchesToMeters(6.366),
+        Units.inchesToMeters(8.055),
+        Units.inchesToMeters(27.835)),
+        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
+
   }
 
   public static final class WristConstants {

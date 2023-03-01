@@ -46,9 +46,9 @@ public class AutoFactory extends CommandBase {
         m_intake.setDesiredSpeedCommand(0),
         Commands.print("stow"));
 
-    Command coneHigh = Commands.parallel(
+    Command coneHigh = Commands.sequence(
         m_elevator.setHeightCommand(Setpoints.coneHigh.heightMeters),
-        Commands.waitSeconds(1),
+        Commands.waitSeconds(0.5),
         m_wrist.setAngleCommand(Setpoints.coneHigh.angle),
         Commands.print("coneHighElevator"));
 
@@ -61,7 +61,7 @@ public class AutoFactory extends CommandBase {
         Commands.parallel(
             m_elevator.setHeightCommand(Setpoints.coneHigh.heightMeters),
             m_wrist.setAngleCommand(Rotation2d.fromDegrees(85))),
-        Commands.waitSeconds(0.5),
+        Commands.waitSeconds(0.3),
         m_wrist.setAngleCommand(Setpoints.coneHigh.angle));
 
     Command cubeGround = Commands.parallel(
@@ -79,7 +79,7 @@ public class AutoFactory extends CommandBase {
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
 
     m_eventMap = Map.ofEntries(
-        Map.entry("stow", stow),
+        Map.entry("setpointStow", stow),
         Map.entry("setpointCubeGround", cubeGround),
         Map.entry("setpointConeHigh", coneHigh),
         Map.entry("setpointCubeHigh", cubeHigh),
@@ -87,25 +87,11 @@ public class AutoFactory extends CommandBase {
         Map.entry("intakeCubeOut", cubeDrop),
         Map.entry("intakeConeIn", conePickup),
         Map.entry("intakeConeOut", coneDrop),
-        Map.entry("wait", Commands.waitSeconds(1.1)),
+        Map.entry("wait", Commands.waitSeconds(0.35)),
         Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),
         Map.entry("setpointConeHighWait", autoConeHigh));
-    // m_eventMap = Map.ofEntries(
-    //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
-    //     Map.entry("stow", stow),
-    //     Map.entry("coneHighElevator", coneHighElevator),
-    //     Map.entry("coneHighWrist", coneHighWrist),
-    //     Map.entry("cubeGround", cubeGround),
-    //     Map.entry("intakeCubeIn", cubePickup),
-    //     Map.entry("cubeOut", cubeDrop),
-    //     Map.entry("stopIntake", stopIntake),
-    //     Map.entry("brake", m_drive.brakeCommand()),
-    //     Map.entry("pickUpConeLow",
-    //         m_elevator.setHeightCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints[0])),
-    //     Map.entry("elevatorHigh", m_elevator.setHeightCommand(Units.inchesToMeters(5))),
-    //     Map.entry("charge", new ChargeStationBalance(drive)));
 
     if (Constants.MetaConstants.pathTuningMode) {
       PathPlannerServer.startServer(5811);
