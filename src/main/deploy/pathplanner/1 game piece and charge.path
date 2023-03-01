@@ -39,11 +39,11 @@
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
         "names": [],
         "executionBehavior": "parallel",
-        "waitBehavior": "none",
+        "waitBehavior": "minimum",
         "waitTime": 0
       }
     },
@@ -71,6 +71,12 @@
     }
   ],
   "markers": [
+    {
+      "position": 0.0,
+      "names": [
+        "event"
+      ]
+    },
     {
       "position": 0.0,
       "names": [

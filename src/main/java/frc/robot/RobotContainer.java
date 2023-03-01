@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
+import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -35,7 +36,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
-import frc.robot.commands.drive.DriveToPoint;
+import frc.robot.commands.drive.DriveToNode;
 import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsDualFlightStick;
@@ -254,15 +255,19 @@ public class RobotContainer {
     operatorControls.stow().onTrue(stowCommand);
     operatorControls.dropStationButton().onTrue(dropLoaderStationCommand);
 
-    driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.intakeConeCommand());
     driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.intakeCubeCommand());
+    driverControls.resetFieldCentric().onTrue(m_drive.resetPoseAngleCommand());
     // driverControls.setpointMidCone().onTrue(coneMidCommand);
     // driverControls.setpointHighCone().onTrue(coneHighCommand);
     // driverControls.setpointMidCube().onTrue(cubeMidCommand);
     // driverControls.setpointHighCube().onTrue(cubeHighCommand);
     driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommand);
     driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommand);
+    driverControls.zeroElevator().whileTrue(m_elevator.zeroHeightCommand());
+    driverControls.toggleLedColor().onTrue(Commands.runOnce(() -> {
+      m_LED.toggleColor();
+    }));
     // driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
     // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
 
@@ -275,9 +280,10 @@ public class RobotContainer {
     operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
       m_robotState.decreasePoseSetpoint();
     }));
-    operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
+    // operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
 
-    Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_robotState::getPoseSetpoint,
+    FieldGeomUtil m_fieldGeom = new FieldGeomUtil();
+    Command driveToGridSetpointCommand = new DriveToNode(m_drive, m_fieldGeom,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());

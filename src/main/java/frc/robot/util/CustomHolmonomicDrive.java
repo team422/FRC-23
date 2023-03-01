@@ -129,6 +129,13 @@ public class CustomHolmonomicDrive {
   }
 
   @SuppressWarnings("LocalVariableName")
+  public ChassisSpeeds calculate(Rotation2d wantedRobotHeading, Rotation2d curRobotHeading, double xDrive) {
+    return ChassisSpeeds.fromFieldRelativeSpeeds(xDrive * wantedRobotHeading.getCos(),
+        xDrive * wantedRobotHeading.getSin(),
+        m_yController.calculate(curRobotHeading.getRadians(), wantedRobotHeading.getRadians()), curRobotHeading);
+  }
+
+  @SuppressWarnings("LocalVariableName")
   public ChassisSpeeds calculate(
       Pose2d currentPose,
       ExtendedPathPoint poseRef,

@@ -12,6 +12,7 @@ import frc.robot.Constants;
 
 public class FieldGeomUtil {
   HashMap<String, ExtendedPathPoint> allPoints = new HashMap<>();
+  Alliance m_allianceColor;
 
   public FieldGeomUtil() {
 
@@ -92,6 +93,27 @@ public class FieldGeomUtil {
       }
     }
     return fastestPath;
+  }
+
+  public ExtendedPathPoint getClosestNode(Pose2d curPose) {
+    if (m_allianceColor == Alliance.Red) {
+      curPose = flipSidePose2d(curPose);
+    }
+    double lowestDistance = 10;
+    ExtendedPathPoint desPoint = new ExtendedPathPoint(curPose.getTranslation(), curPose.getRotation(),
+        curPose.getRotation());
+    for (ExtendedPathPoint nodePoint : allPoints.values()) {
+      double distance = curPose.getTranslation().getDistance(nodePoint.getTranslation());
+      if (distance < lowestDistance) {
+        lowestDistance = distance;
+        desPoint = nodePoint;
+      }
+    }
+    if (m_allianceColor == Alliance.Red) {
+      desPoint = desPoint.flipPathPoint();
+    }
+    return desPoint;
+
   }
 
   public ArrayList<ExtendedPathPoint> fastestPathToGamePieceDropoff(Pose2d curPose, int gridNumber, int pieceNum,

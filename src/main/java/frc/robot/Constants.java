@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -201,12 +202,12 @@ public final class Constants {
     };
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
-    public static final double kMaxModuleSpeedMetersPerSecond = 5;
-    public static final double kMaxSpeedMetersPerSecond = 5;
+    public static final double kMaxModuleSpeedMetersPerSecond = 10;
+    public static final double kMaxSpeedMetersPerSecond = 10;
     public static final double kMaxAccelMetersPerSecondSq = 2;
 
     public static final double kMaxSpeedMetersPerSecondAuto = 2;
-    public static final double kMaxAccelMetersPerSecondSqAuto = 1;
+    public static final double kMaxAccelMetersPerSecondSqAuto = 2;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
@@ -277,9 +278,12 @@ public final class Constants {
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
     public static final String khighCamera = "AprilTagCameraGreen";
-    public static final Transform3d khighCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
-        new Rotation3d(0, Units.degreesToRadians(-12), 0));
+    public static final Transform3d khighCameraTransform = new Pose3d(
+        new Translation3d(
+            Units.inchesToMeters(7.228),
+            Units.inchesToMeters(4.232),
+            Units.inchesToMeters(36.695)),
+        new Rotation3d(0, Units.degreesToRadians(12), 0)).minus(new Pose3d());
     public static final String klowCameraName = "AprilTagCameraGray";
     public static final Transform3d klowCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),

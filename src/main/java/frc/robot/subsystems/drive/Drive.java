@@ -170,8 +170,11 @@ public class Drive extends SubsystemBase {
     return runOnce(this::brake);
   }
 
-  public Command resetCommand() {
-    return runOnce(this::resetOdometry);
+  public Command resetPoseAngleCommand() {
+    return runOnce(() -> {
+      Pose2d curPose = getPose();
+      resetPose(new Pose2d(curPose.getX(), curPose.getY(), new Rotation2d()));
+    });
   }
 
 }

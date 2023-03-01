@@ -48,6 +48,7 @@ public class AutoFactory extends CommandBase {
 
     Command coneHigh = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.coneHigh.heightMeters),
+        Commands.waitSeconds(1),
         m_wrist.setAngleCommand(Setpoints.coneHigh.angle),
         Commands.print("coneHighElevator"));
 
