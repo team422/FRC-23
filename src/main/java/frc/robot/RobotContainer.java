@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
+import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -241,6 +242,9 @@ public class RobotContainer {
     Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
+    // Command goToNodeCommand = new DriveToPoint(m_drive, DriveConstants.holonomicDrive,
+    //     () -> RobotState.getInstance().getPoseSetpoint(), () -> driverControls.getDriveX(),
+    //     () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
     Command stowCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])));
@@ -248,6 +252,7 @@ public class RobotContainer {
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(SetpointConstants.dropLoadingStationCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.dropLoadingStationCommandSetpoints[1])));
+
     driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     driverControls.stowIntakeAndElevator().onTrue(stowCommand);
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
@@ -283,8 +288,8 @@ public class RobotContainer {
       m_robotState.decreasePoseSetpoint();
     }));
     operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
-
-    Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_robotState::getPoseSetpoint,
+    FieldGeomUtil m_fieldGeom = new FieldGeomUtil();
+    Command driveToGridSetpointCommand = new DriveToPoint(m_drive, m_fieldGeom,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
     driverControls.driveToGridSetpoint().whileTrue(driveToGridSetpointCommand);

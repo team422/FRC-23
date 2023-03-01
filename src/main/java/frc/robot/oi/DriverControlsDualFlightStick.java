@@ -101,8 +101,8 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger driveToGridSetpoint() {
-    // return m_leftJoystick.button(5);
-    return new Trigger();
+    return m_leftJoystick.button(10);
+    // return new Trigger();
   }
 
   @Override
