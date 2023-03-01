@@ -41,27 +41,27 @@ public class AutoFactory extends CommandBase {
 
     // Define PathPlanner Event Map
     Command stow = Commands.parallel(
-        m_elevator.setHeightCommand(Setpoints.stowVerticalCommandSetpoints.heightMeters),
-        m_wrist.setAngleCommand(Setpoints.stowVerticalCommandSetpoints.angle),
+        m_elevator.setHeightCommand(Setpoints.stow.heightMeters),
+        m_wrist.setAngleCommand(Setpoints.stow.angle),
         m_intake.setDesiredSpeedCommand(0),
         Commands.print("stow"));
 
     Command coneHigh = Commands.parallel(
-        m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpoints.heightMeters),
-        m_wrist.setAngleCommand(Setpoints.coneHighCommandSetpoints.angle),
+        m_elevator.setHeightCommand(Setpoints.coneHigh.heightMeters),
+        m_wrist.setAngleCommand(Setpoints.coneHigh.angle),
         Commands.print("coneHighElevator"));
 
     Command cubeHigh = Commands.parallel(
-        m_elevator.setHeightCommand(Setpoints.cubeHighCommandSetpoints.heightMeters),
-        m_wrist.setAngleCommand(Setpoints.cubeHighCommandSetpoints.angle),
+        m_elevator.setHeightCommand(Setpoints.cubeHigh.heightMeters),
+        m_wrist.setAngleCommand(Setpoints.cubeHigh.angle),
         Commands.print("coneHighElevator"));
 
     Command autoConeHigh = Commands.sequence(
         Commands.parallel(
-            m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpoints.heightMeters),
+            m_elevator.setHeightCommand(Setpoints.coneHigh.heightMeters),
             m_wrist.setAngleCommand(Rotation2d.fromDegrees(85))),
         Commands.waitSeconds(0.5),
-        m_wrist.setAngleCommand(Setpoints.coneHighCommandSetpoints.angle));
+        m_wrist.setAngleCommand(Setpoints.coneHigh.angle));
 
     Command cubeGround = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.kIntakeGroundCube.heightMeters),

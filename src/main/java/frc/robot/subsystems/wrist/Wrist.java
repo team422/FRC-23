@@ -72,7 +72,6 @@ public class Wrist extends SubsystemBase {
 
     double pidVoltage = m_controller.calculate(m_inputs.angleRad, m_desiredAngle.getRadians());
     double positionSetpoint = m_controller.getSetpoint().position;
-    // double positionSetpoint = m_controller.
     double velocitySetpoint = m_controller.getSetpoint().velocity;
     double accelerationSetpoint = (velocitySetpoint - m_lastVelocitySetpoint) / dt;
     double feedForwardVoltage = m_feedforward.calculate(positionSetpoint, velocitySetpoint,

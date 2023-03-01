@@ -61,23 +61,23 @@ public final class Constants {
         Units.inchesToMeters(0),
         Rotation2d.fromDegrees(74.4));
 
-    public static final Setpoint coneMidCommandSetpoints = new Setpoint(
+    public static final Setpoint coneMid = new Setpoint(
         Units.inchesToMeters(45),
         Rotation2d.fromDegrees(-25));
 
-    public static final Setpoint cubeMidCommandSetpoints = new Setpoint(
+    public static final Setpoint cubeMid = new Setpoint(
         Units.inchesToMeters(35),
         Rotation2d.fromDegrees(12));
 
-    public static final Setpoint cubeHighCommandSetpoints = new Setpoint(
+    public static final Setpoint cubeHigh = new Setpoint(
         Units.inchesToMeters(51),
         Rotation2d.fromDegrees(22));
 
-    public static final Setpoint coneHighCommandSetpoints = new Setpoint(
+    public static final Setpoint coneHigh = new Setpoint(
         Units.inchesToMeters(51),
         Rotation2d.fromDegrees(-5));
 
-    public static final Setpoint stowVerticalCommandSetpoints = new Setpoint(
+    public static final Setpoint stow = new Setpoint(
         Units.inchesToMeters(0),
         Rotation2d.fromDegrees(95));
 
@@ -279,7 +279,7 @@ public final class Constants {
     public static final String khighCamera = "AprilTagCameraGreen";
     public static final Transform3d khighCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
-        new Rotation3d(0, Units.degreesToRadians(12), 0));
+        new Rotation3d(0, Units.degreesToRadians(-12), 0));
     public static final String klowCameraName = "AprilTagCameraGray";
     public static final Transform3d klowCameraTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),

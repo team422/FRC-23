@@ -86,7 +86,6 @@ public class Elevator extends SubsystemBase {
     double outputVoltage = pidVoltage + feedForwardVoltage;
 
     m_io.setVoltage(outputVoltage);
-    // m_io.setVoltage(feedForwardVoltage);
 
     Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);
     Logger.getInstance().recordOutput("Elevator/FFVoltage", feedForwardVoltage);
@@ -99,7 +98,6 @@ public class Elevator extends SubsystemBase {
 
     m_lastVelocity = velocitySetpoint;
     m_lastTime = Timer.getFPGATimestamp();
-
   }
 
   public double getCurrentHeightMeters() {

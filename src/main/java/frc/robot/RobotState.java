@@ -189,7 +189,7 @@ public class RobotState {
     return Math.sqrt(1 - travelPercent);
   }
 
-  public Command setpointCommand(double[] setpoint) {
+  public Command setpointCommand(double... setpoint) {
     return setpointCommand(Setpoint.fromArray(setpoint));
   }
 

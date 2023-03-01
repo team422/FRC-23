@@ -221,17 +221,17 @@ public class RobotContainer {
         RobotState.getInstance().setpointCommand(Setpoints.kIntakeLoadingStation),
         m_intake.intakeConeCommand());
 
-    Command coneMidCommand = RobotState.getInstance().setpointCommand(Setpoints.coneMidCommandSetpoints);
-    Command coneHighCommand = RobotState.getInstance().setpointCommand(Setpoints.coneHighCommandSetpoints);
+    Command coneMidCommand = RobotState.getInstance().setpointCommand(Setpoints.coneMid);
+    Command coneHighCommand = RobotState.getInstance().setpointCommand(Setpoints.coneHigh);
 
-    Command cubeMidCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeMidCommandSetpoints);
-    Command cubeHighCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeHighCommandSetpoints);
+    Command cubeMidCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeMid);
+    Command cubeHighCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeHigh);
 
     // Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
     //     DriveConstants.holonomicDrive,
     //     () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
 
-    Command stowCommand = RobotState.getInstance().setpointCommand(Setpoints.stowVerticalCommandSetpoints);
+    Command stowCommand = RobotState.getInstance().setpointCommand(Setpoints.stow);
 
     // Command chargeCommand = Commands.sequence(new ZeroHeading(m_drive),
     //     new ChargeStationBalance(m_drive));
