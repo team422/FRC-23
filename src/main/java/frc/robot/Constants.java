@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.robot.util.CustomHolmonomicDrive;
 import frc.robot.util.TunableNumber;
+import frc.robot.util.setpoint.Setpoint;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -39,20 +40,47 @@ public final class Constants {
     public static final boolean pathTuningMode = true;
   }
 
-  public static final class SetpointConstants {
-    // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
-    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
-    // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
+  public static final class Setpoints {
+    public static final Setpoint kIntakeVerticalCone = new Setpoint(
+        Units.inchesToMeters(18),
+        Rotation2d.fromDegrees(-23.95));
 
-    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -16 };
-    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
-    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(45), -25 };
-    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 };
-    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 };
-    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 };
+    public static final Setpoint kIntakeTippedCone = new Setpoint(
+        Units.inchesToMeters(0),
+        Rotation2d.fromDegrees(-16));
+
+    public static final Setpoint kIntakeGroundCube = new Setpoint(
+        Units.inchesToMeters(0),
+        Rotation2d.fromDegrees(10));
+
+    public static final Setpoint kIntakeLoadingStation = new Setpoint(
+        Units.inchesToMeters(8.2),
+        Rotation2d.fromDegrees(12));
+
+    public static final Setpoint kIntakeDropLoadingStation = new Setpoint(
+        Units.inchesToMeters(0),
+        Rotation2d.fromDegrees(74.4));
+
+    public static final Setpoint coneMidCommandSetpoints = new Setpoint(
+        Units.inchesToMeters(45),
+        Rotation2d.fromDegrees(-25));
+
+    public static final Setpoint cubeMidCommandSetpoints = new Setpoint(
+        Units.inchesToMeters(35),
+        Rotation2d.fromDegrees(12));
+
+    public static final Setpoint cubeHighCommandSetpoints = new Setpoint(
+        Units.inchesToMeters(51),
+        Rotation2d.fromDegrees(22));
+
+    public static final Setpoint coneHighCommandSetpoints = new Setpoint(
+        Units.inchesToMeters(51),
+        Rotation2d.fromDegrees(-5));
+
+    public static final Setpoint stowVerticalCommandSetpoints = new Setpoint(
+        Units.inchesToMeters(0),
+        Rotation2d.fromDegrees(95));
+
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
         new Translation2d(15.8, 7.37),
@@ -154,6 +182,7 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final PIDController intakePIDController = new PIDController(0.1, 0, 0);
     public static final double intakeGearRatio = 1.0;
+    public static final double kIntakeLength = Units.inchesToMeters(15);
   }
 
   public static final class DriveConstants {

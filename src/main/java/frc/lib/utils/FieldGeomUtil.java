@@ -15,20 +15,20 @@ public class FieldGeomUtil {
 
   public FieldGeomUtil() {
 
-    allPoints.put("blueLeftWallLoadingStation", Constants.SetpointConstants.blueLeftWallLoadingStation);
-    allPoints.put("blueRightWallLoadingStation", Constants.SetpointConstants.blueRightWallLoadingStation);
-    allPoints.put("blueFirstGridLeftCone", Constants.SetpointConstants.blueFirstGridLeftCone);
-    allPoints.put("blueFirstGridCube", Constants.SetpointConstants.blueFirstGridCube);
-    allPoints.put("blueFirstGridRightCone", Constants.SetpointConstants.blueFirstGridRightCone);
-    allPoints.put("blueSecondGridLeftCone", Constants.SetpointConstants.blueSecondGridLeftCone);
-    allPoints.put("blueSecondGridCube", Constants.SetpointConstants.blueSecondGridCube);
-    allPoints.put("blueSecondGridRightCone", Constants.SetpointConstants.blueSecondGridRightCone);
-    allPoints.put("blueThirdGridLeftCone", Constants.SetpointConstants.blueThirdGridLeftCone);
-    allPoints.put("blueThirdGridCube", Constants.SetpointConstants.blueThirdGridCube);
-    allPoints.put("blueThirdGridRightCone", Constants.SetpointConstants.blueThirdGridRightCone);
-    allPoints.put("blueLeftOfBalance", Constants.SetpointConstants.blueLeftOfBalance);
-    allPoints.put("blueRightOfBalance", Constants.SetpointConstants.blueRightOfBalance);
-    allPoints.put("bluePreLoadingStation", Constants.SetpointConstants.bluePreLoadingStation);
+    allPoints.put("blueLeftWallLoadingStation", Constants.Setpoints.blueLeftWallLoadingStation);
+    allPoints.put("blueRightWallLoadingStation", Constants.Setpoints.blueRightWallLoadingStation);
+    allPoints.put("blueFirstGridLeftCone", Constants.Setpoints.blueFirstGridLeftCone);
+    allPoints.put("blueFirstGridCube", Constants.Setpoints.blueFirstGridCube);
+    allPoints.put("blueFirstGridRightCone", Constants.Setpoints.blueFirstGridRightCone);
+    allPoints.put("blueSecondGridLeftCone", Constants.Setpoints.blueSecondGridLeftCone);
+    allPoints.put("blueSecondGridCube", Constants.Setpoints.blueSecondGridCube);
+    allPoints.put("blueSecondGridRightCone", Constants.Setpoints.blueSecondGridRightCone);
+    allPoints.put("blueThirdGridLeftCone", Constants.Setpoints.blueThirdGridLeftCone);
+    allPoints.put("blueThirdGridCube", Constants.Setpoints.blueThirdGridCube);
+    allPoints.put("blueThirdGridRightCone", Constants.Setpoints.blueThirdGridRightCone);
+    allPoints.put("blueLeftOfBalance", Constants.Setpoints.blueLeftOfBalance);
+    allPoints.put("blueRightOfBalance", Constants.Setpoints.blueRightOfBalance);
+    allPoints.put("bluePreLoadingStation", Constants.Setpoints.bluePreLoadingStation);
     // HashMap<String, ExtendedPathPoint> redSide = new HashMap<String, ExtendedPathPoint>();
     // redSide.put("redLeftWallLoadingStation", Constants.SetpointConstants.redLeftWallLoadingStation);
     // redSide.put("redRightWallLoadingStation", Constants.SetpointConstants.redRightWallLoadingStation);

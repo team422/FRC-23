@@ -17,7 +17,6 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,7 +30,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
-import frc.robot.Constants.SetpointConstants;
+import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
@@ -112,8 +111,7 @@ public class RobotContainer {
     m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
 
     // Add basic autonomous commands
-    // m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
-    m_autoChooser.addDefaultOption("Top Cone Cube Balance", Commands.none());
+    m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
 
     // Add PathPlanner Auto Commands
     PathPlannerUtil.getExistingPaths().forEach(path -> {
@@ -132,9 +130,7 @@ public class RobotContainer {
               Ports.leftRearCanCoderPort),
           new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
               Ports.rightRearCanCoderPort) };
-      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort, Constants.DriveConstants.pitchAngle),
-          Constants.DriveConstants.startPose,
-          m_swerveModuleIOs);
+      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort), m_swerveModuleIOs);
       m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
 
       m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
@@ -152,7 +148,8 @@ public class RobotContainer {
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
           Units.degreesToRadians(33 + 90)), // 253
           Constants.WristConstants.wristPIDController,
-          Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
+          Constants.WristConstants.wristFeedForward,
+          Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
           Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
@@ -171,10 +168,12 @@ public class RobotContainer {
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
-      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
+      m_drive = new Drive(
+          new GyroIOPigeon(Ports.pigeonPort),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
-          new SwerveModuleIOSim(), new SwerveModuleIOSim());
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
           ElevatorConstants.elevatorFeedForward, ElevatorConstants.kMinHeightMeters,
           ElevatorConstants.kMaxHeightMeters,
@@ -207,42 +206,40 @@ public class RobotContainer {
     OperatorControls operatorControls = new OperatorControlsXbox(5);
 
     Command pickUpConeVerticalCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(SetpointConstants.pickUpConeVerticalCommandSetpoints),
+        RobotState.getInstance().setpointCommand(Setpoints.kIntakeVerticalCone),
         m_intake.intakeConeCommand());
 
     Command pickUpCubeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(SetpointConstants.pickUpCubeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommand(Setpoints.kIntakeGroundCube),
         m_intake.intakeCubeCommand());
 
     Command pickUpConeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(SetpointConstants.pickUpConeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommand(Setpoints.kIntakeTippedCone),
         m_intake.intakeConeCommand());
 
     Command intakeFromLoadingStationCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(SetpointConstants.intakeFromLoadingStationCommand),
+        RobotState.getInstance().setpointCommand(Setpoints.kIntakeLoadingStation),
         m_intake.intakeConeCommand());
 
-    Command coneMidCommand = RobotState.getInstance().setpointCommand(SetpointConstants.coneMidCommandSetpoints);
-    Command coneHighCommand = RobotState.getInstance().setpointCommand(SetpointConstants.coneHighCommandSetpoints);
+    Command coneMidCommand = RobotState.getInstance().setpointCommand(Setpoints.coneMidCommandSetpoints);
+    Command coneHighCommand = RobotState.getInstance().setpointCommand(Setpoints.coneHighCommandSetpoints);
 
-    Command cubeMidCommand = RobotState.getInstance().setpointCommand(SetpointConstants.cubeMidCommandSetpoints);
-    Command cubeHighCommand = RobotState.getInstance().setpointCommand(SetpointConstants.cubeHighCommandSetpoints);
+    Command cubeMidCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeMidCommandSetpoints);
+    Command cubeHighCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeHighCommandSetpoints);
 
     // Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
     //     DriveConstants.holonomicDrive,
     //     () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
 
-    Command stowCommand = Commands.parallel(
-        m_elevator.setHeightCommand(SetpointConstants.stowVerticalCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.stowVerticalCommandSetpoints[1])));
+    Command stowCommand = RobotState.getInstance().setpointCommand(Setpoints.stowVerticalCommandSetpoints);
 
     // Command chargeCommand = Commands.sequence(new ZeroHeading(m_drive),
     //     new ChargeStationBalance(m_drive));
     Command chargeCommand = new ChargeStationBalance(m_drive);
 
     Command dropLoaderStationCommand = Commands.parallel(
-        m_elevator.setHeightCommand(SetpointConstants.dropLoadingStationCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(SetpointConstants.dropLoadingStationCommandSetpoints[1])));
+        RobotState.getInstance().setpointCommand(Setpoints.kIntakeDropLoadingStation),
+        m_intake.intakeConeCommand());
 
     // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     driverControls.stowIntakeAndElevator().onTrue(stowCommand);
@@ -285,7 +282,6 @@ public class RobotContainer {
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());
     driverControls.driveToGridSetpoint().whileTrue(driveToGridSetpointCommand);
-
   }
 
   public void onEnabled() {
@@ -322,6 +318,5 @@ public class RobotContainer {
     if (m_robotState != null) {
       m_robotState.update();
     }
-
   }
 }

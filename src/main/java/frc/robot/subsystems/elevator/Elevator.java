@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -65,6 +66,10 @@ public class Elevator extends SubsystemBase {
     }
     if (ElevatorConstants.kTuningMode && ElevatorConstants.kManualSetpoint.hasChanged()) {
       setHeight(Units.inchesToMeters(ElevatorConstants.kManualSetpoint.get()));
+    }
+
+    if (RobotState.isDisabled()) {
+      reset();
     }
 
     m_io.updateInputs(m_inputs);
@@ -136,7 +141,9 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setHeightCommand(double heightMeters) {
-    return run(() -> setHeight(heightMeters)).until(m_controller::atGoal);
+    return run(() -> setHeight(heightMeters))
+        .until(m_controller::atGoal)
+        .withTimeout(1.5);
   }
 
   public Command moveCommand(Supplier<Double> heightDelta) {
@@ -145,6 +152,5 @@ public class Elevator extends SubsystemBase {
 
   public void setBrakeMode(boolean mode) {
     m_io.setBrakeMode(mode);
-
   }
 }

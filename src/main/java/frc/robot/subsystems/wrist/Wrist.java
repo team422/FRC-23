@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -65,6 +66,10 @@ public class Wrist extends SubsystemBase {
 
     double dt = Timer.getFPGATimestamp() - m_lastTime;
 
+    if (RobotState.isDisabled()) {
+      reset();
+    }
+
     double pidVoltage = m_controller.calculate(m_inputs.angleRad, m_desiredAngle.getRadians());
     double positionSetpoint = m_controller.getSetpoint().position;
     // double positionSetpoint = m_controller.
@@ -107,7 +112,9 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command setAngleCommand(Rotation2d angle) {
-    return run(() -> setAngle(angle)).until(m_controller::atGoal);
+    return run(() -> setAngle(angle))
+        .until(m_controller::atGoal)
+        .withTimeout(1.5);
   }
 
   public Command moveCommand(Supplier<Double> delta) {

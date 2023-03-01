@@ -32,7 +32,7 @@ public class Drive extends SubsystemBase {
   private double m_simGyroLastUpdated;
 
   /** Creates a new Drive. */
-  public Drive(GyroIO gyro, Pose2d startPose, SwerveModuleIO... modules) {
+  public Drive(GyroIO gyro, SwerveModuleIO... modules) {
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
@@ -47,7 +47,7 @@ public class Drive extends SubsystemBase {
       m_inputs[i] = new SwerveModuleInputsAutoLogged();
     }
     m_poseEstimator = new SwerveDrivePoseEstimator(
-        Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
+        Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), new Pose2d());
   }
 
   @Override
@@ -133,7 +133,7 @@ public class Drive extends SubsystemBase {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
     }
 
-    // Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
+    Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
 
     setModuleStates(moduleStates);
   }
