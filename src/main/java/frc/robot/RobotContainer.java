@@ -297,7 +297,7 @@ public class RobotContainer {
     Command driveToGridSetpointCommand = new DriveToNode(m_drive, m_fieldGeom,
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
-    driverControls.driveToGridSetpoint().whileTrue(driveToGridSetpointCommand);
+    driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
 
   }
 

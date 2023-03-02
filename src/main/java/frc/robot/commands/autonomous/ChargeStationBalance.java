@@ -2,6 +2,7 @@ package frc.robot.commands.autonomous;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
 
@@ -20,14 +21,16 @@ public class ChargeStationBalance extends CommandBase {
   @Override
   public void execute() {
     // check if turn to 0 is complete
-    if (Math.abs(m_drive.getPose().getRotation().getDegrees()) < 4) {
-      // if so, check if roll to 0 is complete
-      m_drive
-          .drive(new ChassisSpeeds(0, 0, m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(), 0)));
+    if (Math.abs(m_drive.getGyro().getPitch().getRadians()) < Units.degreesToRadians(11)) {
+      m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
+          m_rollController.calculate(m_drive.getGyro().getPitch().getRadians(), 0), 0, 0,
+          m_drive.getPose().getRotation()));
     } else {
-      // if not, roll to 0
-      m_drive
-          .drive(new ChassisSpeeds(m_rollController.calculate(m_drive.getGyro().getRoll().getDegrees(), 0), 0, 0));
+      m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
+          -Math.signum(m_drive.getGyro().getPitch().getRadians()) * 1.0, 0, 0,
+          m_drive.getPose().getRotation()));
+
     }
+
   }
 }

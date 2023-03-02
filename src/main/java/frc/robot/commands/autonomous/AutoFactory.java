@@ -69,7 +69,7 @@ public class AutoFactory extends CommandBase {
     Command balanceStation = new ChargeStationBalance(m_drive);
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
-    Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.5);
+    Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.9);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(

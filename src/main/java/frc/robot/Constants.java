@@ -184,7 +184,7 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
 
-    public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
+    public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.1, 0, 0),
         new PIDController(.01, 0, 0));
   }
 
@@ -257,9 +257,13 @@ public final class Constants {
             Units.inchesToMeters(36.695)),
         new Rotation3d(0, Units.degreesToRadians(12), 0)).minus(new Pose3d());
     public static final String klowCameraName = "AprilTagCameraGray";
-    public static final Transform3d klowCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
-        new Rotation3d());
+    public static final Transform3d klowCameraTransform = new Pose3d(
+        new Translation3d(
+            Units.inchesToMeters(6.366),
+            Units.inchesToMeters(8.055),
+            Units.inchesToMeters(27.835)),
+        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(10), Units.degreesToRadians(15)))
+        .minus(new Pose3d());
   }
 
   public static final class WristConstants {
