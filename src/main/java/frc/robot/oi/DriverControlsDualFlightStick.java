@@ -34,7 +34,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger goToNode() {
-    return m_rightJoystick.button(4);
+    return m_leftJoystick.button(4);
   }
 
   @Override

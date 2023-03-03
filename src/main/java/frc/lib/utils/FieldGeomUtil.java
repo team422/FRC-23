@@ -6,15 +6,18 @@ import java.util.HashMap;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 
 public class FieldGeomUtil {
   HashMap<String, ExtendedPathPoint> allPoints = new HashMap<>();
   Alliance m_allianceColor;
 
   public FieldGeomUtil() {
+    m_allianceColor = DriverStation.getAlliance();
 
     allPoints.put("blueLeftWallLoadingStation", Constants.Setpoints.blueLeftWallLoadingStation);
     allPoints.put("blueRightWallLoadingStation", Constants.Setpoints.blueRightWallLoadingStation);
@@ -30,6 +33,7 @@ public class FieldGeomUtil {
     allPoints.put("blueLeftOfBalance", Constants.Setpoints.blueLeftOfBalance);
     allPoints.put("blueRightOfBalance", Constants.Setpoints.blueRightOfBalance);
     allPoints.put("bluePreLoadingStation", Constants.Setpoints.bluePreLoadingStation);
+
     // HashMap<String, ExtendedPathPoint> redSide = new HashMap<String, ExtendedPathPoint>();
     // redSide.put("redLeftWallLoadingStation", Constants.SetpointConstants.redLeftWallLoadingStation);
     // redSide.put("redRightWallLoadingStation", Constants.SetpointConstants.redRightWallLoadingStation);
@@ -63,7 +67,7 @@ public class FieldGeomUtil {
       int loadingStationNumber) {
     // do all math on blue side and flip if necessary
     ArrayList<ExtendedPathPoint> fastestPath = new ArrayList<>();
-    if (allianceColor == Alliance.Red) {
+    if (DriverStation.getAlliance() == Alliance.Red) {
       curPose = flipSidePose2d(curPose);
     }
 
@@ -85,7 +89,7 @@ public class FieldGeomUtil {
       fastestPath.add(0, allPoints.get("blueLeftOfBalance"));
     }
 
-    if (allianceColor == Alliance.Red) {
+    if (DriverStation.getAlliance() == Alliance.Red) {
       int i = 0;
       for (ExtendedPathPoint point : fastestPath) {
         fastestPath.set(i, point.flipPathPoint());
@@ -96,7 +100,7 @@ public class FieldGeomUtil {
   }
 
   public ExtendedPathPoint getClosestNode(Pose2d curPose) {
-    if (m_allianceColor == Alliance.Red) {
+    if (DriverStation.getAlliance() == Alliance.Red) {
       curPose = flipSidePose2d(curPose);
     }
     double lowestDistance = 10;
@@ -109,8 +113,8 @@ public class FieldGeomUtil {
         desPoint = nodePoint;
       }
     }
-    if (m_allianceColor == Alliance.Red) {
-      desPoint = desPoint.flipPathPoint();
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      return desPoint.flipPathPoint();
     }
     return desPoint;
 
@@ -119,11 +123,11 @@ public class FieldGeomUtil {
   public ArrayList<ExtendedPathPoint> fastestPathToGamePieceDropoff(Pose2d curPose, int gridNumber, int pieceNum,
       Alliance allianceColor) {
     ArrayList<ExtendedPathPoint> fastestPath = new ArrayList<>();
-    if (allianceColor == Alliance.Red) {
+    if (DriverStation.getAlliance() == Alliance.Red) {
       curPose = flipSidePose2d(curPose);
     }
 
-    if (allianceColor == Alliance.Red) {
+    if (DriverStation.getAlliance() == Alliance.Red) {
       int i = 0;
       for (ExtendedPathPoint point : fastestPath) {
         fastestPath.set(i, point.flipPathPoint());
@@ -140,8 +144,9 @@ public class FieldGeomUtil {
       newRotation = newRotation.plus(Rotation2d.fromDegrees(360));
     }
 
-    return new Pose2d(Constants.FieldConstants.kFieldLengthMeters - startPose.getX(), startPose.getY(),
-        newRotation);
+    return new Pose2d(startPose.getX(),
+        FieldConstants.kFieldWidthMeters - startPose.getY(),
+        startPose.getRotation());
   }
 
 }

@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CameraAprilTag extends SubsystemBase {
@@ -52,6 +53,9 @@ public class CameraAprilTag extends SubsystemBase {
   }
 
   public Vector<N3> getMatrixStds(EstimatedRobotPose curRobotPose, PhotonPipelineResult result) {
+    if (RobotState.isDisabled()) {
+      return VecBuilder.fill(3, 3, 10);
+    }
     Optional<Pose3d> tagPose = m_layout.getTagPose(result.getBestTarget().getFiducialId());
     if (tagPose.isEmpty()) {
       return VecBuilder.fill(100, 100, 100);

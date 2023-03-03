@@ -5,10 +5,12 @@
 package frc.robot;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -17,12 +19,14 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
@@ -217,6 +221,12 @@ public class RobotContainer {
     Command pickUpConeGroundCommand = Commands.parallel(
         RobotState.getInstance().setpointCommand(Setpoints.kIntakeTippedCone),
         m_intake.intakeConeCommand());
+    Command pickUpConeGroundCommandDriver = RobotState.getInstance()
+        .setpointCommand(Setpoints.kIntakeTippedCone);
+    Command pickUpConeVerticalCommandDriver = RobotState.getInstance()
+        .setpointCommand(Setpoints.kIntakeVerticalCone);
+    Command pickUpCubeGroundCommandDriver = RobotState.getInstance()
+        .setpointCommand(Setpoints.kIntakeGroundCube);
 
     Command intakeFromLoadingStationCommand = Commands.parallel(
         RobotState.getInstance().setpointCommand(Setpoints.kIntakeLoadingStation),
@@ -283,14 +293,14 @@ public class RobotContainer {
     // driverControls.setpointHighCone().onTrue(coneHighCommand);
     // driverControls.setpointMidCube().onTrue(cubeMidCommand);
     // driverControls.setpointHighCube().onTrue(cubeHighCommand);
-    driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommand);
-    driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommand);
-
     driverControls.zeroElevator().whileTrue(m_elevator.zeroHeightCommand());
     driverControls.toggleLedColor().onTrue(Commands.runOnce(() -> {
       m_LED.toggleColor();
     }));
     // driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommand);
+    driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommandDriver);
+    driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommandDriver);
+    driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommandDriver);
     // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
 
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
@@ -304,8 +314,7 @@ public class RobotContainer {
     }));
     // operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
 
-    FieldGeomUtil m_fieldGeom = new FieldGeomUtil();
-    Command driveToGridSetpointCommand = new DriveToNode(m_drive, m_fieldGeom,
+    Command driveToGridSetpointCommand = new DriveToNode(m_drive, new FieldGeomUtil(),
         DriveConstants.holonomicDrive,
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());
@@ -340,6 +349,23 @@ public class RobotContainer {
       }
     }
     return m_autoChooser.get();
+  }
+
+  public void disabledPeriodic() {
+    if (Robot.isSimulation()) {
+      return;
+    }
+    String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+    List<PathPlannerTrajectory> traj = m_autoFactory.loadPathGroupByName(selectedAuto);
+    Pose2d desPose = traj.get(0).getInitialPose();
+    Pose2d curPose = m_drive.getPose();
+    double error = curPose.getTranslation().getDistance(desPose.getTranslation());
+    if (error > Units.inchesToMeters(1)) {
+      m_LED.setSolidColorNumber(Color.kRed, (int) Math.ceil(Units.metersToInches(error)));
+    } else {
+      m_LED.setSolidColor(Color.kGreen);
+    }
+
   }
 
   public void updateRobotState() {

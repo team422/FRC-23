@@ -30,11 +30,11 @@ public class ChargeStationBalance extends CommandBase {
     // } else {
     if (Math.abs(m_drive.getGyro().getPitch().getRadians()) < Units.degreesToRadians(11)) {
       m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-          m_rollController.calculate(m_drive.getGyro().getPitch().getRadians(), 0), 0, 0,
+          m_rollController.calculate(m_drive.getGyro().getPitch().getRadians(), 0) / 5, 0, 0,
           m_drive.getPose().getRotation()));
     } else {
       m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-          -Math.signum(m_drive.getGyro().getPitch().getRadians()) * .85, 0, 0,
+          -Math.signum(m_drive.getGyro().getPitch().getRadians()) * 1, 0, 0,
           m_drive.getPose().getRotation()));
 
     }

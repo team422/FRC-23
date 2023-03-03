@@ -21,13 +21,24 @@ public class LED extends SubsystemBase {
     m_LEDStripBuffer = new AddressableLEDBuffer(length);
     m_LEDStrip.setLength(length);
     m_LEDStrip.start();
-    m_colors = new Color[] { new Color(218, 255, 100), new Color(255, 0, 100) };
+    m_colors = new Color[] { new Color(255, 200, 0), new Color(255, 0, 100) };
     setSolidColor(m_colors[0]);
   }
 
   public void setSolidColor(Color color) {
     for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
       m_LEDStripBuffer.setLED(i, color);
+    }
+    m_LEDStrip.setData(m_LEDStripBuffer);
+  }
+
+  public void setSolidColorNumber(Color color, int length) {
+    length = Math.min(length, m_LEDStripBuffer.getLength());
+    for (int i = 0; i < length; i++) {
+      m_LEDStripBuffer.setLED(i, color);
+    }
+    for (int i = length; i < m_LEDStripBuffer.getLength(); i++) {
+      m_LEDStripBuffer.setLED(i, Color.kGreen);
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
   }

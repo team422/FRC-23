@@ -47,6 +47,7 @@ public class AutoFactory extends CommandBase {
         Commands.print("stow"));
 
     Command coneHigh = Commands.sequence(
+        m_intake.holdConeCommand(),
         m_elevator.setHeightCommand(Setpoints.coneHigh.heightMeters),
         Commands.waitSeconds(0.5),
         m_wrist.setAngleCommand(Setpoints.coneHigh.angle),
@@ -72,23 +73,19 @@ public class AutoFactory extends CommandBase {
 
     Command balanceStation = new ChargeStationBalance(m_drive);
     Command zeroHeading = new ZeroHeading(m_drive);
-    Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
-    Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
-    Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.5);
-    Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
-    Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
 
     m_eventMap = Map.ofEntries(
         Map.entry("setpointStow", stow),
         Map.entry("setpointCubeGround", cubeGround),
+        Map.entry("setpointCubeGroundBump", cubeGround),
         Map.entry("setpointConeHigh", coneHigh),
         Map.entry("setpointCubeHigh", cubeHigh),
-        Map.entry("intakeCubeIn", cubePickup),
-        Map.entry("intakeCubeOut", cubeDrop),
-        Map.entry("intakeConeIn", conePickup),
-        Map.entry("intakeConeOut", coneDrop),
+        Map.entry("intakeCubeIn", m_intake.intakeCubeCommand()),
+        Map.entry("intakeCubeOut", m_intake.dropCubeCommand()),
+        Map.entry("intakeConeIn", m_intake.intakeConeCommand()),
+        Map.entry("intakeConeOut", m_intake.dropConeCommand()),
+        Map.entry("intakeStop", m_intake.stopCommand()),
         Map.entry("wait", Commands.waitSeconds(0.35)),
-        Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),
         Map.entry("setpointConeHighWait", autoConeHigh));

@@ -48,6 +48,7 @@ public class CustomHolmonomicDrive {
   public CustomHolmonomicDrive(PIDController xController, PIDController yController) {
     m_xController = xController;
     m_yController = yController;
+    m_yController.enableContinuousInput(0, 360);
 
   }
 
@@ -121,7 +122,7 @@ public class CustomHolmonomicDrive {
 
     // Return next output.
     // EricControls.addEricCurve(EricControls.addDeadzoneScaled(angleRef.get(), 0.1))
-    return ChassisSpeeds.fromFieldRelativeSpeeds(x * Constants.DriveConstants.kMaxSpeedMetersPerSecond,
+    return ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed.get() * Constants.DriveConstants.kMaxSpeedMetersPerSecond / 2,
         y * Constants.DriveConstants.kMaxSpeedMetersPerSecond,
         thetaFeedback
             * Constants.DriveConstants.kMaxAngularSpeedRadiansPerSecond,

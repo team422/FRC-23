@@ -63,7 +63,7 @@ public final class Constants {
         Rotation2d.fromDegrees(74.4));
 
     public static final Setpoint coneMid = new Setpoint(
-        Units.inchesToMeters(42.5),
+        Units.inchesToMeters(42),
         Rotation2d.fromDegrees(-25));
 
     public static final Setpoint cubeMid = new Setpoint(
@@ -145,8 +145,8 @@ public final class Constants {
 
   public static final class LEDConstants {
     // LED constants
-    public static final int kLEDLength = 84;
-    public static final int kLEDPort = 9;
+    public static final int kLEDLength = 150;
+    public static final int kLEDPort = 0;
   }
 
   public static final class ElevatorConstants {

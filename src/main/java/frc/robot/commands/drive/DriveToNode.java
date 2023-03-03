@@ -1,3 +1,4 @@
+
 package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
@@ -44,7 +45,7 @@ public class DriveToNode extends CommandBase {
   public void execute() {
     ChassisSpeeds speeds = m_HolmDrive.calculate(m_swerveBase.getPose(), m_targetPose.getPose2d(), xSpeed, ySpeed,
         zRotation);
-    m_targetPose.addTransform(new Translation2d(xSpeed.get() / 10.0, new Rotation2d()));
+    m_targetPose = m_targetPose.addTransform(new Translation2d(xSpeed.get() / 10.0, new Rotation2d()));
     m_swerveBase.drive(speeds);
 
   }
