@@ -13,12 +13,16 @@ import frc.robot.commands.led.Rainbow;
 public class LED extends SubsystemBase {
   private final AddressableLED m_LEDStrip;
   private final AddressableLEDBuffer m_LEDStripBuffer;
+  private final Color[] m_colors;
+  private boolean currentToggle = true;
 
   public LED(int PWMPort, int length) {
     m_LEDStrip = new AddressableLED(PWMPort);
     m_LEDStripBuffer = new AddressableLEDBuffer(length);
     m_LEDStrip.setLength(length);
     m_LEDStrip.start();
+    m_colors = new Color[] { new Color(255, 200, 0), new Color(255, 0, 100) };
+    setSolidColor(m_colors[0]);
   }
 
   public void setSolidColor(Color color) {
@@ -26,6 +30,29 @@ public class LED extends SubsystemBase {
       m_LEDStripBuffer.setLED(i, color);
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
+  }
+
+  public void setSolidColorNumber(Color color, int length) {
+    length = Math.min(length, m_LEDStripBuffer.getLength());
+    for (int i = 0; i < length; i++) {
+      m_LEDStripBuffer.setLED(i, color);
+    }
+    if (length < m_LEDStripBuffer.getLength()) {
+      for (int i = length; i < m_LEDStripBuffer.getLength(); i++) {
+        m_LEDStripBuffer.setLED(i, Color.kGreen);
+      }
+    }
+    m_LEDStrip.setData(m_LEDStripBuffer);
+  }
+
+  public void toggleColor() {
+    if (currentToggle == true) {
+      setSolidColor(m_colors[1]);
+      currentToggle = false;
+    } else {
+      setSolidColor(m_colors[0]);
+      currentToggle = true;
+    }
   }
 
   public void setColors(Color... colors) {
@@ -78,4 +105,5 @@ public class LED extends SubsystemBase {
   public Command cubeCommand() {
     return solidColorCommand(Color.kMediumPurple);
   }
+
 }

@@ -34,17 +34,17 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger goToNode() {
-    return m_leftJoystick.button(10);
+    return m_leftJoystick.button(4);
   }
 
   @Override
   public Trigger startIntakeConeInCubeOut() {
-    return m_rightJoystick.button(1);
+    return m_leftJoystick.button(1);
   }
 
   @Override
   public Trigger startIntakeCubeInConeOut() {
-    return m_leftJoystick.button(1);
+    return m_rightJoystick.button(1);
   }
 
   @Override

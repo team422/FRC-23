@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.SetpointConstants;
+import frc.robot.Constants.Setpoints;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -82,33 +82,33 @@ public class RobotState {
 
   public ExtendedPathPoint getPoseSetpoint() {
     Alliance alliance = DriverStation.getAlliance();
-    ExtendedPathPoint point = SetpointConstants.blueFirstGridCube;
+    ExtendedPathPoint point = Setpoints.blueFirstGridCube;
     if (m_poseSetpoint == 1) {
-      point = SetpointConstants.blueFirstGridLeftCone;
+      point = Setpoints.blueFirstGridLeftCone;
     }
     if (m_poseSetpoint == 2) {
-      point = SetpointConstants.blueFirstGridCube;
+      point = Setpoints.blueFirstGridCube;
     }
     if (m_poseSetpoint == 3) {
-      point = SetpointConstants.blueFirstGridRightCone;
+      point = Setpoints.blueFirstGridRightCone;
     }
     if (m_poseSetpoint == 4) {
-      point = SetpointConstants.blueSecondGridLeftCone;
+      point = Setpoints.blueSecondGridLeftCone;
     }
     if (m_poseSetpoint == 5) {
-      point = SetpointConstants.blueSecondGridCube;
+      point = Setpoints.blueSecondGridCube;
     }
     if (m_poseSetpoint == 6) {
-      point = SetpointConstants.blueSecondGridRightCone;
+      point = Setpoints.blueSecondGridRightCone;
     }
     if (m_poseSetpoint == 7) {
-      point = SetpointConstants.blueThirdGridLeftCone;
+      point = Setpoints.blueThirdGridLeftCone;
     }
     if (m_poseSetpoint == 8) {
-      point = SetpointConstants.blueThirdGridCube;
+      point = Setpoints.blueThirdGridCube;
     }
     if (m_poseSetpoint == 9) {
-      point = SetpointConstants.blueThirdGridRightCone;
+      point = Setpoints.blueThirdGridRightCone;
     }
 
     if (alliance.equals(Alliance.Blue)) {

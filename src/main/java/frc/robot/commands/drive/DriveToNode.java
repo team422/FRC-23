@@ -1,25 +1,28 @@
+
 package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.pathplanner.ExtendedPathPoint;
+import frc.lib.utils.FieldGeomUtil;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.CustomHolmonomicDrive;
 
-public class DriveToPoint extends CommandBase {
+public class DriveToNode extends CommandBase {
   Drive m_swerveBase;
-  Pose2d m_targetPose;
+  ExtendedPathPoint m_targetPose;
   double m_maxSpeedWanted;
-  Supplier<ExtendedPathPoint> m_targetPoseSupplier;
+  FieldGeomUtil m_targetPoseSupplier;
   CustomHolmonomicDrive m_HolmDrive;
   Supplier<Double> xSpeed;
   Supplier<Double> ySpeed;
   Supplier<Double> zRotation;
 
-  public DriveToPoint(Drive swerveBase, Supplier<ExtendedPathPoint> targetPose,
+  public DriveToNode(Drive swerveBase, FieldGeomUtil targetPose,
       CustomHolmonomicDrive HolmDrive, Supplier<Double> xSpeed, Supplier<Double> ySpeed,
       Supplier<Double> zRotation) {
     m_swerveBase = swerveBase;
@@ -34,13 +37,15 @@ public class DriveToPoint extends CommandBase {
 
   @Override
   public void initialize() {
-    m_targetPose = m_targetPoseSupplier.get().getPose2d();
+    m_targetPose = m_targetPoseSupplier.getClosestNode(m_swerveBase.getPose());
 
   }
 
   @Override
   public void execute() {
-    ChassisSpeeds speeds = m_HolmDrive.calculate(m_swerveBase.getPose(), m_targetPose, xSpeed, ySpeed, zRotation);
+    ChassisSpeeds speeds = m_HolmDrive.calculate(m_swerveBase.getPose(), m_targetPose.getPose2d(), xSpeed, ySpeed,
+        zRotation);
+    m_targetPose = m_targetPose.addTransform(new Translation2d(xSpeed.get() / 10.0, new Rotation2d()));
     m_swerveBase.drive(speeds);
 
   }

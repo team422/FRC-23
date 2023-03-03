@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -39,7 +40,7 @@ public final class Constants {
     public static final boolean pathTuningMode = true;
   }
 
-  public static final class SetpointConstants {
+  public static final class Setpoints {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
     public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
@@ -48,7 +49,7 @@ public final class Constants {
     public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -16 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
     public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(45), -25 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 };
     public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 };
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 };
     public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 };
@@ -116,8 +117,8 @@ public final class Constants {
 
   public static final class LEDConstants {
     // LED constants
-    public static final int kLEDLength = 84;
-    public static final int kLEDPort = 9;
+    public static final int kLEDLength = 150;
+    public static final int kLEDPort = 0;
   }
 
   public static final class ElevatorConstants {
@@ -176,8 +177,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 5;
     public static final double kMaxAccelMetersPerSecondSq = 2;
 
-    public static final double kMaxSpeedMetersPerSecondAuto = 2;
-    public static final double kMaxAccelMetersPerSecondSqAuto = 1;
+    public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
+    public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
@@ -252,9 +253,9 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
         new Rotation3d(0, Units.degreesToRadians(12), 0));
     public static final String klowCameraName = "AprilTagCameraGray";
-    public static final Transform3d klowCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(25.808)),
-        new Rotation3d());
+    public static final Transform3d klowCameraTransform = new Pose3d(new Translation3d(
+        Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(36.65)),
+        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
   }
 
   public static final class WristConstants {

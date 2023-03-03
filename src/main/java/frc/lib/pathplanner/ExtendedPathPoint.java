@@ -19,8 +19,8 @@ public class ExtendedPathPoint extends PathPoint {
     m_pose = pose;
     m_heading = heading;
     m_holonomicHeading = holRotation2d;
-    m_acceptedPoseError = new Translation2d(.5, .5);
-    m_acceptedAngularError = Rotation2d.fromDegrees(10);
+    m_acceptedPoseError = new Translation2d(.2, .2);
+    m_acceptedAngularError = Rotation2d.fromDegrees(3);
   }
 
   public ExtendedPathPoint(Translation2d pose, Rotation2d heading, Rotation2d holRotation2d,
@@ -48,16 +48,18 @@ public class ExtendedPathPoint extends PathPoint {
 
   public ExtendedPathPoint flipPathPoint() {
     // flips current path point about the X axis
-    Rotation2d newHeading = Rotation2d.fromDegrees(180).minus(m_heading);
-    if (newHeading.getDegrees() < 0) {
-      newHeading = newHeading.plus(Rotation2d.fromDegrees(360));
-    }
-    Rotation2d newHolonomicHeading = Rotation2d.fromDegrees(180).minus(m_holonomicHeading);
-    if (newHolonomicHeading.getDegrees() < 0) {
-      newHolonomicHeading = newHolonomicHeading.plus(Rotation2d.fromDegrees(360));
-    }
-    return new ExtendedPathPoint(new Translation2d(FieldConstants.kFieldLengthMeters - m_pose.getX(), m_pose.getY()),
-        newHeading, newHolonomicHeading);
+    // Rotation2d newHeading = Rotation2d.fromDegrees(180).minus(m_heading);
+    // if (newHeading.getDegrees() < 0) {
+    //   newHeading = newHeading.plus(Rotation2d.fromDegrees(360));
+    // }
+    // Rotation2d newHolonomicHeading = Rotation2d.fromDegrees(180).minus(m_holonomicHeading);
+    // if (newHolonomicHeading.getDegrees() < 0) {
+    //   newHolonomicHeading = newHolonomicHeading.plus(Rotation2d.fromDegrees(360));
+    // }
+    return new ExtendedPathPoint(
+        new Translation2d(m_pose.getX(),
+            FieldConstants.kFieldWidthMeters - m_pose.getY()),
+        m_heading, m_holonomicHeading);
   }
 
   public Pose2d getPose2d() {
@@ -66,6 +68,10 @@ public class ExtendedPathPoint extends PathPoint {
 
   public Pose2d getTolerance() {
     return new Pose2d(m_acceptedPoseError, m_acceptedAngularError);
+  }
+
+  public ExtendedPathPoint addTransform(Translation2d transform) {
+    return new ExtendedPathPoint(m_pose.plus(transform), m_heading, m_holonomicHeading);
   }
 
 }
