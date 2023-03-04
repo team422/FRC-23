@@ -117,7 +117,7 @@ public class RobotContainer {
 
     // Add basic autonomous commands
     // m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
-    m_autoChooser.addDefaultOption("Top Cone Cube Balance", Commands.none());
+    m_autoChooser.addDefaultOption("Top Cone Cube", Commands.none());
 
     // Add PathPlanner Auto Commands
     PathPlannerUtil.getExistingPaths().forEach(path -> {
@@ -249,7 +249,7 @@ public class RobotContainer {
     // Command chargeCommand = Commands.sequence(new ZeroHeading(m_drive),
     //     new ChargeStationBalance(m_drive));
     Command chargeCommand = new ChargeStationBalance(m_drive);
-
+    operatorControls.charge().whileTrue(chargeCommand);
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])),

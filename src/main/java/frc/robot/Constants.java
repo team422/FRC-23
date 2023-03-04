@@ -173,9 +173,9 @@ public final class Constants {
     };
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
-    public static final double kMaxModuleSpeedMetersPerSecond = 5;
-    public static final double kMaxSpeedMetersPerSecond = 5;
-    public static final double kMaxAccelMetersPerSecondSq = 2;
+    public static final double kMaxModuleSpeedMetersPerSecond = 6;
+    public static final double kMaxSpeedMetersPerSecond = 8.5;
+    public static final double kMaxAccelMetersPerSecondSq = 4;
 
     public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;

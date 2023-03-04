@@ -83,7 +83,7 @@ public class Elevator extends SubsystemBase {
 
     double outputVoltage = pidVoltage + feedForwardVoltage;
     if (m_curZeroing) {
-      m_io.setVoltage(-1);
+      m_io.setVoltage(-3);
       m_io.zeroHeight();
     } else {
       m_io.setVoltage(outputVoltage);
