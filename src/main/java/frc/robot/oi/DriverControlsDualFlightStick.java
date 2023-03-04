@@ -119,4 +119,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger ledCube() {
     return m_leftJoystick.button(5);
   }
+
+  @Override
+  public Trigger zeroElevator() {
+    return m_leftJoystick.button(11);
+  }
 }
