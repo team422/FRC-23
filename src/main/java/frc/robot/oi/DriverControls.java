@@ -41,4 +41,8 @@ public interface DriverControls {
 
   public Trigger stowIntakeAndElevator();
 
+  public Trigger ledCube();
+
+  public Trigger ledCone();
+
 }

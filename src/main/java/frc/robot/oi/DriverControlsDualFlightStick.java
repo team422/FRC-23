@@ -109,4 +109,14 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger stowIntakeAndElevator() {
     return m_leftJoystick.button(2);
   }
+
+  @Override
+  public Trigger ledCone() {
+    return m_rightJoystick.button(5);
+  }
+
+  @Override
+  public Trigger ledCube() {
+    return m_leftJoystick.button(5);
+  }
 }

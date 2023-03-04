@@ -100,4 +100,5 @@ public class OperatorControlsXbox implements OperatorControls {
   public Trigger charge() {
     return m_controller.rightTrigger(0.4);
   }
+
 }
