@@ -2,18 +2,14 @@ package frc.robot.subsystems.wrist;
 
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.WristConstants;
 
 public class Wrist extends SubsystemBase {
   private double kMinAngle;
@@ -44,24 +40,24 @@ public class Wrist extends SubsystemBase {
   }
 
   public void periodic() {
-    if (WristConstants.kWristTuning) {
-      if (WristConstants.kWristP.hasChanged() || WristConstants.kWristI.hasChanged()
-          || WristConstants.kWristD.hasChanged() || WristConstants.kWristAccel.hasChanged()
-          || WristConstants.kWristVelo.hasChanged()) {
-        m_controller.setPID(WristConstants.kWristP.get(), WristConstants.kWristI.get(), WristConstants.kWristD.get());
-        m_controller.setConstraints(new Constraints(WristConstants.kWristVelo.get(), WristConstants.kWristAccel.get()));
-      }
-      if (WristConstants.kWristSetpoint.hasChanged()) {
-        setAngle(Rotation2d.fromDegrees(WristConstants.kWristSetpoint.get()));
-      }
-      if (WristConstants.kWristkg.hasChanged() || WristConstants.kWristks.hasChanged()
-          || WristConstants.kWristkv.hasChanged() || WristConstants.kWristka.hasChanged()) {
-        m_feedforward = new ArmFeedforward(WristConstants.kWristks.get(), WristConstants.kWristkg.get(),
-            WristConstants.kWristkv.get(), WristConstants.kWristka.get());
-      }
-    }
+    // if (WristConstants.kWristTuning) {
+    //   if (WristConstants.kWristP.hasChanged() || WristConstants.kWristI.hasChanged()
+    //       || WristConstants.kWristD.hasChanged() || WristConstants.kWristAccel.hasChanged()
+    //       || WristConstants.kWristVelo.hasChanged()) {
+    //     m_controller.setPID(WristConstants.kWristP.get(), WristConstants.kWristI.get(), WristConstants.kWristD.get());
+    //     m_controller.setConstraints(new Constraints(WristConstants.kWristVelo.get(), WristConstants.kWristAccel.get()));
+    //   }
+    //   if (WristConstants.kWristSetpoint.hasChanged()) {
+    //     setAngle(Rotation2d.fromDegrees(WristConstants.kWristSetpoint.get()));
+    //   }
+    //   if (WristConstants.kWristkg.hasChanged() || WristConstants.kWristks.hasChanged()
+    //       || WristConstants.kWristkv.hasChanged() || WristConstants.kWristka.hasChanged()) {
+    //     m_feedforward = new ArmFeedforward(WristConstants.kWristks.get(), WristConstants.kWristkg.get(),
+    //         WristConstants.kWristkv.get(), WristConstants.kWristka.get());
+    //   }
+    // }
     m_io.updateInputs(m_inputs);
-    Logger.getInstance().processInputs("Wrist", m_inputs);
+    // Logger.getInstance().processInputs("Wrist", m_inputs);
 
     double dt = Timer.getFPGATimestamp() - m_lastTime;
 
@@ -78,11 +74,11 @@ public class Wrist extends SubsystemBase {
     m_io.setVoltage(outputVoltage);
     // m_io.setVoltage(feedForwardVoltage);
 
-    Logger.getInstance().recordOutput("Wrist/PIDVoltage", pidVoltage);
-    Logger.getInstance().recordOutput("Wrist/FFVoltage", feedForwardVoltage);
-    Logger.getInstance().recordOutput("Wrist/OutputVoltage", outputVoltage);
-    Logger.getInstance().recordOutput("Wrist/SetpointDegrees", m_desiredAngle.getDegrees());
-    Logger.getInstance().recordOutput("Wrist/AngleDeg", Units.radiansToDegrees(m_inputs.angleRad));
+    // Logger.getInstance().recordOutput("Wrist/PIDVoltage", pidVoltage);
+    // Logger.getInstance().recordOutput("Wrist/FFVoltage", feedForwardVoltage);
+    // Logger.getInstance().recordOutput("Wrist/OutputVoltage", outputVoltage);
+    // Logger.getInstance().recordOutput("Wrist/SetpointDegrees", m_desiredAngle.getDegrees());
+    // Logger.getInstance().recordOutput("Wrist/AngleDeg", Units.radiansToDegrees(m_inputs.angleRad));
 
     m_lastTime = Timer.getFPGATimestamp();
     m_lastVelocitySetpoint = velocitySetpoint;

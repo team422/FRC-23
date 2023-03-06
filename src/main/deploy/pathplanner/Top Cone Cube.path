@@ -39,7 +39,7 @@
         "x": 5.636535079322571,
         "y": 4.887729604095295
       },
-      "holonomicAngle": 85.34804756416854,
+      "holonomicAngle": 29.751748252685353,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -53,16 +53,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.631632676459798,
-        "y": 4.557737931448085
+        "x": 6.815348862014451,
+        "y": 4.86871066268823
       },
       "prevControl": {
-        "x": 4.985437241211784,
-        "y": 4.815403303921687
+        "x": 5.169153426766437,
+        "y": 5.126376035161831
       },
       "nextControl": {
-        "x": 4.985437241211784,
-        "y": 4.815403303921687
+        "x": 5.169153426766437,
+        "y": 5.126376035161831
       },
       "holonomicAngle": -13.61008575825838,
       "isReversal": true,
@@ -73,7 +73,7 @@
         "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "minimum",
-        "waitTime": 0.5
+        "waitTime": 0.3
       }
     },
     {
@@ -191,7 +191,7 @@
       ]
     },
     {
-      "position": 2.123721590909089,
+      "position": 2.2181818181818223,
       "names": [
         "stopIntake"
       ]
@@ -213,6 +213,12 @@
       "position": 4.690909090909094,
       "names": [
         "setpointStow"
+      ]
+    },
+    {
+      "position": 1.5636363636363917,
+      "names": [
+        "intakeCubeIn"
       ]
     }
   ]

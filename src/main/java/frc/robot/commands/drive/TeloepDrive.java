@@ -36,7 +36,7 @@ public class TeloepDrive extends CommandBase {
     curXSpeed = xSpeed.get();
     curYSpeed = ySpeed.get();
     curZRotation = zRotation.get();
-
+    // curXSpeed = MathUtil.applyDeadband(curZRotation, curYSpeed)
     curXSpeed = m_controlsHandler.addDeadzoneScaled(curXSpeed, deadzone);
     curYSpeed = m_controlsHandler.addDeadzoneScaled(curYSpeed, deadzone);
     curZRotation = m_controlsHandler.addDeadzoneScaled(curZRotation, deadzone);

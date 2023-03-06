@@ -91,13 +91,13 @@ public class AutoFactory extends CommandBase {
         Map.entry("intakeCubeOut", cubeDrop),
         Map.entry("intakeConeIn", conePickup),
         Map.entry("intakeConeOut", coneDrop),
-        Map.entry("wait", Commands.waitSeconds(.5)),
+        Map.entry("wait", Commands.waitSeconds(.3)),
         Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),
         Map.entry("setpointConeHighWait", autoConeHigh));
     // m_eventMap = Map.ofEntries(
-    //     Map.entry("a", Commands.print("aaaaaaaaaaaaaa")),
+    //     Map.entry("a", Commands.print("aaaaaaaaaaaaa a")),
     //     Map.entry("stow", stow),
     //     Map.entry("coneHighElevator", coneHighElevator),
     //     Map.entry("coneHighWrist", coneHighWrist),

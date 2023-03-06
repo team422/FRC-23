@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -12,7 +10,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotState;
@@ -27,6 +24,8 @@ public class Drive extends SubsystemBase {
 
   private final GyroIO m_gyro;
   private final GyroInputsAutoLogged m_gyroInputs;
+
+  private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
 
   private double m_simGyroLastUpdated;
 
@@ -52,19 +51,19 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     m_gyro.updateInputs(m_gyroInputs);
-    Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+    // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
 
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
-      Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
+      // Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
     }
     m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
 
-    Logger.getInstance().recordOutput("Drive/Pose", getPose());
-    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
-    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
-    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
-        DriveConstants.kModuleTranslations);
+    // Logger.getInstance().recordOutput("Drive/Pose", getPose());
+    // Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
+    // Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    // FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+    //     DriveConstants.kModuleTranslations);
 
   }
 
@@ -105,6 +104,17 @@ public class Drive extends SubsystemBase {
       positions[i] = m_modules[i].getState();
     }
     return positions;
+  }
+
+  public Command xBrakeCommand() {
+    return run(this::xBrake);
+  }
+
+  public void xBrake() {
+    SwerveModuleState[] positions = new SwerveModuleState[m_modules.length];
+    for (int i = 0; i < m_modules.length; i++) {
+      m_modules[i].setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(m_lockAngles[i])));
+    }
   }
 
   public SwerveModuleState[] getModuleAbsoluteStates() {

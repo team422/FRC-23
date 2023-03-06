@@ -46,7 +46,7 @@ public final class Constants {
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
     public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -16 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(7.22), -18 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
     public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
     public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 };
@@ -262,6 +262,7 @@ public final class Constants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
     public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 12.0);
     public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 4.0);
+    // public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 1.0);
     public static final TunableNumber kWristP = new TunableNumber("Wrist P", 3.8);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);

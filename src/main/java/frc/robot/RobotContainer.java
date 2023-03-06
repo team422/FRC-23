@@ -5,12 +5,10 @@
 package frc.robot;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
-import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -26,7 +24,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
@@ -154,7 +151,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(33 + 90)), // 253
+          Units.degreesToRadians(33 + 90 - 60 - 8)), // 253
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -168,8 +165,8 @@ public class RobotContainer {
       m_cams = new CameraAprilTag[] {
           new CameraAprilTag(VisionConstants.klowCameraName, m_layout, VisionConstants.klowCameraTransform,
               m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
-          new CameraAprilTag(VisionConstants.khighCamera, m_layout, VisionConstants.khighCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+          // new CameraAprilTag(VisionConstants.khighCamera, m_layout, VisionConstants.khighCameraTransform,
+          //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
       };
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
 
@@ -272,7 +269,7 @@ public class RobotContainer {
     driverControls.resetFieldCentric().onTrue(m_drive.resetCommand());
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.intakeConeCommand());
     driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.intakeCubeCommand());
-    // driverControls.setpointMidCone().onTrue(coneMidCommand);
+    driverControls.zeroElevator().onTrue(m_elevator.zeroHeightCommand());
     // driverControls.setpointHighCone().onTrue(coneHighCommand);
     // driverControls.setpointMidCube().onTrue(cubeMidCommand);
     // driverControls.setpointHighCube().onTrue(cubeHighCommand);
@@ -335,17 +332,19 @@ public class RobotContainer {
   public void disabledPeriodic() {
     if (Robot.isSimulation()) {
       return;
-    }
-    String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
-    List<PathPlannerTrajectory> traj = m_autoFactory.loadPathGroupByName(selectedAuto);
-    Pose2d desPose = traj.get(0).getInitialPose();
-    Pose2d curPose = m_drive.getPose();
-    double error = curPose.getTranslation().getDistance(desPose.getTranslation());
-    if (error > Units.inchesToMeters(1)) {
-      m_LED.setSolidColorNumber(Color.kRed, (int) Math.ceil(Units.metersToInches(error)));
     } else {
-      m_LED.setSolidColor(Color.kGreen);
+      return;
     }
+    // String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+    // List<PathPlannerTrajectory> traj = m_autoFactory.loadPathGroupByName(selectedAuto);
+    // Pose2d desPose = traj.get(0).getInitialPose();
+    // Pose2d curPose = m_drive.getPose();
+    // double error = curPose.getTranslation().getDistance(desPose.getTranslation());
+    // if (error > Units.inchesToMeters(1)) {
+    //   m_LED.setSolidColorNumber(Color.kRed, (int) Math.ceil(Units.metersToInches(error)));
+    // } else {
+    //   m_LED.setSolidColor(Color.kGreen);
+    // }
 
   }
 
