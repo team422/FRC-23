@@ -1,7 +1,5 @@
 package frc.robot;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -12,9 +10,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.ExtendedPathPoint;
@@ -132,20 +127,20 @@ public class RobotState {
             new Rotation3d(0, wristAngleRotation2d.getRadians(), 0)),
         new Translation3d(Units.inchesToMeters(16), 0, 0));
 
-    Mechanism2d fullMech = new Mechanism2d(2, 2);
-    fullMech.getRoot("ElevatorBottom", 0, ElevatorConstants.kMinHeightMeters)
-        .append(new MechanismLigament2d("Elevator", m_elevator.getTravelDistanceMeters(),
-            ElevatorConstants.kAngle.getDegrees()))
-        .append(new MechanismLigament2d("Arm", Constants.ElevatorConstants.kCarriageArmLength,
-            0 - ElevatorConstants.kAngle.getDegrees()))
-        .append(new MechanismLigament2d("Wrist", Units.inchesToMeters(12),
-            -wristAngleRotation2d.getDegrees()));
+    // Mechanism2d fullMech = new Mechanism2d(2, 2);
+    // fullMech.getRoot("ElevatorBottom", 0, ElevatorConstants.kMinHeightMeters)
+    //     .append(new MechanismLigament2d("Elevator", m_elevator.getTravelDistanceMeters(),
+    //         ElevatorConstants.kAngle.getDegrees()))
+    //     .append(new MechanismLigament2d("Arm", Constants.ElevatorConstants.kCarriageArmLength,
+    //         0 - ElevatorConstants.kAngle.getDegrees()))
+    //     .append(new MechanismLigament2d("Wrist", Units.inchesToMeters(12),
+    //         -wristAngleRotation2d.getDegrees()));
 
-    Logger.getInstance().recordOutput("RobotState/Elevator", fullMech);
-    Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
-    Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
-    Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
-    SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
+    // Logger.getInstance().recordOutput("RobotState/Elevator", fullMech);
+    // Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
+    // Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
+    // Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+    // SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
 
   }
 
