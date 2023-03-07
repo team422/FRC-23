@@ -6,7 +6,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModuleAcceleration implements Comparable<SwerveModuleAcceleration> {
   public double accelMetersPerSecondSquared = 0;
-  private static SwerveModuleState[] states = new SwerveModuleState[4];
+  private SwerveModuleState m_previousState = new SwerveModuleState();
+  private SwerveModuleState m_currState = new SwerveModuleState();
 
   /**
    * Constructs a SwerveModulePosition.
@@ -52,12 +53,15 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
         "SwerveModuleAccel(Accel: %.2f m)", accelMetersPerSecondSquared);
   }
 
-  private static SwerveModuleAcceleration calculate(SwerveModuleState current, SwerveModuleState previous) {
-    return new SwerveModuleAcceleration(current.speedMetersPerSecond - previous.speedMetersPerSecond);
+  private SwerveModuleAcceleration calculate(SwerveModuleState newState, double deltaTime) {
+    updateStates(newState);
+    return new SwerveModuleAcceleration(
+        (m_currState.speedMetersPerSecond - m_previousState.speedMetersPerSecond) / deltaTime);
   }
 
-  public static void updateStates(SwerveModuleState[] newStates) {
-    states = newStates;
+  public void updateStates(SwerveModuleState newState) {
+    m_previousState = m_currState;
+    m_currState = newState;
   }
 
   public double getAccel() {
@@ -71,9 +75,9 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
    */
   public static SwerveModuleAcceleration[] calculateModuleAccels(SwerveModuleState[] current) {
     SwerveModuleAcceleration[] moduleAccels = new SwerveModuleAcceleration[current.length];
-    for (int i = 0; i < current.length; i++) {
-      moduleAccels[i] = calculate(current[i], states[i]);
-    }
+    // for (int i = 0; i < current.length; i++) {
+    //   moduleAccels[i] = calculate(current[i], states[i]);
+    // }
     return moduleAccels;
   }
 }
