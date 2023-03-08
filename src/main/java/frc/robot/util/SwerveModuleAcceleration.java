@@ -68,16 +68,17 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
     return accelMetersPerSecondSquared;
   }
 
-  /**
-   * Calculates the Module group's drive acceleration values
-   * 
-   * @param current Current Swerve Module State, most likely obtained with getSwerveStates.
-   */
-  public static SwerveModuleAcceleration[] calculateModuleAccels(SwerveModuleState[] current) {
-    SwerveModuleAcceleration[] moduleAccels = new SwerveModuleAcceleration[current.length];
-    // for (int i = 0; i < current.length; i++) {
-    //   moduleAccels[i] = calculate(current[i], states[i]);
-    // }
-    return moduleAccels;
-  }
+  //dead method
+  // /**
+  //  * Calculates the Module group's drive acceleration values
+  //  * 
+  //  * @param current Current Swerve Module State, most likely obtained with getSwerveStates.
+  //  */
+  // public static SwerveModuleAcceleration[] calculateModuleAccels(SwerveModuleState[] current) {
+  //   SwerveModuleAcceleration[] moduleAccels = new SwerveModuleAcceleration[current.length];
+  // for (int i = 0; i < current.length; i++) {
+  //   moduleAccels[i] = calculate(current[i], states[i]);
+  // }
+  //   return moduleAccels;
+  // }
 }
