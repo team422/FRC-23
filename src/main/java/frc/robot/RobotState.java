@@ -19,6 +19,7 @@ import frc.robot.Constants.Setpoints;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.wrist.Wrist;
 
 public class RobotState {
@@ -28,6 +29,8 @@ public class RobotState {
   public Intake m_intake;
   public Elevator m_elevator;
   public Wrist m_wrist;
+  public LED m_LED;
+  public double[] m_currentLEDcolors;
 
   public Pose3d m_armPosition;
   public Pose3d m_wristPosition;
@@ -41,17 +44,19 @@ public class RobotState {
   public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
   public int m_poseSetpoint;
 
-  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist, LED led) {
     m_drive = drive;
     m_intake = intake;
     m_elevator = elevator;
     m_wrist = wrist;
     m_poseSetpoint = 5;
+    m_LED = led;
+    // m_currentLEDcolors = new double[3];
   }
 
-  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist, LED led) {
     if (instance == null) {
-      instance = new RobotState(drive, intake, elevator, wrist);
+      instance = new RobotState(drive, intake, elevator, wrist, led);
     }
     return instance;
   }
@@ -140,6 +145,11 @@ public class RobotState {
     // Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
     // Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
     // Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+    /*m_currentLEDcolors[0] = m_LED.getColor().red;
+    m_currentLEDcolors[1] = m_LED.getColor().green;
+    m_currentLEDcolors[2] = m_LED.getColor().blue;
+    
+    Logger.getInstance().recordOutput("RobotState/LEDColor", m_currentLEDcolors);*/
     // SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
 
   }

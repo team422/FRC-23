@@ -54,6 +54,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger setpointHighCone() {
+    // NOT USED
     return m_rightJoystick.button(5);
   }
 
@@ -64,6 +65,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger setpointHighCube() {
+    // NOT USED
     return m_leftJoystick.button(5);
     // return new Trigger();
   }

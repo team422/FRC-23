@@ -84,6 +84,10 @@ public class LED extends SubsystemBase {
     return m_LEDStripBuffer.getLength();
   }
 
+  // public Color getColor() {
+  //   return m_LEDStripBuffer.getLED(0);
+  // }
+
   public Command solidColorCommand(Color color) {
     return runOnce(() -> setSolidColor(color));
   }
@@ -138,5 +142,9 @@ public class LED extends SubsystemBase {
       return solidColorCommand(Color.kGreen);
     }
   }
+
+  // public Command stopCommand() {
+  //   return runOnce(this::stop);
+  // }
 
 }
