@@ -18,7 +18,7 @@ public class WristIOSim implements WristIO {
   @Override
   public void updateInputs(WristInputs inputs) {
     m_sim.update(0.02);
-    inputs.angleRad = m_sim.getAngleRads();
+    inputs.angleRad = -m_sim.getAngleRads();
     inputs.velocity = m_sim.getVelocityRadPerSec();
     inputs.currentDraw = m_sim.getCurrentDrawAmps();
 
@@ -26,7 +26,7 @@ public class WristIOSim implements WristIO {
 
   @Override
   public void setVoltage(double voltage) {
-    m_sim.setInputVoltage(voltage);
+    m_sim.setInputVoltage(-voltage / 2);
 
   }
 

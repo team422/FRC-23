@@ -239,7 +239,7 @@ public class RobotState {
             "x final distance" + xDistance);
     // for the sake of not overrunning the loop, we only check a setpoint every 10 degrees starting from x + distance 
     ArrayList<Pose2d> poses = new ArrayList<>();
-    for (int i = -9; i < 9; i++) {
+    for (int i = -2; i < 2; i++) {
       Rotation2d angle = Rotation2d.fromDegrees(i * 10);
       double x = xDistance * angle.getCos();
       double y = xDistance * angle.getSin();
