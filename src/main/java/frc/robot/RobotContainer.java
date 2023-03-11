@@ -256,6 +256,10 @@ public class RobotContainer {
         m_intake.intakeConeCommand());
 
     // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
+    FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
+    driverControls.autoScore().whileTrue(
+        RobotState.getInstance().autoScore(fieldGeomUtil.allNodes.get("blueSecondGridRightHigh"),
+            Setpoints.kIntakeApproachAngleHighCone, Setpoints.distanceToDropCone));
     driverControls.stowIntakeAndElevator().onTrue(stowCommand);
     operatorControls.setpointMidCone().onTrue(coneMidCommand);
     operatorControls.setpointHighCone().onTrue(coneHighCommand);

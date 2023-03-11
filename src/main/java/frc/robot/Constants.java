@@ -40,6 +40,12 @@ public final class Constants {
     public static final boolean pathTuningMode = true;
   }
 
+  public static final class RobotConstants {
+
+    public static final double robotWidth = Units.inchesToMeters(27.5);
+
+  }
+
   public static final class Setpoints {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
     public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
@@ -106,6 +112,11 @@ public final class Constants {
     public static final ExtendedPathPoint redLeftOfBalance = blueLeftOfBalance.flipPathPoint();
     public static final ExtendedPathPoint redRightOfBalance = blueRightOfBalance.flipPathPoint();
     public static final ExtendedPathPoint redPreLoadingStation = bluePreLoadingStation.flipPathPoint();
+
+    public static final Rotation2d kIntakeApproachAngleHighCone = Rotation2d.fromDegrees(-5);
+    public static final Rotation2d kIntakeApproachAngleMidCone = Rotation2d.fromDegrees(-25);
+
+    public static final double distanceToDropCone = Units.inchesToMeters(4);
   }
 
   public static final class FieldConstants {
@@ -150,11 +161,14 @@ public final class Constants {
     public static final double kElevatorMassKG = 5;
     public static final double kDrumSize = Units.inchesToMeters(2.256);
     public static final double kCarriageArmLength = Units.inchesToMeters(16.556);
+
+    public static final double kDistanceToCenterOfRobot = Units.inchesToMeters(12.0);
   }
 
   public static final class IntakeConstants {
     public static final PIDController intakePIDController = new PIDController(0.1, 0, 0);
     public static final double intakeGearRatio = 1.0;
+    public static final double intakeLengthMeters = Units.inchesToMeters(17.0);
   }
 
   public static final class DriveConstants {

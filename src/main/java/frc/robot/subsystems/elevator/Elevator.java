@@ -120,6 +120,14 @@ public class Elevator extends SubsystemBase {
     return m_inputs.heightMeters * Math.sin(m_elevatorAngle.getRadians());
   }
 
+  public double getPositionXMetersAtHeight(double heightMeters) {
+    return heightMeters * Math.sin(m_elevatorAngle.getRadians());
+  }
+
+  public double getPositionYMetersAtElevatorX(double xMeters) {
+    return (xMeters - m_elevatorOffsetMeters) / Math.tan(m_elevatorAngle.getRadians());
+  }
+
   public double getTravelDistanceMeters() {
     return m_inputs.heightMeters;
   }

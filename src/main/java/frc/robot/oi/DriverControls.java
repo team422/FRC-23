@@ -45,4 +45,8 @@ public interface DriverControls {
 
   public Trigger ledCone();
 
+  public Trigger zeroElevator();
+
+  public Trigger autoScore();
+
 }

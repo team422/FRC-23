@@ -124,4 +124,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger zeroElevator() {
     return m_leftJoystick.button(11);
   }
+
+  @Override
+  public Trigger autoScore() {
+    return m_rightJoystick.button(13);
+  }
 }
