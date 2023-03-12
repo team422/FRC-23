@@ -15,33 +15,33 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Get a module's X Acceleration component
   * @param moduleAccelerations Accelerations of SwerveBase modules
   * @param moduleStates SwerveModuleStates of the SwerveBase
-  * @param moduleThetaVel Theta Velocity of each module
-  * @param moduleVelocity Velocity of each module's drive motor
+  * @param moduleSteerThetaVels Steer Theta Velocity of each module
+  * @param moduleVelocities Velocity of each module's drive motor
   * @param robotThetaVel Theta Velocity of the robot
   * @param robotTheta Robot Rotation2d
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelXMetersPerSecondSquared(
       SwerveModuleAcceleration[] moduleAccelerations, //done
       SwerveModuleState[] moduleStates, //done
-      Rotation2d[] moduleThetaVel, //done
-      double[] moduleVelocity, //will be done
+      Rotation2d[] moduleSteerThetaVels, //done
+      double[] moduleVelocities, //will be done
       Rotation2d robotThetaVel,
       Rotation2d robotTheta) { //done
     SwerveModuleAcceleration[] moduleAccelsX = new SwerveModuleAcceleration[4];
-    Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
-    Rotation2d[] modulesThetaVelMRobot = new Rotation2d[4];
+    Rotation2d[] modulesSteerThetaMRobot = new Rotation2d[4];
+    Rotation2d[] modulesSteerThetaVelMRobot = new Rotation2d[4];
 
     //Convert to robot-centered theta values
     for (int i = 0; i < 4; i++) {
-      modulesThetaMRobot[i] = moduleStates[i].angle.minus(robotTheta);
-      modulesThetaVelMRobot[i] = moduleThetaVel[i].minus(robotThetaVel);
+      modulesSteerThetaMRobot[i] = moduleStates[i].angle.minus(robotTheta);
+      modulesSteerThetaVelMRobot[i] = moduleSteerThetaVels[i].minus(robotThetaVel);
     }
 
     //Calcuate Module X Accels
     for (int i = 0; i < 4; i++) {
       moduleAccelsX[i] = new SwerveModuleAcceleration(
-          moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getCos())
-              - moduleVelocity[i] * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getSin());
+          moduleAccelerations[i].accelMetersPerSecondSquared * (modulesSteerThetaMRobot[i].getCos())
+              - moduleVelocities[i] * modulesSteerThetaVelMRobot[i].getDegrees() * modulesSteerThetaMRobot[i].getSin());
     }
 
     //Formulae used:
@@ -55,33 +55,33 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Get a module's Y Acceleration component
   * @param moduleAccelerations Accelerations of SwerveBase modules
   * @param moduleStates SwerveModuleStates of the SwerveBase
-  * @param moduleThetaVel Theta Velocity of each module
-  * @param moduleVelocity Velocity of each module's drive motor
+  * @param moduleSteerThetaVels Steer Theta Velocity of each module
+  * @param moduleVelocities Velocity of each module's drive motor
   * @param robotThetaVel Theta Velocity of the robot
   * @param robotTheta Robot Rotation2d
   */
   public SwerveModuleAcceleration[] calculateModulesPositionAccelYMetersPerSecondSquared(
       SwerveModuleAcceleration[] moduleAccelerations, //done
       SwerveModuleState[] moduleStates, //done
-      Rotation2d[] moduleThetaVel, //done
-      double[] moduleVelocity, //will be done
+      Rotation2d[] moduleSteerThetaVels, //done
+      double[] moduleVelocities, //will be done
       Rotation2d robotThetaVel,
       Rotation2d robotTheta) { //done
     SwerveModuleAcceleration[] moduleAccelsY = new SwerveModuleAcceleration[4];
-    Rotation2d[] modulesThetaMRobot = new Rotation2d[4];
-    Rotation2d[] modulesThetaVelMRobot = new Rotation2d[4];
+    Rotation2d[] modulesSteerThetaMRobot = new Rotation2d[4];
+    Rotation2d[] modulesSteerThetaVelMRobot = new Rotation2d[4];
 
     //Convert to robot-centered theta values
     for (int i = 0; i < 4; i++) {
-      modulesThetaMRobot[i] = moduleStates[i].angle.minus(robotTheta);
-      modulesThetaVelMRobot[i] = moduleThetaVel[i].minus(robotThetaVel);
+      modulesSteerThetaMRobot[i] = moduleStates[i].angle.minus(robotTheta);
+      modulesSteerThetaVelMRobot[i] = moduleSteerThetaVels[i].minus(robotThetaVel);
     }
 
     //Calculate Module Y Accels
     for (int i = 0; i < 4; i++) {
       moduleAccelsY[i] = new SwerveModuleAcceleration(
-          moduleAccelerations[i].accelMetersPerSecondSquared * (modulesThetaMRobot[i].getSin())
-              + moduleVelocity[i] * modulesThetaVelMRobot[i].getDegrees() * modulesThetaMRobot[i].getCos());
+          moduleAccelerations[i].accelMetersPerSecondSquared * (modulesSteerThetaMRobot[i].getSin())
+              + moduleVelocities[i] * modulesSteerThetaVelMRobot[i].getDegrees() * modulesSteerThetaMRobot[i].getCos());
     }
 
     //Formulae used:
@@ -95,43 +95,49 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
   * Calculates integral of accelXY and thetaVel, returns SwerveModuleState[]
   * @param moduleAccelerations Accelerations of SwerveBase modules
   * @param moduleStates SwerveModuleStates of the SwerveBase
-  * @param moduleThetaVel Theta Velocity of each module
-  * @param moduleVelocity Velocity of each module's drive motor
+  * @param moduleSteerThetaVels Steer Theta Velocity of each module
+  * @param moduleVelocities Velocity of each module's drive motor
   * @param robotThetaVel Theta Velocity of the robot
   * @param robotTheta Robot Rotation2d
+  * @param deltaTime Time elapsed since last call, in seconds, ususally one tick, or 0.02s
   */
-  public SwerveModuleState[] getVelXYFromAccelXY(SwerveModuleAcceleration[] moduleAccelerations,
+  public SwerveModuleState[] getModuleStatesFromAccelXY(SwerveModuleAcceleration[] moduleAccelerations,
       SwerveModuleState[] moduleStates,
-      Rotation2d[] moduleThetaVel,
-      double[] moduleVelocity,
+      Rotation2d[] moduleSteerThetaVels,
+      double[] moduleVelocities,
       Rotation2d robotThetaVel,
-      Rotation2d robotTheta) {
+      Rotation2d robotTheta,
+      double deltaTime) {
 
     //init values
-    SwerveModuleState[] velXYfromAccelXY = new SwerveModuleState[4];
+    SwerveModuleState[] modStatesFromAccelXY = new SwerveModuleState[4];
+
+    //calculate AccelX and AccelY
     SwerveModuleAcceleration[] accelX = calculateModulesPositionAccelXMetersPerSecondSquared(moduleAccelerations,
-        moduleStates, moduleThetaVel, moduleVelocity, robotThetaVel, robotTheta);
+        moduleStates, moduleSteerThetaVels, moduleVelocities, robotThetaVel, robotTheta);
     SwerveModuleAcceleration[] accelY = calculateModulesPositionAccelYMetersPerSecondSquared(moduleAccelerations,
-        moduleStates, moduleThetaVel, moduleVelocity, robotThetaVel, robotTheta);
+        moduleStates, moduleSteerThetaVels, moduleVelocities, robotThetaVel, robotTheta);
+
     double[] velXFromAccel = new double[4];
     double[] velYFromAccel = new double[4];
     Rotation2d[] thetaFromAccel = new Rotation2d[4];
+
     //Create and set velX, velY, and theta from moduleaccels and modulethetavels
     for (int i = 0; i < 4; i++) {
-      velXFromAccel[i] = (accelX[i].getAccel() - oldModuleAccelerationsX[i].getAccel()) * 0.01 //dt times 1/2 to get average and then multiply by height
+      velXFromAccel[i] = (accelX[i].getAccel() - oldModuleAccelerationsX[i].getAccel()) * deltaTime * 0.5
           + oldModuleStates[i].speedMetersPerSecond;
-      velYFromAccel[i] = (accelY[i].getAccel() - oldModuleAccelerationsY[i].getAccel()) * 0.01 //dt times 1/2 to get average and then multiply by height
+      velYFromAccel[i] = (accelY[i].getAccel() - oldModuleAccelerationsY[i].getAccel()) * deltaTime * 0.5
           + oldModuleStates[i].speedMetersPerSecond;
       thetaFromAccel[i] = Rotation2d
-          .fromDegrees((moduleThetaVel[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * 0.01 //dt times 1/2 to get average and then multiply by height
+          .fromDegrees((moduleSteerThetaVels[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * deltaTime * 0.5
               + oldModuleStates[i].angle.getDegrees());
     }
     //Create ModuleStates from velx, velY, and Theta
     for (int i = 0; i < 4; i++) {
       double velXY = Math.sqrt(velXFromAccel[i] * velXFromAccel[i] + velYFromAccel[i] * velYFromAccel[i]);
-      velXYfromAccelXY[i] = new SwerveModuleState(velXY, thetaFromAccel[i]);
+      modStatesFromAccelXY[i] = new SwerveModuleState(velXY, thetaFromAccel[i]);
     }
-    return velXYfromAccelXY;
+    return modStatesFromAccelXY;
   }
 
   //method to convert to pose2d??
