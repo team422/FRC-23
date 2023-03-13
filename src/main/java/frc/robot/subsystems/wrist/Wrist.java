@@ -2,6 +2,8 @@ package frc.robot.subsystems.wrist;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -57,7 +59,7 @@ public class Wrist extends SubsystemBase {
     //   }
     // }
     m_io.updateInputs(m_inputs);
-    // Logger.getInstance().processInputs("Wrist", m_inputs);
+    Logger.getInstance().processInputs("Wrist", m_inputs);
 
     double dt = Timer.getFPGATimestamp() - m_lastTime;
 

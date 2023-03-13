@@ -40,13 +40,19 @@ public final class Constants {
     public static final boolean pathTuningMode = true;
   }
 
+  public static final class RobotConstants {
+
+    public static final double robotWidth = Units.inchesToMeters(27.5);
+
+  }
+
   public static final class Setpoints {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
     public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
     public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(7.22), -18 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -19 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
     public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
     public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 };
@@ -106,6 +112,13 @@ public final class Constants {
     public static final ExtendedPathPoint redLeftOfBalance = blueLeftOfBalance.flipPathPoint();
     public static final ExtendedPathPoint redRightOfBalance = blueRightOfBalance.flipPathPoint();
     public static final ExtendedPathPoint redPreLoadingStation = bluePreLoadingStation.flipPathPoint();
+
+    public static final Rotation2d kIntakeApproachAngleHighCone = Rotation2d.fromDegrees(-5);
+    public static final Rotation2d kIntakeApproachAngleMidCone = Rotation2d.fromDegrees(-25);
+    public static final Rotation2d kIntakeApproachAngleHighCube = Rotation2d.fromDegrees(22);
+    public static final Rotation2d kIntakeApproachAngleMidCube = Rotation2d.fromDegrees(12);
+
+    public static final double distanceToDropCone = Units.inchesToMeters(4);
   }
 
   public static final class FieldConstants {
@@ -150,11 +163,14 @@ public final class Constants {
     public static final double kElevatorMassKG = 5;
     public static final double kDrumSize = Units.inchesToMeters(2.256);
     public static final double kCarriageArmLength = Units.inchesToMeters(16.556);
+
+    public static final double kDistanceToCenterOfRobot = Units.inchesToMeters(12.0);
   }
 
   public static final class IntakeConstants {
     public static final PIDController intakePIDController = new PIDController(0.1, 0, 0);
     public static final double intakeGearRatio = 1.0;
+    public static final double intakeLengthMeters = Units.inchesToMeters(17.0);
   }
 
   public static final class DriveConstants {
@@ -222,23 +238,23 @@ public final class Constants {
     public static final int elevatorThroughBoreEncoderPortB = 0;
 
     // Left Front Ports
-    public static final int leftFrontDrivingMotorPort = 11;
-    public static final int leftFrontTurningMotorPort = 6;
-    public static final int leftFrontCanCoderPort = 17;
+    public static final int leftFrontDrivingMotorPort = 12;
+    public static final int leftFrontTurningMotorPort = 7;
+    public static final int leftFrontCanCoderPort = 18;
 
     // Right Front Ports
-    public static final int rightFrontDriveMotorPort = 12;
-    public static final int rightFrontTurningMotorPort = 3;
-    public static final int rightFrontCanCoderPort = 16;
+    public static final int rightFrontDriveMotorPort = 6;
+    public static final int rightFrontTurningMotorPort = 39;
+    public static final int rightFrontCanCoderPort = 17;
 
     // Left Rear Ports
     public static final int leftRearDriveMotorPort = 9;
-    public static final int leftRearTurningMotorPort = 7;
-    public static final int leftRearCanCoderPort = 18;
+    public static final int leftRearTurningMotorPort = 11;
+    public static final int leftRearCanCoderPort = 16;
 
     // Right Rear Ports
     public static final int rightRearDriveMotorPort = 8;
-    public static final int rightRearTurningMotorPort = 39;
+    public static final int rightRearTurningMotorPort = 3;
     public static final int rightRearCanCoderPort = 15;
   }
 
@@ -262,7 +278,6 @@ public final class Constants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
     public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 12.0);
     public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 4.0);
-    // public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 1.0);
     public static final TunableNumber kWristP = new TunableNumber("Wrist P", 3.8);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);
