@@ -1,6 +1,7 @@
 package frc.robot;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -52,6 +53,12 @@ public class RobotState {
   public Rotation2d realWantedWristRotation2d;
   public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
   public int m_poseSetpoint;
+
+  public int m_grid = 1;
+  public int m_column = 1;
+  public int m_height = 2;
+
+  public String m_scoringSetpoint = "blueFirstGridLeftHigh";
 
   public FullDesiredRobotState m_scoringPose = new FullDesiredRobotState(new Pose2d(), 0,
       Rotation2d.fromDegrees(0));
@@ -171,6 +178,67 @@ public class RobotState {
     // }
   }
 
+  public Command setGridCommand(int grid) {
+    return Commands.runOnce(() -> {
+      this.setGrid(grid);
+      System.out.print("grid set to " + grid);
+    });
+  }
+
+  public void setGrid(int grid) {
+    m_grid = grid;
+    this.updateScoringPosition();
+  }
+
+  public Command setColumnCommand(int column) {
+    return Commands.runOnce(() -> {
+      this.setColumn(column);
+    });
+  }
+
+  public void setColumn(int column) {
+    m_column = column;
+    this.updateScoringPosition();
+  }
+
+  public Command setHeightCommand(int height) {
+    return Commands.runOnce(() -> {
+      this.setHeight(height);
+    });
+  }
+
+  public void setHeight(int height) {
+    m_height = height;
+    this.updateScoringPosition();
+  }
+
+  public void updateScoringPosition() {
+    String fin = "blue";
+    if (m_grid == 1) {
+      fin += "First";
+    } else if (m_grid == 2) {
+      fin += "Second";
+    } else if (m_grid == 3) {
+      fin += "Third";
+    }
+    fin += "Grid";
+    if (m_column == 1) {
+      fin += "Left";
+    } else if (m_column == 2) {
+      fin += "Cube";
+    } else if (m_column == 3) {
+      fin += "Right";
+    }
+    if (m_height == 2) {
+      fin += "Mid";
+    } else if (m_height == 3) {
+      fin += "High";
+    }
+
+    m_scoringSetpoint = fin;
+    System.out.println("scoring setpoint set to " + fin);
+  }
+
   public Pose3d getArmPosition(Pose2d robotPose, double elevatorXMeters, double elevatorYMeters,
       Rotation2d wristAngleRotation2d, Transform3d armLength, Translation3d intake) {
     Pose3d pose3d = new Pose3d(robotPose);
@@ -205,18 +273,28 @@ public class RobotState {
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
   }
 
-  public Command autoScore(Pose3d intakeEndPose, Rotation2d intakeAngle, double distanceToIntake) {
+  public Command autoScore(Supplier<Pose3d> intakeEndPoseSup, Supplier<Rotation2d> intakeAngleSup,
+      Supplier<Double> distanceToIntakeSup) {
+    Pose3d intakeEndPose = intakeEndPoseSup.get();
+    Rotation2d intakeAngle = intakeAngleSup.get();
+    double distanceToIntake = distanceToIntakeSup.get();
+    System.out.println(intakeEndPose);
+    System.out.println(intakeAngle);
+    System.out.println(distanceToIntake);
     return Commands.parallel(
         new DriveToPoint(m_drive,
-            () -> RobotState.getInstance().getClosestPoseToSetpoint(intakeEndPose, intakeAngle, distanceToIntake)
+            () -> RobotState.getInstance()
+                .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
                 .getPose(),
             Constants.DriveConstants.holonomicDrive,
             () -> 0.0,
             () -> 0.0, () -> 0.0),
         m_elevator.setHeightCommand(RobotState.getInstance()
-            .getClosestPoseToSetpoint(intakeEndPose, intakeAngle, distanceToIntake).getHeightOfElevator()),
+            .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
+            .getHeightOfElevator()),
         m_wrist.setAngleCommand(RobotState.getInstance()
-            .getClosestPoseToSetpoint(intakeEndPose, intakeAngle, distanceToIntake).getAngleOfWrist()));
+            .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
+            .getAngleOfWrist()));
 
   }
 
@@ -277,6 +355,32 @@ public class RobotState {
 
   public FullDesiredRobotState getScoringSetpoint() {
     return this.m_scoringPose;
+  }
+
+  public String getFullScoringString() {
+    return m_scoringSetpoint;
+  }
+
+  public Rotation2d getWristPosition() {
+    if (m_scoringSetpoint.toLowerCase().contains("cube") && m_scoringSetpoint.toLowerCase().contains("high")) {
+      System.out.println("cube high");
+      return Constants.Setpoints.kIntakeApproachAngleHighCube;
+
+    } else if (m_scoringSetpoint.toLowerCase().contains("cube") && m_scoringSetpoint.toLowerCase().contains("mid")) {
+      System.out.println("cube mid");
+      return Constants.Setpoints.kIntakeApproachAngleMidCube;
+    } else if (m_scoringSetpoint.toLowerCase().contains("high")) {
+      System.out.println("cone high");
+      return Setpoints.kIntakeApproachAngleHighCone;
+
+    } else {
+      System.out.println("cone mid");
+      return Setpoints.kIntakeApproachAngleMidCone;
+    }
+  }
+
+  public Pose3d getScoringPose() {
+    return fieldGeomUtil.getScoringPose(m_scoringSetpoint);
   }
 
 }

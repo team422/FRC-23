@@ -115,6 +115,8 @@ public final class Constants {
 
     public static final Rotation2d kIntakeApproachAngleHighCone = Rotation2d.fromDegrees(-5);
     public static final Rotation2d kIntakeApproachAngleMidCone = Rotation2d.fromDegrees(-25);
+    public static final Rotation2d kIntakeApproachAngleHighCube = Rotation2d.fromDegrees(22);
+    public static final Rotation2d kIntakeApproachAngleMidCube = Rotation2d.fromDegrees(12);
 
     public static final double distanceToDropCone = Units.inchesToMeters(4);
   }
@@ -187,9 +189,9 @@ public final class Constants {
     };
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
-    public static final double kMaxModuleSpeedMetersPerSecond = 5;
-    public static final double kMaxSpeedMetersPerSecond = 5;
-    public static final double kMaxAccelMetersPerSecondSq = 2;
+    public static final double kMaxModuleSpeedMetersPerSecond = 6;
+    public static final double kMaxSpeedMetersPerSecond = 8.5;
+    public static final double kMaxAccelMetersPerSecondSq = 4;
 
     public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
@@ -236,23 +238,23 @@ public final class Constants {
     public static final int elevatorThroughBoreEncoderPortB = 0;
 
     // Left Front Ports
-    public static final int leftFrontDrivingMotorPort = 11;
-    public static final int leftFrontTurningMotorPort = 6;
-    public static final int leftFrontCanCoderPort = 17;
+    public static final int leftFrontDrivingMotorPort = 12;
+    public static final int leftFrontTurningMotorPort = 7;
+    public static final int leftFrontCanCoderPort = 18;
 
     // Right Front Ports
-    public static final int rightFrontDriveMotorPort = 12;
-    public static final int rightFrontTurningMotorPort = 3;
-    public static final int rightFrontCanCoderPort = 16;
+    public static final int rightFrontDriveMotorPort = 6;
+    public static final int rightFrontTurningMotorPort = 39;
+    public static final int rightFrontCanCoderPort = 17;
 
     // Left Rear Ports
     public static final int leftRearDriveMotorPort = 9;
-    public static final int leftRearTurningMotorPort = 7;
-    public static final int leftRearCanCoderPort = 18;
+    public static final int leftRearTurningMotorPort = 11;
+    public static final int leftRearCanCoderPort = 16;
 
     // Right Rear Ports
     public static final int rightRearDriveMotorPort = 8;
-    public static final int rightRearTurningMotorPort = 39;
+    public static final int rightRearTurningMotorPort = 3;
     public static final int rightRearCanCoderPort = 15;
   }
 

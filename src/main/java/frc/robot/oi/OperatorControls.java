@@ -36,4 +36,27 @@ public interface OperatorControls {
   public Trigger dropStationButton();
 
   public Trigger charge();
+
+  public Trigger columnModifier();
+
+  public Trigger heightModifier();
+
+  public Trigger firstGrid();
+
+  public Trigger secondGrid();
+
+  public Trigger thirdGrid();
+
+  public Trigger firstColumn();
+
+  public Trigger secondColumn();
+
+  public Trigger thirdColumn();
+
+  public Trigger low();
+
+  public Trigger mid();
+
+  public Trigger high();
+
 }

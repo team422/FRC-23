@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
@@ -85,7 +84,8 @@ public class Drive extends SubsystemBase {
   }
 
   public void resetOdometry() {
-    m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), new Pose2d());
+    m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(),
+        new Pose2d());//1.80, 1.14, new Rotation2d()
   }
 
   public void resetPose(Pose2d pose) {
@@ -122,12 +122,12 @@ public class Drive extends SubsystemBase {
 
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        moduleStates,
-        speeds,
-        DriveConstants.kMaxModuleSpeedMetersPerSecond,
-        DriveConstants.kMaxSpeedMetersPerSecond,
-        DriveConstants.kMaxAngularSpeedRadiansPerSecond);
+    // SwerveDriveKinematics.desaturateWheelSpeeds(
+    //     moduleStates,
+    //     speeds,
+    //     DriveConstants.kMaxModuleSpeedMetersPerSecond,
+    //     DriveConstants.kMaxSpeedMetersPerSecond,
+    //     DriveConstants.kMaxAngularSpeedRadiansPerSecond);
 
     for (int i = 0; i < moduleStates.length; i++) {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());

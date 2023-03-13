@@ -101,4 +101,59 @@ public class OperatorControlsXbox implements OperatorControls {
     return m_controller.rightTrigger(0.4);
   }
 
+  @Override
+  public Trigger columnModifier() {
+    return m_controller.leftBumper();
+  }
+
+  @Override
+  public Trigger heightModifier() {
+    return m_controller.rightBumper();
+  }
+
+  @Override
+  public Trigger firstGrid() {
+    return m_controller.povLeft();
+  }
+
+  @Override
+  public Trigger secondGrid() {
+    return m_controller.povDown();
+  }
+
+  @Override
+  public Trigger thirdGrid() {
+    return m_controller.povRight();
+  }
+
+  @Override
+  public Trigger firstColumn() {
+    return m_controller.x();
+  }
+
+  @Override
+  public Trigger secondColumn() {
+    return m_controller.a();
+  }
+
+  @Override
+  public Trigger thirdColumn() {
+    return m_controller.b();
+  }
+
+  @Override
+  public Trigger low() {
+    return m_controller.a();
+  }
+
+  @Override
+  public Trigger mid() {
+    return m_controller.b();
+  }
+
+  @Override
+  public Trigger high() {
+    return m_controller.y();
+  }
+
 }
