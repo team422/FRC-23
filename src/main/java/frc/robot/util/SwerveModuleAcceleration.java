@@ -6,7 +6,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModuleAcceleration implements Comparable<SwerveModuleAcceleration> {
   public double accelMetersPerSecondSquared = 0;
-  private SwerveModuleState m_previousState = new SwerveModuleState();
   private SwerveModuleState m_currState = new SwerveModuleState();
 
   /**
@@ -54,9 +53,10 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
   }
 
   public SwerveModuleAcceleration calculate(SwerveModuleState newState, double deltaTime) {
+    SwerveModuleAcceleration outputSMA = new SwerveModuleAcceleration(
+        (newState.speedMetersPerSecond - m_currState.speedMetersPerSecond) / deltaTime);
     updateStates(newState);
-    return new SwerveModuleAcceleration(
-        (m_currState.speedMetersPerSecond - m_previousState.speedMetersPerSecond) / deltaTime);
+    return outputSMA;
   }
 
   /**
@@ -65,14 +65,13 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
    * @param newState SwerveModuleState that will be stored
    */
   public void updateStates(SwerveModuleState newState) {
-    m_previousState = m_currState;
     m_currState = newState;
   }
 
   //Might not be used, but I added just in case
 
   public SwerveModuleState getCachedState() {
-    return m_previousState;
+    return m_currState;
   }
 
   public double getAccel() {
