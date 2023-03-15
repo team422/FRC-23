@@ -68,7 +68,7 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
     m_currState = newState;
   }
 
-  //Might not be used, but I added just in case
+  //Might not be used, but added just in case
 
   public SwerveModuleState getCachedState() {
     return m_currState;
