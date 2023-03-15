@@ -53,15 +53,26 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
         "SwerveModuleAccel(Accel: %.2f m)", accelMetersPerSecondSquared);
   }
 
-  private SwerveModuleAcceleration calculate(SwerveModuleState newState, double deltaTime) {
+  public SwerveModuleAcceleration calculate(SwerveModuleState newState, double deltaTime) {
     updateStates(newState);
     return new SwerveModuleAcceleration(
         (m_currState.speedMetersPerSecond - m_previousState.speedMetersPerSecond) / deltaTime);
   }
 
+  /**
+   * Updates the cached SwerveModuleState used for calculation
+   * 
+   * @param newState SwerveModuleState that will be stored
+   */
   public void updateStates(SwerveModuleState newState) {
     m_previousState = m_currState;
     m_currState = newState;
+  }
+
+  //Might not be used, but I added just in case
+
+  public SwerveModuleState getCachedState() {
+    return m_previousState;
   }
 
   public double getAccel() {
