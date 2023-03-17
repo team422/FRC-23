@@ -1,11 +1,18 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,8 +21,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.lib.utils.FieldGeomUtil;
+import frc.lib.utils.FullDesiredRobotState;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Setpoints;
+import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -40,6 +50,15 @@ public class RobotState {
   public Rotation2d realWantedWristRotation2d;
   public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
   public int m_poseSetpoint;
+
+  public int m_grid = 1;
+  public int m_column = 1;
+  public int m_height = 2;
+
+  public String m_scoringSetpoint = "blueFirstGridLeftHigh";
+
+  public FullDesiredRobotState m_scoringPose = new FullDesiredRobotState(new Pose2d(), 0,
+      Rotation2d.fromDegrees(0));
 
   private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
     m_drive = drive;
@@ -137,9 +156,9 @@ public class RobotState {
     //         -wristAngleRotation2d.getDegrees()));
 
     // Logger.getInstance().recordOutput("RobotState/Elevator", fullMech);
-    // Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
-    // Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
-    // Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+    Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
+    Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
+    Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
     // SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
 
   }
@@ -150,10 +169,71 @@ public class RobotState {
       return;
     }
     // System.out.println(m_elevator.getDesiredMeters() < m_elevator.getCurrentHeightMeters());
-    if (fieldGeomUtil.overConesOrCubes(m_intakePosition)
-        && (m_elevator.getDesiredMeters() + Units.inchesToMeters(3) < m_elevator.getCurrentHeightMeters())) {
-      m_elevator.setHeightCommand(m_elevator.getPositionYMeters()).schedule();
+    // if (fieldGeomUtil.overConesOrCubes(m_intakePosition)
+    //     && (m_elevator.getDesiredMeters() + Units.inchesToMeters(3) < m_elevator.getCurrentHeightMeters())) {
+    //   m_elevator.setHeightCommand(m_elevator.getPositionYMeters()).schedule();
+    // }
+  }
+
+  public Command setGridCommand(int grid) {
+    return Commands.runOnce(() -> {
+      this.setGrid(grid);
+      System.out.print("grid set to " + grid);
+    });
+  }
+
+  public void setGrid(int grid) {
+    m_grid = grid;
+    this.updateScoringPosition();
+  }
+
+  public Command setColumnCommand(int column) {
+    return Commands.runOnce(() -> {
+      this.setColumn(column);
+    });
+  }
+
+  public void setColumn(int column) {
+    m_column = column;
+    this.updateScoringPosition();
+  }
+
+  public Command setHeightCommand(int height) {
+    return Commands.runOnce(() -> {
+      this.setHeight(height);
+    });
+  }
+
+  public void setHeight(int height) {
+    m_height = height;
+    this.updateScoringPosition();
+  }
+
+  public void updateScoringPosition() {
+    String fin = "blue";
+    if (m_grid == 1) {
+      fin += "First";
+    } else if (m_grid == 2) {
+      fin += "Second";
+    } else if (m_grid == 3) {
+      fin += "Third";
     }
+    fin += "Grid";
+    if (m_column == 1) {
+      fin += "Left";
+    } else if (m_column == 2) {
+      fin += "Cube";
+    } else if (m_column == 3) {
+      fin += "Right";
+    }
+    if (m_height == 2) {
+      fin += "Mid";
+    } else if (m_height == 3) {
+      fin += "High";
+    }
+
+    m_scoringSetpoint = fin;
+    System.out.println("scoring setpoint set to " + fin);
   }
 
   public Pose3d getArmPosition(Pose2d robotPose, double elevatorXMeters, double elevatorYMeters,
@@ -188,6 +268,116 @@ public class RobotState {
     return Commands.parallel(
         m_elevator.setHeightCommand(setpoint[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
+  }
+
+  public Command autoScore(Supplier<Pose3d> intakeEndPoseSup, Supplier<Rotation2d> intakeAngleSup,
+      Supplier<Double> distanceToIntakeSup) {
+    Pose3d intakeEndPose = intakeEndPoseSup.get();
+    Rotation2d intakeAngle = intakeAngleSup.get();
+    double distanceToIntake = distanceToIntakeSup.get();
+    System.out.println(intakeEndPose);
+    System.out.println(intakeAngle);
+    System.out.println(distanceToIntake);
+    return Commands.parallel(
+        new DriveToPoint(m_drive,
+            () -> RobotState.getInstance()
+                .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
+                .getPose(),
+            Constants.DriveConstants.holonomicDrive,
+            () -> 0.0,
+            () -> 0.0, () -> 0.0),
+        m_elevator.setHeightCommand(RobotState.getInstance()
+            .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
+            .getHeightOfElevator()),
+        m_wrist.setAngleCommand(RobotState.getInstance()
+            .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
+            .getAngleOfWrist()));
+
+  }
+
+  public FullDesiredRobotState getClosestPoseToSetpoint(Pose3d intakeEndPose, Rotation2d intakeAngle,
+      double distanceToIntake) {
+    // find x distance of everything added together and then find the closest one
+    double intakeLength = intakeAngle.getCos() * IntakeConstants.intakeLengthMeters;
+    double intakeHeight = intakeAngle.getSin() * IntakeConstants.intakeLengthMeters * -1;
+    double armLength = ElevatorConstants.kCarriageArmLength;
+    double elevatorWantedHeight = intakeEndPose.getZ() + intakeHeight;
+    double elevatorXMeters = m_elevator.getPositionXMetersAtHeight(elevatorWantedHeight);
+    double xDistance = intakeLength + armLength + elevatorXMeters
+        - Constants.ElevatorConstants.kDistanceToCenterOfRobot + distanceToIntake;
+    System.out.println(
+        "intkae length:" + intakeLength +
+            "intake Height " + intakeHeight +
+            "Arm Length " + armLength +
+            "elevatorWantedHeight" + elevatorWantedHeight +
+            "elevatorXMeters" + elevatorXMeters +
+            "x final distance" + xDistance);
+    // for the sake of not overrunning the loop, we only check a setpoint every 10 degrees starting from x + distance 
+    ArrayList<Pose2d> poses = new ArrayList<>();
+    for (int i = -2; i < 2; i++) {
+      Rotation2d angle = Rotation2d.fromDegrees(i * 10);
+      double x = xDistance * angle.getCos();
+      double y = xDistance * angle.getSin();
+      intakeEndPose.toPose2d().plus(new Transform2d(new Translation2d(x, y), new Rotation2d()));
+      poses.add(
+          intakeEndPose.toPose2d()
+              .plus(new Transform2d(new Translation2d(x, y), angle.plus(Rotation2d.fromDegrees(180)))));
+    }
+    double minDistance = Double.MAX_VALUE;
+    Pose2d closestPose = new Pose2d();
+    for (Pose2d pose : poses) {
+      double distance = pose.getTranslation().getDistance(m_drive.getPose().getTranslation());
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPose = pose;
+      }
+    }
+    // int i = 0;
+    // for (Pose2d pose : poses) {
+    //   Logger.getInstance().recordOutput("RobotState/ClosestPose: " + i, pose);
+    //   i++;
+    // }
+
+    Logger.getInstance().recordOutput("RobotState/BestClosestPose", closestPose);
+    // System.out.println("Closest Pose: " + closestPose);
+    FullDesiredRobotState desiredRobotState = new FullDesiredRobotState(closestPose, elevatorWantedHeight,
+        intakeAngle);
+    RobotState.getInstance().setScoringSetpoint(desiredRobotState);
+    return desiredRobotState;
+  }
+
+  public void setScoringSetpoint(FullDesiredRobotState desiredRobotState) {
+    this.m_scoringPose = desiredRobotState;
+  }
+
+  public FullDesiredRobotState getScoringSetpoint() {
+    return this.m_scoringPose;
+  }
+
+  public String getFullScoringString() {
+    return m_scoringSetpoint;
+  }
+
+  public Rotation2d getWristPosition() {
+    if (m_scoringSetpoint.toLowerCase().contains("cube") && m_scoringSetpoint.toLowerCase().contains("high")) {
+      System.out.println("cube high");
+      return Constants.Setpoints.kIntakeApproachAngleHighCube;
+
+    } else if (m_scoringSetpoint.toLowerCase().contains("cube") && m_scoringSetpoint.toLowerCase().contains("mid")) {
+      System.out.println("cube mid");
+      return Constants.Setpoints.kIntakeApproachAngleMidCube;
+    } else if (m_scoringSetpoint.toLowerCase().contains("high")) {
+      System.out.println("cone high");
+      return Setpoints.kIntakeApproachAngleHighCone;
+
+    } else {
+      System.out.println("cone mid");
+      return Setpoints.kIntakeApproachAngleMidCone;
+    }
+  }
+
+  public Pose3d getScoringPose() {
+    return fieldGeomUtil.getScoringPose(m_scoringSetpoint);
   }
 
 }

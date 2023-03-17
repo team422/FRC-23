@@ -48,6 +48,7 @@ public class TeloepDrive extends CommandBase {
 
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());
+    // speeds = new ChassisSpeeds(curXSpeed, curYSpeed, curZRotation);
     m_drive.drive(speeds);
   }
 

@@ -47,4 +47,6 @@ public interface DriverControls {
 
   public Trigger zeroElevator();
 
+  public Trigger autoScore();
+
 }

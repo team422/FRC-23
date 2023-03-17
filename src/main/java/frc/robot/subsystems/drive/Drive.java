@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -10,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotState;
@@ -55,15 +58,15 @@ public class Drive extends SubsystemBase {
 
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
-      // Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
+      Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
     }
     m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
 
-    // Logger.getInstance().recordOutput("Drive/Pose", getPose());
-    // Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
-    // Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
-    // FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
-    //     DriveConstants.kModuleTranslations);
+    Logger.getInstance().recordOutput("Drive/Pose", getPose());
+    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
+    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+        DriveConstants.kModuleTranslations);
 
   }
 
@@ -83,7 +86,8 @@ public class Drive extends SubsystemBase {
   }
 
   public void resetOdometry() {
-    m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), new Pose2d());
+    m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(),
+        new Pose2d());//1.80, 1.14, new Rotation2d()
   }
 
   public void resetPose(Pose2d pose) {
@@ -179,8 +183,10 @@ public class Drive extends SubsystemBase {
     return runOnce(this::brake);
   }
 
-  public Command resetCommand() {
-    return runOnce(this::resetOdometry);
+  public Command resetCommand(Pose2d resetPose) {
+    return runOnce(() -> {
+      resetPose(resetPose);
+    });
   }
 
 }

@@ -62,11 +62,17 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
       int turningCANCoderChannel) {
     CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
-    m_driveMotor.burnFlash();
+    // m_driveMotor.burnFlash();
+    m_driveMotor.restoreFactoryDefaults();
     setup.setupSparkMaxSlow(m_driveMotor);
     m_driveMotor.setInverted(true);
+    m_driveMotor.setIdleMode(IdleMode.kCoast);
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
-    m_turningMotor.burnFlash();
+    m_turningMotor.restoreFactoryDefaults();
+    // m_turningMotor.burnFlash();
+    m_turningMotor.setIdleMode(IdleMode.kBrake);
+    // m_driveMotor.burnFlash();
+    // m_turningMotor.burnFlash();
     setup.setupSparkMaxSlow(m_turningMotor);
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
@@ -75,9 +81,6 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
     m_turningCANCoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningCANCoder.configSensorDirection(false);
-
-    m_driveMotor.setIdleMode(IdleMode.kCoast);
-    m_turningMotor.setIdleMode(IdleMode.kBrake);
 
     // m_driveEncoder returns RPM by default. Use setVelocityConversionFactor() to
     // convert that to meters per second.
