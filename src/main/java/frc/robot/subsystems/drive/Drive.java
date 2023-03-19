@@ -18,11 +18,14 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
+import frc.robot.util.SecondOrderKinematics;
+import frc.robot.util.SwerveModuleAcceleration;
 
 public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleInputsAutoLogged[] m_inputs;
 
+  private final SecondOrderKinematics m_SecondOrderKinematics;
   private final SwerveDrivePoseEstimator m_poseEstimator;
 
   private final GyroIO m_gyro;
@@ -49,6 +52,7 @@ public class Drive extends SubsystemBase {
     }
     m_poseEstimator = new SwerveDrivePoseEstimator(
         Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
+    m_SecondOrderKinematics = new SecondOrderKinematics();
   }
 
   @Override
@@ -83,6 +87,24 @@ public class Drive extends SubsystemBase {
 
   public ChassisSpeeds getChassisSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  //TODO: remove all params aside from deltaTime by finding them within either the file in general, or somwhere in this method
+  public ChassisSpeeds getChassisSpeedsfromAccel(SwerveModuleAcceleration[] moduleAccelerations,
+      Rotation2d[] moduleSteerThetaVels,
+      Rotation2d robotThetaVel,
+      double deltaTime) {
+
+    SwerveModuleState[] moduleStates = getModuleStates();
+    double[] moduleVelocities = new double[m_modules.length];
+    for (int i = 0; i < m_modules.length; i++) {
+      moduleVelocities[i] = moduleStates[i].speedMetersPerSecond;
+    }
+    Rotation2d robotTheta = m_gyro.getAngle();
+    return DriveConstants.kDriveKinematics
+        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(moduleAccelerations, moduleStates,
+            moduleSteerThetaVels,
+            moduleVelocities, robotThetaVel, robotTheta, deltaTime));
   }
 
   public void resetOdometry() {
