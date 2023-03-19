@@ -27,6 +27,8 @@ public class Drive extends SubsystemBase {
 
   private final SecondOrderKinematics m_SecondOrderKinematics;
   private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[4];
+  private Rotation2d[] m_moduleSteerThetaVels = new Rotation2d[4];
+  private Rotation2d[] m_moduleSteerOldTheta = new Rotation2d[4];
   private Rotation2d m_oldRobotTheta = new Rotation2d();
   private Rotation2d m_robotThetaVel = new Rotation2d();
 
@@ -98,16 +100,16 @@ public class Drive extends SubsystemBase {
   private void updateSOKVars(double deltaTime) {
     SwerveModuleState[] moduleStates = getModuleStates();
     for (int i = 0; i < m_modules.length; i++) {
-      //update moduleAccels
+      //update moduleAccels and m_moduleSteerThetaVels
       m_moduleAccelerations[i].calculate(moduleStates[i], deltaTime);
+      m_moduleSteerThetaVels[i] = new Rotation2d(
+          moduleStates[i].angle.minus(m_moduleSteerOldTheta[i]).getRadians() / deltaTime);
     }
     //update robotThetaVel
     m_robotThetaVel = new Rotation2d(m_gyro.getAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
   }
 
-  //TODO: remove all params aside from deltaTime by finding them within either the file in general, or somwhere in this method
   public ChassisSpeeds getChassisSpeedsfromAccel(
-      Rotation2d[] moduleSteerThetaVels,
       double deltaTime) {
 
     SwerveModuleState[] moduleStates = getModuleStates();
@@ -118,7 +120,7 @@ public class Drive extends SubsystemBase {
     Rotation2d robotTheta = m_gyro.getAngle();
     return DriveConstants.kDriveKinematics
         .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
-            moduleSteerThetaVels,
+            m_moduleSteerThetaVels,
             moduleVelocities, m_robotThetaVel, robotTheta, deltaTime));
   }
 
