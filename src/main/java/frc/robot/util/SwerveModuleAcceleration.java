@@ -64,7 +64,7 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
    * 
    * @param newState SwerveModuleState that will be stored
    */
-  public void updateStates(SwerveModuleState newState) {
+  private void updateStates(SwerveModuleState newState) {
     m_currState = newState;
   }
 

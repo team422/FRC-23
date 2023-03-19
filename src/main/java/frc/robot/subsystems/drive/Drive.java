@@ -26,6 +26,10 @@ public class Drive extends SubsystemBase {
   private final SwerveModuleInputsAutoLogged[] m_inputs;
 
   private final SecondOrderKinematics m_SecondOrderKinematics;
+  private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[4];
+  private Rotation2d m_oldRobotTheta = new Rotation2d();
+  private Rotation2d m_robotThetaVel = new Rotation2d();
+
   private final SwerveDrivePoseEstimator m_poseEstimator;
 
   private final GyroIO m_gyro;
@@ -57,9 +61,11 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    // updateSOKVars(deltaTime); //uncomment when deltaTime is found 
+
     m_gyro.updateInputs(m_gyroInputs);
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
-
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
@@ -89,10 +95,19 @@ public class Drive extends SubsystemBase {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
+  private void updateSOKVars(double deltaTime) {
+    SwerveModuleState[] moduleStates = getModuleStates();
+    for (int i = 0; i < m_modules.length; i++) {
+      //update moduleAccels
+      m_moduleAccelerations[i].calculate(moduleStates[i], deltaTime);
+    }
+    //update robotThetaVel
+    m_robotThetaVel = new Rotation2d(m_gyro.getAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
+  }
+
   //TODO: remove all params aside from deltaTime by finding them within either the file in general, or somwhere in this method
-  public ChassisSpeeds getChassisSpeedsfromAccel(SwerveModuleAcceleration[] moduleAccelerations,
+  public ChassisSpeeds getChassisSpeedsfromAccel(
       Rotation2d[] moduleSteerThetaVels,
-      Rotation2d robotThetaVel,
       double deltaTime) {
 
     SwerveModuleState[] moduleStates = getModuleStates();
@@ -102,9 +117,9 @@ public class Drive extends SubsystemBase {
     }
     Rotation2d robotTheta = m_gyro.getAngle();
     return DriveConstants.kDriveKinematics
-        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(moduleAccelerations, moduleStates,
+        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
             moduleSteerThetaVels,
-            moduleVelocities, robotThetaVel, robotTheta, deltaTime));
+            moduleVelocities, m_robotThetaVel, robotTheta, deltaTime));
   }
 
   public void resetOdometry() {
