@@ -154,7 +154,7 @@ public class LED extends SubsystemBase {
   }
 
   public void toggleLEDCone() {
-    m_toggleCone = !m_toggleCube;
+    m_toggleCone = !m_toggleCone;
     if (m_toggleCone) {
       m_toggleCube = false;
       setSolidColor(m_colors[1]);
