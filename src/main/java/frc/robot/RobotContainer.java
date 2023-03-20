@@ -4,17 +4,61 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import java.io.IOException;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.pathplanner.PathPlannerUtil;
+import frc.lib.utils.FieldGeomUtil;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.Ports;
+import frc.robot.Constants.Setpoints;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.WristConstants;
+import frc.robot.commands.autonomous.AutoFactory;
+import frc.robot.commands.autonomous.ChargeStationBalance;
+import frc.robot.commands.drive.DriveToNode;
+import frc.robot.commands.drive.TeloepDrive;
 import frc.robot.oi.DriverControls;
+import frc.robot.oi.DriverControlsDualFlightStick;
 import frc.robot.oi.OperatorControls;
-import frc.robot.oi.XboxOperatorController;
+import frc.robot.oi.OperatorControlsXbox;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModuleIOMK4iSparkMax;
+import frc.robot.subsystems.drive.SwerveModuleIOSim;
+import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIONeo;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIONeo550;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.vision.CameraAprilTag;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOSim;
+import frc.robot.subsystems.wrist.WristIOThroughBoreSparkMaxAlternate;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -26,26 +70,124 @@ import frc.robot.subsystems.led.LED;
 public class RobotContainer {
   // Subsystems
   private Drive m_drive;
+  private Intake m_intake;
+  private CameraAprilTag[] m_cams;
+  private Wrist m_wrist;
+  private Elevator m_elevator;
+  private CANSparkMax m_throughboreSparkMaxIntakeMotor;
+  private RobotState m_robotState;
+  private AutoFactory m_autoFactory;
+  private AprilTagFieldLayout m_layout;
   private LED m_LED;
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+  private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureAprilTags();
     configureSubsystems();
     configureButtonBindings();
+    configureAuto();
+  }
+
+  public void configureAprilTags() {
+    try {
+      m_layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+    } catch (IOException e) {
+      System.out.println("AprilTag field layout not found:" + e);
+    }
+  }
+
+  private void configureAllianceSettings() {
+    var origin = DriverStation.getAlliance() == Alliance.Blue
+        ? OriginPosition.kBlueAllianceWallRightSide
+        : OriginPosition.kRedAllianceWallRightSide;
+    m_layout.setOrigin(origin);
+  }
+
+  private void configureAuto() {
+    m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+    m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
+
+    // Add basic autonomous commands
+    // m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+    m_autoChooser.addDefaultOption("Top Cone Cube", Commands.none());
+
+    // Add PathPlanner Auto Commands
+    PathPlannerUtil.getExistingPaths().forEach(path -> {
+      m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path));
+    });
   }
 
   private void configureSubsystems() {
     if (Robot.isReal()) {
-      m_drive = new Drive();
-      m_LED = new LED(Constants.ElectricalConstants.kLEDPort, Constants.ElectricalConstants.kLEDLength);
+      SwerveModuleIO[] m_swerveModuleIOs = {
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
+              Ports.leftFrontCanCoderPort),
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightFrontDriveMotorPort, Ports.rightFrontTurningMotorPort,
+              Ports.rightFrontCanCoderPort),
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftRearDriveMotorPort, Ports.leftRearTurningMotorPort,
+              Ports.leftRearCanCoderPort),
+          new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
+              Ports.rightRearCanCoderPort) };
+      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort, Constants.DriveConstants.pitchAngle),
+          Constants.DriveConstants.startPose,
+          m_swerveModuleIOs);
+      m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
+
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 500);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 500);
+
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
+      m_throughboreSparkMaxIntakeMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 20);
+      m_throughboreSparkMaxIntakeMotor.burnFlash();
+      m_intake = new Intake(
+          new IntakeIONeo550(m_throughboreSparkMaxIntakeMotor, Constants.IntakeConstants.intakeGearRatio),
+          Constants.IntakeConstants.intakePIDController);
+      m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
+          Constants.WristConstants.wristEncoderCPR,
+          m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
+          Units.degreesToRadians(33 + 90 - 60 - 8)), // 253
+          Constants.WristConstants.wristPIDController,
+          Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
+          Constants.WristConstants.kMaxAngle);
+      m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
+          Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
+          Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.kGearRatio,
+          Constants.ElevatorConstants.kEncoderCPR), Constants.ElevatorConstants.elevatorPIDController,
+          Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.kMinHeightMeters,
+          Constants.ElevatorConstants.kMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
+      m_cams = new CameraAprilTag[] {
+          new CameraAprilTag(VisionConstants.klowCameraName, m_layout, VisionConstants.klowCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+          // new CameraAprilTag(VisionConstants.khighCamera, m_layout, VisionConstants.khighCameraTransform,
+          //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+      };
+      m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
+
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
-      m_drive = new Drive();
+      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim());
+      m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
+          ElevatorConstants.elevatorFeedForward, ElevatorConstants.kMinHeightMeters,
+          ElevatorConstants.kMaxHeightMeters,
+          Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
+      m_wrist = new Wrist(new WristIOSim(), WristConstants.wristPIDController, WristConstants.wristFeedForward,
+          WristConstants.kMinAngle, WristConstants.kMaxAngle);
+      m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
+      m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     }
+
   }
 
   /**
@@ -55,15 +197,165 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    //define controllers
-    DriverControls driverControls = new DriverControls() {
-    };
-    OperatorControls operatorControls = new XboxOperatorController(5);
+    DriverControls driverControls = new DriverControlsDualFlightStick(
+        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
+    TeloepDrive teleopDrive = new TeloepDrive(m_drive,
+        driverControls::getDriveForward,
+        driverControls::getDriveLeft,
+        driverControls::getDriveRotation,
+        Constants.DriveConstants.kDriveDeadband);
+    m_drive.setDefaultCommand(teleopDrive);
 
-    //define buttons
-    driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
-    operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
-    operatorControls.partyButton().onTrue(m_LED.togglePartyModeCommand());
+    OperatorControls operatorControls = new OperatorControlsXbox(5);
+
+    Command pickUpConeVerticalCommand = Commands.parallel(
+        RobotState.getInstance().setpointCommand(Setpoints.pickUpConeVerticalCommandSetpoints),
+        m_intake.intakeConeCommand());
+
+    Command pickUpCubeGroundCommand = Commands.parallel(
+        RobotState.getInstance().setpointCommand(Setpoints.pickUpCubeGroundCommandSetpoints),
+        m_intake.intakeCubeCommand());
+
+    Command pickUpConeGroundCommand = Commands.parallel(
+        RobotState.getInstance().setpointCommand(Setpoints.pickUpConeGroundCommandSetpoints),
+        m_intake.intakeConeCommand());
+    Command pickUpConeGroundCommandDriver = RobotState.getInstance()
+        .setpointCommand(Setpoints.pickUpConeGroundCommandSetpoints);
+    Command pickUpConeVerticalCommandDriver = RobotState.getInstance()
+        .setpointCommand(Setpoints.pickUpConeVerticalCommandSetpoints);
+    Command pickUpCubeGroundCommandDriver = RobotState.getInstance()
+        .setpointCommand(Setpoints.pickUpCubeGroundCommandSetpoints);
+
+    Command intakeFromLoadingStationCommand = Commands.parallel(
+        RobotState.getInstance().setpointCommand(Setpoints.intakeFromLoadingStationCommand),
+        m_intake.intakeConeCommand());
+
+    Command coneMidCommand = RobotState.getInstance().setpointCommand(Setpoints.coneMidCommandSetpoints);
+    Command coneHighCommand = RobotState.getInstance().setpointCommand(Setpoints.coneHighCommandSetpoints);
+
+    Command cubeMidCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeMidCommandSetpoints);
+    Command cubeHighCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeHighCommandSetpoints);
+
+    // Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
+    //     DriveConstants.holonomicDrive,
+    //     () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
+
+    Command stowCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Setpoints.stowVerticalCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.stowVerticalCommandSetpoints[1])));
+
+    // Command chargeCommand = Commands.sequence(new ZeroHeading(m_drive),
+    //     new ChargeStationBalance(m_drive));
+    Command chargeCommand = new ChargeStationBalance(m_drive);
+    operatorControls.charge().whileTrue(chargeCommand);
+    Command dropLoaderStationCommand = Commands.parallel(
+        m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])),
+        m_intake.intakeConeCommand());
+
+    // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
+    // FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
+    driverControls.autoScore().whileTrue(
+        RobotState.getInstance().autoScore(() -> {
+          return RobotState.getInstance().getScoringPose();
+        }, () -> {
+          return RobotState.getInstance().getWristPosition();
+        }, () -> {
+          return Setpoints.distanceToDropCone;
+        }));
+    driverControls.stowIntakeAndElevator().onTrue(stowCommand);
+    operatorControls.setpointMidCone().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).onTrue(coneMidCommand);
+    operatorControls.setpointHighCone().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).onTrue(coneHighCommand);
+    operatorControls.setpointMidCube().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).onTrue(cubeMidCommand);
+    operatorControls.setpointHighCube().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).onTrue(cubeHighCommand);
+    operatorControls.intakeConeTipped().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).whileTrue(pickUpConeGroundCommand).onFalse(stowCommand);
+    operatorControls.intakeConeVertical().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).whileTrue(pickUpConeVerticalCommand)
+        .onFalse(Commands.parallel(RobotState.getInstance().setpointCommand(Setpoints.stowVerticalCommandSetpoints)));
+    operatorControls.intakeCubeGround().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).whileTrue(pickUpCubeGroundCommand).onFalse(stowCommand);
+    operatorControls.intakeFromLoadingStation().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).whileTrue(intakeFromLoadingStationCommand)
+        .onFalse(stowCommand);
+    operatorControls.stow().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).onTrue(stowCommand);
+    operatorControls.dropStationButton().and(operatorControls.heightModifier().negate())
+        .and(operatorControls.columnModifier().negate()).whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
+    operatorControls.dropStationButton().whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
+
+    operatorControls.columnModifier().and(operatorControls.firstGrid())
+        .onTrue(RobotState.getInstance().setGridCommand(1));
+    operatorControls.columnModifier().and(operatorControls.secondGrid())
+        .onTrue(RobotState.getInstance().setGridCommand(2));
+    operatorControls.columnModifier().and(operatorControls.thirdGrid())
+        .onTrue(RobotState.getInstance().setGridCommand(3));
+    operatorControls.columnModifier().and(operatorControls.firstColumn())
+        .onTrue(RobotState.getInstance().setColumnCommand(1));
+    operatorControls.columnModifier().and(operatorControls.secondColumn())
+        .onTrue(RobotState.getInstance().setColumnCommand(2));
+    operatorControls.columnModifier().and(operatorControls.thirdColumn())
+        .onTrue(RobotState.getInstance().setColumnCommand(3));
+
+    // operatorControls.heightModifier().and(operatorControls.low())
+    //     .onTrue(RobotState.getInstance().setHeightCommand(1));
+
+    operatorControls.heightModifier().and(operatorControls.mid())
+        .onTrue(RobotState.getInstance().setHeightCommand(2));
+
+    operatorControls.heightModifier().and(operatorControls.high())
+        .onTrue(RobotState.getInstance().setHeightCommand(3));
+
+    driverControls.resetFieldCentric().onTrue(m_drive.resetCommand(new Pose2d(1.81, 6.9, new Rotation2d())));
+    driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.intakeConeCommand());
+    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.intakeCubeCommand());
+    driverControls.zeroElevator().onTrue(m_elevator.zeroHeightCommand());
+    // driverControls.setpointHighCone().onTrue(coneHighCommand);
+    // driverControls.setpointMidCube().onTrue(cubeMidCommand);
+    // driverControls.setpointHighCube().onTrue(cubeHighCommand);
+    driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommandDriver);
+    driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommandDriver);
+    driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommandDriver);
+    // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
+
+    operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
+    operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
+    operatorControls.charge().whileTrue(chargeCommand);
+    operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
+      m_robotState.increasePoseSetpoint();
+    }));
+    operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
+      m_robotState.decreasePoseSetpoint();
+    }));
+    operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
+
+    Command driveToGridSetpointCommand = new DriveToNode(m_drive, new FieldGeomUtil(),
+        DriveConstants.holonomicDrive,
+        () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
+        () -> driverControls.getDriveRotation());
+    driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
+    driverControls.ledCone().onTrue(m_LED.coneCommand());
+    driverControls.ledCube().onTrue(m_LED.cubeCommand());
+
+  }
+
+  public void onEnabled() {
+    configureAllianceSettings();
+    m_elevator.setBrakeMode(false);
+    m_wrist.setBrakeMode(false);
+    m_wrist.reset();
+    m_elevator.reset();
+  }
+
+  public void onDisabled() {
+    m_elevator.setBrakeMode(true);
+    m_wrist.setBrakeMode(true);
+    m_wrist.reset();
+    m_elevator.reset();
   }
 
   /**
@@ -72,6 +364,38 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    if (Robot.isSimulation()) {
+      String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+      if (PathPlannerUtil.getExistingPaths().contains(selectedAuto)) {
+        return m_autoFactory.getAutoCommand(selectedAuto);
+      }
+    }
     return m_autoChooser.get();
+  }
+
+  public void disabledPeriodic() {
+    if (Robot.isSimulation()) {
+      return;
+    } else {
+      return;
+    }
+    // String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+    // List<PathPlannerTrajectory> traj = m_autoFactory.loadPathGroupByName(selectedAuto);
+    // Pose2d desPose = traj.get(0).getInitialPose();
+    // Pose2d curPose = m_drive.getPose();
+    // double error = curPose.getTranslation().getDistance(desPose.getTranslation());
+    // if (error > Units.inchesToMeters(1)) {
+    //   m_LED.setSolidColorNumber(Color.kRed, (int) Math.ceil(Units.metersToInches(error)));
+    // } else {
+    //   m_LED.setSolidColor(Color.kGreen);
+    // }
+
+  }
+
+  public void updateRobotState() {
+    if (m_robotState != null) {
+      m_robotState.update();
+    }
+
   }
 }

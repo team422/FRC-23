@@ -1,0 +1,92 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.8345784208929532,
+        "y": 0.4369972906612475
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.834578420892953,
+        "y": 0.4369972906612475
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "setpointConeHigh",
+          "wait",
+          "intakeConeOut"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.084674368636994,
+        "y": 0.7512268405319723
+      },
+      "prevControl": {
+        "x": 4.241239443919922,
+        "y": 0.4195936790017608
+      },
+      "nextControl": {
+        "x": 6.015319277103534,
+        "y": 1.1171504040603408
+      },
+      "holonomicAngle": 159.62356478616363,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.516236629695482,
+        "y": 0.9691528289306575
+      },
+      "prevControl": {
+        "x": 5.516236629695482,
+        "y": 0.9691528289306575
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "minimum",
+        "waitTime": 1.0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.1939393939393702,
+      "names": [
+        "event",
+        "setpointStow"
+      ]
+    },
+    {
+      "position": 1.321212121212131,
+      "names": [
+        "setpointCubeGround"
+      ]
+    }
+  ]
+}

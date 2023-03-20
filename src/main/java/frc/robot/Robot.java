@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.advantagekit.LoggerUtil;
@@ -19,6 +20,7 @@ import frc.lib.advantagekit.LoggerUtil;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
+  private Command testCommand;
   private RobotContainer robotContainer;
 
   /**
@@ -29,6 +31,10 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     // Initialize the AdvantageKit Logger
     LoggerUtil.initializeLogger();
+
+    if (Robot.isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
@@ -44,16 +50,20 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    robotContainer.updateRobotState();
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+
+    robotContainer.onDisabled();
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
+    robotContainer.disabledPeriodic();
   }
 
   /**
@@ -62,6 +72,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
+    robotContainer.onEnabled();
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -85,11 +96,13 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    robotContainer.onEnabled();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
   }
 
   /** This function is called once when test mode is enabled. */
@@ -97,6 +110,13 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    robotContainer.onEnabled();
+    if (testCommand != null) {
+      testCommand.schedule();
+    } else {
+      System.out.println("No test command");
+    }
+
   }
 
   /** This function is called periodically during test mode. */
