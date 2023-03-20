@@ -18,10 +18,19 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
+import frc.robot.util.SecondOrderKinematics;
+import frc.robot.util.SwerveModuleAcceleration;
 
 public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleInputsAutoLogged[] m_inputs;
+
+  private final SecondOrderKinematics m_SecondOrderKinematics;
+  private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[4];
+  private Rotation2d[] m_moduleSteerThetaVels = new Rotation2d[4];
+  private Rotation2d[] m_moduleSteerOldTheta = new Rotation2d[4];
+  private Rotation2d m_oldRobotTheta = new Rotation2d();
+  private Rotation2d m_robotThetaVel = new Rotation2d();
 
   private final SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -29,6 +38,8 @@ public class Drive extends SubsystemBase {
   private final GyroInputsAutoLogged m_gyroInputs;
 
   private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
+
+  private final double m_deltaTime = 0.02;
 
   private double m_simGyroLastUpdated;
 
@@ -49,10 +60,15 @@ public class Drive extends SubsystemBase {
     }
     m_poseEstimator = new SwerveDrivePoseEstimator(
         Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
+
+    m_SecondOrderKinematics = new SecondOrderKinematics();
   }
 
   @Override
   public void periodic() {
+
+    updateSOKVars(m_deltaTime);
+
     m_gyro.updateInputs(m_gyroInputs);
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
 
@@ -83,6 +99,32 @@ public class Drive extends SubsystemBase {
 
   public ChassisSpeeds getChassisSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  private void updateSOKVars(double deltaTime) {
+    SwerveModuleState[] moduleStates = getModuleStates();
+    for (int i = 0; i < m_modules.length; i++) {
+      //update moduleAccels and m_moduleSteerThetaVels
+      m_moduleAccelerations[i].calculate(moduleStates[i], deltaTime);
+      m_moduleSteerThetaVels[i] = new Rotation2d(
+          moduleStates[i].angle.minus(m_moduleSteerOldTheta[i]).getRadians() / deltaTime);
+    }
+    //update robotThetaVel
+    m_robotThetaVel = new Rotation2d(m_gyro.getAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
+  }
+
+  public ChassisSpeeds getChassisSpeedsfromAccel() {
+
+    SwerveModuleState[] moduleStates = getModuleStates();
+    double[] moduleVelocities = new double[m_modules.length];
+    for (int i = 0; i < m_modules.length; i++) {
+      moduleVelocities[i] = moduleStates[i].speedMetersPerSecond;
+    }
+    Rotation2d robotTheta = m_gyro.getAngle();
+    return DriveConstants.kDriveKinematics
+        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
+            m_moduleSteerThetaVels,
+            moduleVelocities, m_robotThetaVel, robotTheta, m_deltaTime));
   }
 
   public void resetOdometry() {
