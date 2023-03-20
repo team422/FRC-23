@@ -2,9 +2,6 @@ package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
@@ -49,11 +46,8 @@ public class TeloepDrive extends CommandBase {
     curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond;
     // System.out.println(curXSpeed);
 
-    Pose2d robotPoseVel = new Pose2d(curXSpeed * 0.02, curYSpeed * 0.02, Rotation2d.fromRadians(curZRotation * 0.02));
-    Twist2d twistVel = new Pose2d(0, 0, Rotation2d.fromRadians(0)).log(robotPoseVel);
-    speeds = ChassisSpeeds.fromFieldRelativeSpeeds(twistVel.dx / 0.02, twistVel.dy / 0.02, twistVel.dtheta / 0.02,
+    speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());
-
     // speeds = new ChassisSpeeds(curXSpeed, curYSpeed, curZRotation);
     m_drive.drive(speeds);
   }

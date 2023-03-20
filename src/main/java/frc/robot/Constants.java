@@ -196,7 +196,7 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
-    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(450);
+    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
@@ -215,9 +215,9 @@ public final class Constants {
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurningP = new TunableNumber("TurnP", 0.6);
-    public static final TunableNumber kTurningI = new TunableNumber("Turn I", 0.00);
-    public static final TunableNumber kTurningD = new TunableNumber("Turn D", 0.005);
+    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
+    public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
+    public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
 
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.85); // 0.09398; // 3.7 in
 
