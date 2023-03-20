@@ -175,7 +175,8 @@ public class RobotContainer {
       m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
-          new SwerveModuleIOSim(), new SwerveModuleIOSim());
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim());
       m_elevator = new Elevator(new ElevatorIOSim(), ElevatorConstants.elevatorPIDController,
           ElevatorConstants.elevatorFeedForward, ElevatorConstants.kMinHeightMeters,
           ElevatorConstants.kMaxHeightMeters,
