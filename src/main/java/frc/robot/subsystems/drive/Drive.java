@@ -39,6 +39,8 @@ public class Drive extends SubsystemBase {
 
   private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
 
+  private final double m_deltaTime = 0.02;
+
   private double m_simGyroLastUpdated;
 
   /** Creates a new Drive. */
@@ -64,7 +66,7 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
 
-    // updateSOKVars(deltaTime); //uncomment when deltaTime is found 
+    updateSOKVars(m_deltaTime);
 
     m_gyro.updateInputs(m_gyroInputs);
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
@@ -109,8 +111,7 @@ public class Drive extends SubsystemBase {
     m_robotThetaVel = new Rotation2d(m_gyro.getAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
   }
 
-  public ChassisSpeeds getChassisSpeedsfromAccel(
-      double deltaTime) {
+  public ChassisSpeeds getChassisSpeedsfromAccel() {
 
     SwerveModuleState[] moduleStates = getModuleStates();
     double[] moduleVelocities = new double[m_modules.length];
@@ -121,7 +122,7 @@ public class Drive extends SubsystemBase {
     return DriveConstants.kDriveKinematics
         .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
             m_moduleSteerThetaVels,
-            moduleVelocities, m_robotThetaVel, robotTheta, deltaTime));
+            moduleVelocities, m_robotThetaVel, robotTheta, m_deltaTime));
   }
 
   public void resetOdometry() {
