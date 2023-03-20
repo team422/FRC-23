@@ -139,6 +139,4 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     }
     return modStatesFromAccelXY;
   }
-
-  //method to convert to pose2d??
 }

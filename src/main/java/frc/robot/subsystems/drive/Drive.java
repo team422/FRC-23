@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
@@ -38,8 +39,6 @@ public class Drive extends SubsystemBase {
   private final GyroInputsAutoLogged m_gyroInputs;
 
   private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
-
-  private final double m_deltaTime = 0.02;
 
   private double m_simGyroLastUpdated;
 
@@ -67,7 +66,7 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
 
-    updateSOKVars(m_deltaTime);
+    updateSOKVars(RobotConstants.deltaTime);
 
     m_gyro.updateInputs(m_gyroInputs);
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
@@ -124,7 +123,7 @@ public class Drive extends SubsystemBase {
     return DriveConstants.kDriveKinematics
         .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
             m_moduleSteerThetaVels,
-            moduleVelocities, m_robotThetaVel, robotTheta, m_deltaTime));
+            moduleVelocities, m_robotThetaVel, robotTheta, RobotConstants.deltaTime));
   }
 
   public void resetOdometry() {

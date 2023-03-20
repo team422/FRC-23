@@ -43,6 +43,7 @@ public final class Constants {
   public static final class RobotConstants {
 
     public static final double robotWidth = Units.inchesToMeters(27.5);
+    public static final double deltaTime = 0.02;
 
   }
 
