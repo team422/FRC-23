@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -190,17 +191,23 @@ public final class Constants {
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;
-    public static final double kMaxSpeedMetersPerSecond = 8.5;
+    public static final double kMaxSpeedMetersPerSecond = 4.3; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
+
+    public static final double kMaxAcceptedErrorMeters = 0.5;
+    public static final Rotation2d kMaxAcceptedAngleError = Rotation2d.fromDegrees(10);
 
     public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
-    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
+
+    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(180);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
-        new PIDController(.01, 0, 0));
+        new PIDController(.01, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
+        new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
+        new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
   }
 
   public static final class ModuleConstants {

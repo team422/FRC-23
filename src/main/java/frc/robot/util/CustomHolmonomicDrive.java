@@ -10,6 +10,7 @@ package frc.robot.util;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -35,20 +36,27 @@ public class CustomHolmonomicDrive {
   private double kControlFactorX = 0.2;
   // private boolean m_enabled = true;
 
-  private final PIDController m_xController;
-  private final PIDController m_yController;
+  private final PIDController m_xyController;
+  private final PIDController m_zController;
+  private final SlewRateLimiter m_xLimiter;
+  private final SlewRateLimiter m_yLimiter;
+  private final SlewRateLimiter m_zLimiter;
 
   /**
    * Constructs a holonomic drive controller.
    *
-   * @param xController A PID Controller to respond to error in the field-relative x direction.
-   * @param yController A PID Controller to respond to error in the field-relative y direction.
+   * @param xyController A PID Controller to respond to error in the field-relative x direction.
+   * @param zController A PID Controller to respond to error in the field-relative y direction.
    */
   @SuppressWarnings("ParameterName")
-  public CustomHolmonomicDrive(PIDController xController, PIDController yController) {
-    m_xController = xController;
-    m_yController = yController;
-    m_yController.enableContinuousInput(0, 360);
+  public CustomHolmonomicDrive(PIDController xyController, PIDController zController, SlewRateLimiter xLimiter,
+      SlewRateLimiter yLimiter, SlewRateLimiter zLimiter) {
+    m_xyController = xyController;
+    m_zController = zController;
+    m_zController.enableContinuousInput(0, 360);
+    m_xLimiter = xLimiter;
+    m_yLimiter = yLimiter;
+    m_zLimiter = zLimiter;
 
   }
 
@@ -62,6 +70,28 @@ public class CustomHolmonomicDrive {
     final var tolTranslate = m_poseTolerance.getTranslation();
     return Math.abs(eTranslate.getX()) < tolTranslate.getX()
         && Math.abs(eTranslate.getY()) < tolTranslate.getY();
+  }
+
+  public double distanceFromXY(Pose2d currentPose, Pose2d poseRef) {
+    return Math
+        .sqrt(Math.pow(currentPose.getX() - poseRef.getX(), 2) + Math.pow(currentPose.getY() - poseRef.getY(), 2));
+  }
+
+  public Rotation2d distanceFromZ(Pose2d currentPose, Pose2d poseRef) {
+    return Rotation2d
+        .fromDegrees(Math.abs(currentPose.getRotation().getDegrees() - poseRef.getRotation().getDegrees()));
+  }
+
+  public double slewRateX(double xSpeed) {
+    return m_xLimiter.calculate(xSpeed);
+  }
+
+  public double slewRateY(double ySpeed) {
+    return m_yLimiter.calculate(ySpeed);
+  }
+
+  public double slewRateZ(double zSpeed) {
+    return m_zLimiter.calculate(zSpeed);
   }
 
   /**
@@ -98,9 +128,9 @@ public class CustomHolmonomicDrive {
     m_poseError = poseRef.relativeTo(currentPose);
 
     // Calculate feedback velocities (based on position error).
-    double xFeedback = m_xController.calculate(currentPose.getX(), poseRef.getX());
-    double yFeedback = m_xController.calculate(currentPose.getY(), poseRef.getY());
-    double thetaFeedback = m_yController.calculate(currentPose.getRotation().getDegrees(),
+    double xFeedback = m_xyController.calculate(currentPose.getX(), poseRef.getX());
+    double yFeedback = m_xyController.calculate(currentPose.getY(), poseRef.getY());
+    double thetaFeedback = m_zController.calculate(currentPose.getRotation().getDegrees(),
         poseRef.getRotation().getDegrees());
 
     // EricNubControls EricControls = new EricNubControls();
@@ -141,9 +171,9 @@ public class CustomHolmonomicDrive {
     m_poseError = poseRef.relativeTo(currentPose);
 
     // Calculate feedback velocities (based on position error).
-    double xFeedback = m_xController.calculate(currentPose.getX(), poseRef.getX());
-    double yFeedback = m_xController.calculate(currentPose.getY(), poseRef.getY());
-    double thetaFeedback = m_yController.calculate(currentPose.getRotation().getDegrees(),
+    double xFeedback = m_xyController.calculate(currentPose.getX(), poseRef.getX());
+    double yFeedback = m_xyController.calculate(currentPose.getY(), poseRef.getY());
+    double thetaFeedback = m_zController.calculate(currentPose.getRotation().getDegrees(),
         poseRef.getRotation().getDegrees());
 
     // EricNubControls EricControls = new EricNubControls();
@@ -172,6 +202,21 @@ public class CustomHolmonomicDrive {
         currentPose.getRotation());
   }
 
+  public ChassisSpeeds fullCalulate(Pose2d desPose2d, Pose2d curPose,
+      ChassisSpeeds curChassisSpeeds) {
+    // get the error between the current pose and the desired pose
+    m_poseError = desPose2d.relativeTo(curPose);
+    // get the error between the current chassis speeds and the desired chassis speeds
+    ChassisSpeeds m_chassisSpeeds = this.calculate(curPose, desPose2d);
+    // use slew rate limiter to limit the change in chassis speeds
+    // m_chassisSpeeds.vxMetersPerSecond = m_xLimiter.calculate(m_chassisSpeeds.vxMetersPerSecond);
+    // m_chassisSpeeds.vyMetersPerSecond = m_yLimiter.calculate(m_chassisSpeeds.vyMetersPerSecond);
+    // m_chassisSpeeds.omegaRadiansPerSecond = m_zLimiter.calculate(m_chassisSpeeds.omegaRadiansPerSecond);
+
+    // return the new chassis speeds
+    return m_chassisSpeeds;
+  }
+
   @SuppressWarnings("LocalVariableName")
   public ChassisSpeeds calculate(
       Pose2d currentPose,
@@ -188,9 +233,9 @@ public class CustomHolmonomicDrive {
     m_poseError = pose2dRef.relativeTo(currentPose);
 
     // Calculate feedback velocities (based on position error).
-    double xFeedback = m_xController.calculate(currentPose.getX(), pose2dRef.getX());
-    double yFeedback = m_xController.calculate(currentPose.getY(), pose2dRef.getY());
-    double thetaFeedback = m_yController.calculate(currentPose.getRotation().getDegrees(),
+    double xFeedback = m_xyController.calculate(currentPose.getX(), pose2dRef.getX());
+    double yFeedback = m_xyController.calculate(currentPose.getY(), pose2dRef.getY());
+    double thetaFeedback = m_zController.calculate(currentPose.getRotation().getDegrees(),
         poseRef.getRotation().getDegrees());
 
     // EricNubControls EricControls = new EricNubControls();
