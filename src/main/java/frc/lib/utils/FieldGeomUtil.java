@@ -41,12 +41,14 @@ public class FieldGeomUtil {
     allNodes.put("blueFirstGridCubeMid", new Pose3d(0.86, 1.08, .7, new Rotation3d()));
     allNodes.put("blueFirstGridRightMid", new Pose3d(.86, 1.64, 1, new Rotation3d()));
     allNodes.put("blueFirstGridRightHigh", new Pose3d(0.45, 1.64, 1.3, new Rotation3d()));
+
     allNodes.put("blueSecondGridLeftMid", new Pose3d(0.86, 2.20, 1, new Rotation3d()));
     allNodes.put("blueSecondGridLeftHigh", new Pose3d(0.45, 2.20, 1.3, new Rotation3d()));
     allNodes.put("blueSecondGridCubeHigh", new Pose3d(0.45, 2.78, 1, new Rotation3d()));
     allNodes.put("blueSecondGridCubeMid", new Pose3d(0.86, 2.78, .7, new Rotation3d()));
     allNodes.put("blueSecondGridRightMid", new Pose3d(.86, 3.34, 1, new Rotation3d()));
     allNodes.put("blueSecondGridRightHigh", new Pose3d(0.45, 3.34, 1.3, new Rotation3d()));
+
     allNodes.put("blueThirdGridLeftMid", new Pose3d(0.86, 3.90, 1, new Rotation3d()));
     allNodes.put("blueThirdGridLeftHigh", new Pose3d(0.45, 3.90, 1.3, new Rotation3d()));
     allNodes.put("blueThirdGridCubeHigh", new Pose3d(0.45, 4.48, 1, new Rotation3d()));

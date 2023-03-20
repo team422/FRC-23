@@ -38,7 +38,7 @@ import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.drive.DriveToNode;
-import frc.robot.commands.drive.TeloepDrive;
+import frc.robot.commands.drive.TeloepDriveTurnPID;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsDualFlightStick;
 import frc.robot.oi.OperatorControls;
@@ -199,11 +199,13 @@ public class RobotContainer {
   private void configureButtonBindings() {
     DriverControls driverControls = new DriverControlsDualFlightStick(
         Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
-    TeloepDrive teleopDrive = new TeloepDrive(m_drive,
+    TeloepDriveTurnPID teleopDrive = new TeloepDriveTurnPID(m_drive, Constants.DriveConstants.holonomicDrive,
         driverControls::getDriveForward,
         driverControls::getDriveLeft,
         driverControls::getDriveRotation,
-        Constants.DriveConstants.kDriveDeadband);
+        Constants.DriveConstants.kDriveDeadband,
+        DriveConstants.kMaxAcceptedErrorMeters,
+        DriveConstants.kMaxAcceptedAngleError);
     m_drive.setDefaultCommand(teleopDrive);
 
     OperatorControls operatorControls = new OperatorControlsXbox(5);
