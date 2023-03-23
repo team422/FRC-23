@@ -129,4 +129,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger autoScore() {
     return m_rightJoystick.button(4);
   }
+
+  @Override
+  public Trigger resetDrive() {
+    return m_rightJoystick.button(11);
+  }
 }

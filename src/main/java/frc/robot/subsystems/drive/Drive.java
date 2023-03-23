@@ -29,7 +29,7 @@ public class Drive extends SubsystemBase {
   private final GyroInputsAutoLogged m_gyroInputs;
 
   private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
-
+  private boolean m_hasResetOdometry;
   private double m_simGyroLastUpdated;
 
   /** Creates a new Drive. */
@@ -49,6 +49,18 @@ public class Drive extends SubsystemBase {
     }
     m_poseEstimator = new SwerveDrivePoseEstimator(
         Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
+    m_hasResetOdometry = false;
+  }
+
+  public Command resetFirmwareCommand() {
+    return run(() -> {
+      for (SwerveModuleIO module : m_modules) {
+        module.setUpModuleFirmware();
+        module.syncTurningEncoder();
+        // module.resetEncoders();
+      }
+    });
+
   }
 
   @Override
@@ -74,7 +86,12 @@ public class Drive extends SubsystemBase {
   public void simulationPeriodic() {
     double gyroDelta = getChassisSpeeds().omegaRadiansPerSecond;
     double ts = Timer.getFPGATimestamp();
+    Logger.getInstance().recordOutput("Drive/Pose", getPose());
+    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
+    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
 
+    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+        DriveConstants.kModuleTranslations);
     double deltaTime = ts - m_simGyroLastUpdated;
 
     m_gyro.addAngle(Rotation2d.fromRadians(gyroDelta * deltaTime));
@@ -88,10 +105,22 @@ public class Drive extends SubsystemBase {
   public void resetOdometry() {
     m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(),
         new Pose2d());//1.80, 1.14, new Rotation2d()
+    m_hasResetOdometry = true;
   }
 
   public void resetPose(Pose2d pose) {
     m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
+    m_hasResetOdometry = true;
+  }
+
+  public boolean hasResetOdometry() {
+    if (m_hasResetOdometry) {
+      m_hasResetOdometry = false;
+      return true;
+    } else {
+
+      return false;
+    }
   }
 
   public SwerveModulePosition[] getSwerveModulePositions() {

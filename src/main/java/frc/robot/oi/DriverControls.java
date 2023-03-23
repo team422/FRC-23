@@ -49,4 +49,6 @@ public interface DriverControls {
 
   public Trigger autoScore();
 
+  public Trigger resetDrive();
+
 }

@@ -41,7 +41,9 @@ public class CameraAprilTag extends SubsystemBase {
 
   public void periodic() {
     m_result = m_photonCamera.getLatestResult();
-
+    if (m_result.getTargets().size() < 2) {
+      return;
+    }
     m_photonEstimator.update(m_result).ifPresent(pose -> {
       lastPose3d = pose.estimatedPose;
       // System.out.println(pose.estimatedPose);
@@ -62,7 +64,7 @@ public class CameraAprilTag extends SubsystemBase {
     }
     Pose2d finalTagPose = tagPose.get().toPose2d();
     double distance = finalTagPose.getTranslation().getDistance(curRobotPose.estimatedPose.toPose2d().getTranslation());
-    return VecBuilder.fill(distance * 1, distance * 1, 50);
+    return VecBuilder.fill(distance * 0.1, distance * 0.1, 50);
   }
 
   public PhotonPipelineResult getPipelineResult() {

@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class Wrist extends SubsystemBase {
   private double kMinAngle;
@@ -60,10 +61,12 @@ public class Wrist extends SubsystemBase {
     // }
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Wrist", m_inputs);
-
+    Double curAngle = m_inputs.angleRad;
     double dt = Timer.getFPGATimestamp() - m_lastTime;
-
-    double pidVoltage = m_controller.calculate(m_inputs.angleRad, m_desiredAngle.getRadians());
+    if (Robot.isSimulation()) {
+      curAngle = -curAngle;
+    }
+    double pidVoltage = m_controller.calculate(curAngle, m_desiredAngle.getRadians());
     double positionSetpoint = m_controller.getSetpoint().position;
     // double positionSetpoint = m_controller.
     double velocitySetpoint = m_controller.getSetpoint().velocity;
@@ -72,8 +75,12 @@ public class Wrist extends SubsystemBase {
         accelerationSetpoint);
 
     double outputVoltage = pidVoltage + feedForwardVoltage;
+    if (Robot.isSimulation()) {
+      m_io.setVoltage(pidVoltage);
+    } else {
+      m_io.setVoltage(outputVoltage);
 
-    m_io.setVoltage(outputVoltage);
+    }
     // m_io.setVoltage(feedForwardVoltage);
 
     // Logger.getInstance().recordOutput("Wrist/PIDVoltage", pidVoltage);
@@ -89,6 +96,10 @@ public class Wrist extends SubsystemBase {
   public void reset() {
     setAngle(Rotation2d.fromRadians(m_inputs.angleRad));
     m_controller.reset(m_inputs.angleRad);
+  }
+
+  public boolean atSetpoint() {
+    return m_controller.atSetpoint();
   }
 
   public void setAngle(Rotation2d angle) {

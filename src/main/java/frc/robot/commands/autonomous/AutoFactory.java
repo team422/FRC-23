@@ -47,12 +47,12 @@ public class AutoFactory extends CommandBase {
     Command coneHigh = Commands.sequence(
         m_intake.setDesiredSpeedCommand(-0.2),
         m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpoints[0]),
-        Commands.waitSeconds(0.5),
+        Commands.waitSeconds(0.1),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.coneHighCommandSetpoints[1])),
         Commands.print("coneHighElevator"));
     Command cubeHigh = Commands.sequence(
         m_elevator.setHeightCommand(Setpoints.cubeHighCommandSetpoints[0]),
-        Commands.waitSeconds(.5),
+        Commands.waitSeconds(.2),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.cubeHighCommandSetpoints[1])),
         Commands.print("coneHighElevator"));
 
@@ -65,9 +65,17 @@ public class AutoFactory extends CommandBase {
 
     Command cubeGround = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.pickUpCubeGroundCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpCubeGroundCommandSetpoints[1])),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpCubeGroundCommandSetpoints[1] - 5)),
         m_intake.setDesiredSpeedCommand(0),
         Commands.print("cubeGround"));
+    Command coneGround = Commands.parallel(
+        m_elevator.setHeightCommand(Setpoints.pickUpConeGroundCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpConeGroundCommandSetpoints[1] - 3)),
+        Commands.print("coneground"));
+    Command coneVertical = Commands.parallel(
+        m_elevator.setHeightCommand(Setpoints.pickUpConeVerticalCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpConeVerticalCommandSetpoints[1])),
+        Commands.print("coneVertical"));
     Command cubeGroundBump = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.pickUpCubeGroundCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpCubeGroundCommandSetpoints[1])),
@@ -78,7 +86,7 @@ public class AutoFactory extends CommandBase {
     Command zeroHeading = new ZeroHeading(m_drive);
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
-    Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.5);
+    Command cubeDrop = m_intake.setDesiredSpeedCommand(-1);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(
@@ -87,11 +95,13 @@ public class AutoFactory extends CommandBase {
         Map.entry("setpointCubeGroundBump", cubeGroundBump),
         Map.entry("setpointConeHigh", coneHigh),
         Map.entry("setpointCubeHigh", cubeHigh),
+        Map.entry("setpointConeGround", coneGround),
         Map.entry("intakeCubeIn", cubePickup),
+        Map.entry("setpointConeVertical", coneVertical),
         Map.entry("intakeCubeOut", cubeDrop),
         Map.entry("intakeConeIn", conePickup),
         Map.entry("intakeConeOut", coneDrop),
-        Map.entry("wait", Commands.waitSeconds(.3)),
+        Map.entry("wait", Commands.waitSeconds(.2)),
         Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),

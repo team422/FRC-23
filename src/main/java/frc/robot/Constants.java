@@ -133,6 +133,7 @@ public final class Constants {
     // LED constants
     public static final int kLEDLength = 150;
     public static final int kLEDPort = 0;
+    public static final int kLEDPort2 = 1;
   }
 
   public static final class ElevatorConstants {
@@ -191,7 +192,7 @@ public final class Constants {
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;
-    public static final double kMaxSpeedMetersPerSecond = 4.3; // 8.5
+    public static final double kMaxSpeedMetersPerSecond = 8.5; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
 
     public static final double kMaxAcceptedErrorMeters = 0.5;
@@ -200,12 +201,12 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
-    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
+    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);
 
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(180);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
-    public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
-        new PIDController(.01, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
+    public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(1.0, 0, 0),
+        new PIDController(.03, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
   }
@@ -260,8 +261,8 @@ public final class Constants {
     public static final int leftRearCanCoderPort = 16;
 
     // Right Rear Ports
-    public static final int rightRearDriveMotorPort = 8;
-    public static final int rightRearTurningMotorPort = 3;
+    public static final int rightRearDriveMotorPort = 3;
+    public static final int rightRearTurningMotorPort = 8;
     public static final int rightRearCanCoderPort = 15;
   }
 
@@ -271,12 +272,12 @@ public final class Constants {
     public static final String klimelightName = "limelight";
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
-    public static final String khighCamera = "AprilTagCameraGreen";
-    public static final Transform3d khighCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
-        new Rotation3d(0, Units.degreesToRadians(12), 0));
-    public static final String klowCameraName = "AprilTagCameraGray";
-    public static final Transform3d klowCameraTransform = new Pose3d(new Translation3d(
+    public static final String kRightCamera = "AprilTagCameraGreen";
+    public static final Transform3d kRightCameraTransform = new Pose3d(new Translation3d(
+        Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(36.65)),
+        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(-15))).minus(new Pose3d());
+    public static final String kleftCameraName = "AprilTagCameraGray";
+    public static final Transform3d kleftCameraTransform = new Pose3d(new Translation3d(
         Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(36.65)),
         new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
   }
