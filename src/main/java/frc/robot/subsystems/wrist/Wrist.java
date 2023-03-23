@@ -86,8 +86,8 @@ public class Wrist extends SubsystemBase {
     // Logger.getInstance().recordOutput("Wrist/PIDVoltage", pidVoltage);
     // Logger.getInstance().recordOutput("Wrist/FFVoltage", feedForwardVoltage);
     // Logger.getInstance().recordOutput("Wrist/OutputVoltage", outputVoltage);
-    // Logger.getInstance().recordOutput("Wrist/SetpointDegrees", m_desiredAngle.getDegrees());
-    // Logger.getInstance().recordOutput("Wrist/AngleDeg", Units.radiansToDegrees(m_inputs.angleRad));
+    Logger.getInstance().recordOutput("Wrist/SetpointDegrees", m_desiredAngle.getDegrees());
+    Logger.getInstance().recordOutput("Wrist/AngleDeg", Units.radiansToDegrees(m_inputs.angleRad));
 
     m_lastTime = Timer.getFPGATimestamp();
     m_lastVelocitySetpoint = velocitySetpoint;

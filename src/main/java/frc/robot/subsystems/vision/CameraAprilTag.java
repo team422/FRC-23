@@ -42,7 +42,9 @@ public class CameraAprilTag extends SubsystemBase {
   public void periodic() {
     m_result = m_photonCamera.getLatestResult();
     if (m_result.getTargets().size() < 2) {
-      return;
+      m_photonEstimator.update(m_result).ifPresent(pose -> {
+        frc.robot.RobotState.getInstance().setCamPositionLowConfidence(pose.estimatedPose);
+      });
     }
     m_photonEstimator.update(m_result).ifPresent(pose -> {
       lastPose3d = pose.estimatedPose;
@@ -62,6 +64,7 @@ public class CameraAprilTag extends SubsystemBase {
     if (tagPose.isEmpty()) {
       return VecBuilder.fill(100, 100, 100);
     }
+    frc.robot.RobotState.getInstance().set3dPosition(lastPose3d);
     Pose2d finalTagPose = tagPose.get().toPose2d();
     double distance = finalTagPose.getTranslation().getDistance(curRobotPose.estimatedPose.toPose2d().getTranslation());
     return VecBuilder.fill(distance * 0.1, distance * 0.1, 50);

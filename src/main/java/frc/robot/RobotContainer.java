@@ -5,10 +5,12 @@
 package frc.robot;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -24,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
@@ -79,6 +82,9 @@ public class RobotContainer {
   private AutoFactory m_autoFactory;
   private AprilTagFieldLayout m_layout;
   private LED m_LED;
+  private LED m_LED2;
+  private String m_curSelectedAuto;
+  private List<PathPlannerTrajectory> m_traj;
   // private LED m_LED2;
 
   // Dashboard inputs
@@ -152,7 +158,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(33 + 90 - 60 - 8)), // 253
+          Units.degreesToRadians(0)), // 253
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -187,6 +193,7 @@ public class RobotContainer {
           WristConstants.kMinAngle, WristConstants.kMaxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
+      // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     }
 
@@ -384,14 +391,42 @@ public class RobotContainer {
   }
 
   public void disabledPeriodic() {
-    if (Robot.isSimulation()) {
-      return;
-    } else {
-      return;
+    // if (Robot.isSimulation()) {
+    //   return;
+    // } else {
+
+    String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+    if (selectedAuto != m_curSelectedAuto) {
+      m_curSelectedAuto = selectedAuto;
+      m_traj = m_autoFactory.loadPathGroupByName(selectedAuto);
     }
-    // String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
-    // List<PathPlannerTrajectory> traj = m_autoFactory.loadPathGroupByName(selectedAuto);
-    // Pose2d desPose = traj.get(0).getInitialPose();
+    if (m_traj != null) {
+      Pose2d desPose = m_traj.get(0).getInitialPose();
+
+      Pose2d pose = RobotState.getInstance().getCamPositionLowConfidence().toPose2d();
+
+      if (pose != null) {
+        // m_LED.setSolidColorNumber(Color.kBlue,
+        //     (int) Math.ceil(pose.getTranslation().getDistance(new Translation3d(0, 0, 0))));
+        double distanceXY = pose.getTranslation().getDistance(desPose.getTranslation());
+        double distanceTheta = Math.abs(pose.getRotation().getDegrees() - desPose.getRotation().getDegrees());
+        if (distanceXY > Units.inchesToMeters(1)) {
+          m_LED.setSolidColorNumber(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta));
+        } else if (distanceTheta > 1) {
+          m_LED.setSolidColorNumber(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta));
+        } else {
+          m_LED.setSolidColor(Color.kGreen);
+        }
+
+      } else {
+        m_LED.setSolidColor(Color.kBlue);
+      }
+    } else {
+      m_LED.setSolidColor(Color.kBrown);
+    }
+
+    // }
+
     // Pose2d curPose = m_drive.getPose();
     // double error = curPose.getTranslation().getDistance(desPose.getTranslation());
     // if (error > Units.inchesToMeters(1)) {

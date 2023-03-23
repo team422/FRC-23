@@ -36,14 +36,14 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
 
-  public void setSolidColorNumber(Color color, int length) {
+  public void setSolidColorNumber(Color color, Color secondColor, int length) {
     length = Math.min(length, m_LEDStripBuffer.getLength());
     for (int i = 0; i < length; i++) {
       m_LEDStripBuffer.setLED(i, color);
     }
     if (length < m_LEDStripBuffer.getLength()) {
       for (int i = length; i < m_LEDStripBuffer.getLength(); i++) {
-        m_LEDStripBuffer.setLED(i, Color.kGreen);
+        m_LEDStripBuffer.setLED(i, secondColor);
       }
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
