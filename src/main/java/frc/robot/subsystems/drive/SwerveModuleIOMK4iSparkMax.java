@@ -20,22 +20,26 @@ import frc.robot.util.TunableNumber;
 
 public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
-  private final CANSparkMax m_driveMotor;
-  private final CANSparkMax m_turningMotor;
+  private CANSparkMax m_driveMotor;
+  private CANSparkMax m_turningMotor;
 
-  private final RelativeEncoder m_driveEncoder;
-  private final RelativeEncoder m_turningEncoder;
+  private RelativeEncoder m_driveEncoder;
+  private RelativeEncoder m_turningEncoder;
 
-  private final CANCoder m_turningCANCoder; // THIS MAY HAVE TO BE CHANGED BACK TO AN ANALOG ENCODER
+  private CANCoder m_turningCANCoder; // THIS MAY HAVE TO BE CHANGED BACK TO AN ANALOG ENCODER
   // absolute offset for the CANCoder so that the wheels can be aligned when the
   // robot is turned on
   //    private final Rotation2d m_CANCoderOffset;
 
-  private final SparkMaxPIDController m_turningController;
-  private final SparkMaxPIDController m_driveController;
+  private SparkMaxPIDController m_turningController;
+  private SparkMaxPIDController m_driveController;
 
   private double adjustedSpeed;
   private String name;
+
+  private int m_driveMotorChannel;
+  private int m_turningMotorChannel;
+  private int m_turningCANCoderChannel;
 
   public static class ModuleConstants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
@@ -60,14 +64,24 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
       int driveMotorChannel,
       int turningMotorChannel,
       int turningCANCoderChannel) {
-    CanSparkMaxSetup setup = new CanSparkMaxSetup();
+
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
+    m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
+    m_turningCANCoder = new CANCoder(m_turningCANCoderChannel);
     // m_driveMotor.burnFlash();
+    driveMotorChannel = m_driveMotorChannel;
+    turningMotorChannel = m_turningMotorChannel;
+    m_turningCANCoderChannel = turningCANCoderChannel;
+    setUpModuleFirmware();
+
+  }
+
+  public void setUpModuleFirmware() {
+    CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_driveMotor.restoreFactoryDefaults();
     setup.setupSparkMaxSlow(m_driveMotor);
     m_driveMotor.setInverted(true);
     m_driveMotor.setIdleMode(IdleMode.kCoast);
-    m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
     m_turningMotor.restoreFactoryDefaults();
     // m_turningMotor.burnFlash();
     m_turningMotor.setIdleMode(IdleMode.kBrake);
@@ -76,8 +90,6 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     setup.setupSparkMaxSlow(m_turningMotor);
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
-
-    m_turningCANCoder = new CANCoder(turningCANCoderChannel);
 
     m_turningCANCoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningCANCoder.configSensorDirection(false);

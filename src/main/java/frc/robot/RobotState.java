@@ -264,10 +264,31 @@ public class RobotState {
     return Math.sqrt(1 - travelPercent);
   }
 
-  public Command setpointCommand(double[] setpoint) {
-    return Commands.parallel(
-        m_elevator.setHeightCommand(setpoint[0]),
+  public Command setpointCommandCube(double[] setpoint) {
+    return m_elevator.setHeightCommandContinously(setpoint[0]).until(() -> {
+      return m_elevator.atSetpoint();
+    }).andThen(
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
+  }
+
+  public Command setpointCommandCone(double[] setpoint) {
+    return Commands.sequence(m_wrist.setAngleCommand(Rotation2d.fromDegrees(75)),
+        m_elevator.setHeightCommandContinously(setpoint[0]).until(() -> {
+          return m_elevator.atSetpoint();
+        })).andThen(
+            m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
+  }
+
+  public Command setpointCommandParallel(double[] setpoint) {
+    return Commands.parallel(m_elevator.setHeightCommandContinously(setpoint[0]).until(() -> {
+      return m_elevator.atSetpoint();
+    }), m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
+  }
+
+  public Command safeBack(double[] setpoint) {
+    return m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])).until(() -> {
+      return m_wrist.atSetpoint();
+    }).andThen();
   }
 
   public Command autoScore(Supplier<Pose3d> intakeEndPoseSup, Supplier<Rotation2d> intakeAngleSup,
@@ -278,20 +299,28 @@ public class RobotState {
     System.out.println(intakeEndPose);
     System.out.println(intakeAngle);
     System.out.println(distanceToIntake);
-    return Commands.parallel(
-        new DriveToPoint(m_drive,
-            () -> RobotState.getInstance()
-                .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
-                .getPose(),
-            Constants.DriveConstants.holonomicDrive,
-            () -> 0.0,
-            () -> 0.0, () -> 0.0),
-        m_elevator.setHeightCommand(RobotState.getInstance()
-            .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
-            .getHeightOfElevator()),
-        m_wrist.setAngleCommand(RobotState.getInstance()
-            .getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
-            .getAngleOfWrist()));
+    return Commands.sequence(
+        Commands.runOnce(
+            () -> RobotState.getInstance().getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(),
+                distanceToIntakeSup.get())),
+        Commands.parallel(
+            new DriveToPoint(m_drive,
+                () -> RobotState.getInstance()
+                    .getScoringSetpoint()
+                    //.getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(), distanceToIntakeSup.get())
+                    .getPose(),
+                Constants.DriveConstants.holonomicDrive,
+                () -> 0.0,
+                () -> 0.0, () -> 0.0),
+            Commands.runOnce(() -> m_elevator.setHeight(RobotState.getInstance()
+                .getScoringSetpoint()
+                .getHeightOfElevator())),
+            Commands.runOnce(() -> m_wrist.setAngle(RobotState.getInstance()
+                .getScoringSetpoint()
+                .getAngleOfWrist())),
+            Commands.runOnce(() -> System.out.println(RobotState.getInstance()
+                .getScoringSetpoint()
+                .getHeightOfElevator()))));
 
   }
 
@@ -307,11 +336,13 @@ public class RobotState {
         - Constants.ElevatorConstants.kDistanceToCenterOfRobot + distanceToIntake;
     System.out.println(
         "intkae length:" + intakeLength +
-            "intake Height " + intakeHeight +
-            "Arm Length " + armLength +
-            "elevatorWantedHeight" + elevatorWantedHeight +
-            "elevatorXMeters" + elevatorXMeters +
+            " intake Height " + intakeHeight +
+            " Arm Length " + armLength +
+            " elevatorWantedHeight " + elevatorWantedHeight +
+            " elevatorXMeters " + elevatorXMeters +
             "x final distance" + xDistance);
+
+    System.out.println("desired pose: " + intakeEndPose);
     // for the sake of not overrunning the loop, we only check a setpoint every 10 degrees starting from x + distance 
     ArrayList<Pose2d> poses = new ArrayList<>();
     for (int i = -2; i < 2; i++) {
@@ -324,6 +355,7 @@ public class RobotState {
               .plus(new Transform2d(new Translation2d(x, y), angle.plus(Rotation2d.fromDegrees(180)))));
     }
     double minDistance = Double.MAX_VALUE;
+
     Pose2d closestPose = new Pose2d();
     for (Pose2d pose : poses) {
       double distance = pose.getTranslation().getDistance(m_drive.getPose().getTranslation());
@@ -340,6 +372,7 @@ public class RobotState {
 
     Logger.getInstance().recordOutput("RobotState/BestClosestPose", closestPose);
     // System.out.println("Closest Pose: " + closestPose);
+    System.out.println("height of elevator: " + elevatorWantedHeight);
     FullDesiredRobotState desiredRobotState = new FullDesiredRobotState(closestPose, elevatorWantedHeight,
         intakeAngle);
     RobotState.getInstance().setScoringSetpoint(desiredRobotState);
@@ -351,6 +384,7 @@ public class RobotState {
   }
 
   public FullDesiredRobotState getScoringSetpoint() {
+    System.out.println("scoring pose: " + this.m_scoringPose);
     return this.m_scoringPose;
   }
 
@@ -377,7 +411,12 @@ public class RobotState {
   }
 
   public Pose3d getScoringPose() {
-    return fieldGeomUtil.getScoringPose(m_scoringSetpoint);
+    return fieldGeomUtil.getClosestScoringPose(m_drive.getPose(), m_height);
+    // return fieldGeomUtil.getClosestScoringPose();
+  }
+
+  public void setClosestScoringPoseName(String name) {
+    m_scoringSetpoint = name;
   }
 
 }

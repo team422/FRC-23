@@ -151,7 +151,16 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setHeightCommand(double heightMeters) {
+
     return runOnce(() -> setHeight(heightMeters));
+  }
+
+  public Command setHeightCommandContinously(double heightMeters) {
+    return run(() -> setHeight(heightMeters));
+  }
+
+  public boolean atSetpoint() {
+    return Math.abs(getTravelDistanceMeters() - m_desiredHeight) < 0.5;
   }
 
   public Command moveCommand(Supplier<Double> heightDelta) {
