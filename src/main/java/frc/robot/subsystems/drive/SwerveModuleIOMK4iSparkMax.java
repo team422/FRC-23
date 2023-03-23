@@ -66,23 +66,20 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
       int turningCANCoderChannel) {
 
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
+    m_driveMotor.restoreFactoryDefaults();
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
+    m_turningMotor.restoreFactoryDefaults();
     m_turningCANCoder = new CANCoder(m_turningCANCoderChannel);
-    // m_driveMotor.burnFlash();
     driveMotorChannel = m_driveMotorChannel;
     turningMotorChannel = m_turningMotorChannel;
     m_turningCANCoderChannel = turningCANCoderChannel;
-    setUpModuleFirmware();
-
-  }
-
-  public void setUpModuleFirmware() {
+    // setUpModuleFirmware();
     CanSparkMaxSetup setup = new CanSparkMaxSetup();
-    m_driveMotor.restoreFactoryDefaults();
+
     setup.setupSparkMaxSlow(m_driveMotor);
     m_driveMotor.setInverted(true);
     m_driveMotor.setIdleMode(IdleMode.kCoast);
-    m_turningMotor.restoreFactoryDefaults();
+
     // m_turningMotor.burnFlash();
     m_turningMotor.setIdleMode(IdleMode.kBrake);
     // m_driveMotor.burnFlash();
@@ -123,6 +120,13 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_driveController.setP(ModuleConstants.kDriveP.get());
     m_driveController.setI(ModuleConstants.kDriveI.get());
     m_driveController.setD(ModuleConstants.kDriveD.get());
+    m_driveMotor.burnFlash();
+    m_turningMotor.burnFlash();
+
+  }
+
+  public void setUpModuleFirmware() {
+
   }
 
   public String getName() {

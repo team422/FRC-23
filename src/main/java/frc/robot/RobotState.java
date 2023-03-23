@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.ExtendedPathPoint;
@@ -57,6 +58,11 @@ public class RobotState {
 
   public String m_scoringSetpoint = "blueFirstGridLeftHigh";
 
+  public Pose3d m_robotPose = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+  public double m_lastCameraTimestamp = -10;
+  public Pose3d m_robotPoseLowConfidence = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+  public double m_lastCameraTimestampLowConfidence = -10;
+
   public FullDesiredRobotState m_scoringPose = new FullDesiredRobotState(new Pose2d(), 0,
       Rotation2d.fromDegrees(0));
 
@@ -80,6 +86,28 @@ public class RobotState {
       throw new RuntimeException("RobotState not initialized");
     }
     return instance;
+  }
+
+  public Pose3d get3dPosition() {
+    if (m_lastCameraTimestamp - Timer.getFPGATimestamp() > 0.1) {
+      return null;
+    }
+    return m_robotPose;
+
+  }
+
+  public Pose3d getCamPositionLowConfidence() {
+    return m_robotPoseLowConfidence;
+  }
+
+  public void setCamPositionLowConfidence(Pose3d pose) {
+    m_robotPoseLowConfidence = pose;
+    m_lastCameraTimestampLowConfidence = Timer.getFPGATimestamp();
+  }
+
+  public void set3dPosition(Pose3d pose) {
+    m_robotPose = pose;
+    m_lastCameraTimestamp = Timer.getFPGATimestamp();
   }
 
   public void increasePoseSetpoint() {

@@ -72,6 +72,8 @@ public final class Constants {
     public static final ExtendedPathPoint blueFirstGridLeftCone = new ExtendedPathPoint(
         new Translation2d(1.84 + .4, 0.43),
         new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint centerOfChargeStation = new ExtendedPathPoint(new Translation2d(3.88, 2.94),
+        new Rotation2d(), Rotation2d.fromDegrees(0));
     public static final ExtendedPathPoint blueFirstGridCube = new ExtendedPathPoint(new Translation2d(1.84 + .4, 1.08),
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint blueFirstGridRightCone = new ExtendedPathPoint(
@@ -131,7 +133,7 @@ public final class Constants {
 
   public static final class LEDConstants {
     // LED constants
-    public static final int kLEDLength = 150;
+    public static final int kLEDLength = 40;
     public static final int kLEDPort = 0;
     public static final int kLEDPort2 = 1;
   }
