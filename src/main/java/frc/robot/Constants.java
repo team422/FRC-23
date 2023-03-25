@@ -59,7 +59,8 @@ public final class Constants {
     public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 - 4.25 };
     public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 - 4.25 };
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(44.489), 40 };
-    public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(47), 50 };
+    public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(48), 22 - 4.25 };
+    // public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(47), 50 };
     public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 - 4.25 };
     public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 - 4.25 };
     // side is considered the side of the field without drivers, wall has drivers

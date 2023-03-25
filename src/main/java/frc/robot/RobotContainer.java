@@ -467,8 +467,8 @@ public class RobotContainer {
   }
 
   public void checkLock() {
-    if (Timer.getMatchTime() < 0.125) {
-      m_drive.removeDefaultCommand();
+    if (Timer.getMatchTime() < 0.125 && DriverStation.isFMSAttached()) {
+      // m_drive.removeDefaultCommand();
       m_drive.xBrakeCommand().schedule();
     }
   }
