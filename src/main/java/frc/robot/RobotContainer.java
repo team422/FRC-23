@@ -7,6 +7,7 @@ package frc.robot;
 import java.io.IOException;
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -35,13 +36,14 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.drive.DriveToNode;
-import frc.robot.commands.drive.TeloepDrive;
+import frc.robot.commands.drive.TeleopDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsDualFlightStick;
 import frc.robot.oi.OperatorControls;
@@ -94,10 +96,17 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureLogging();
     configureAprilTags();
     configureSubsystems();
     configureButtonBindings();
     configureAuto();
+  }
+
+  public void configureLogging() {
+    if (!RobotConstants.AScopeLogging) {
+      Logger.getInstance().end();
+    }
   }
 
   public void configureAprilTags() {
@@ -120,8 +129,8 @@ public class RobotContainer {
     m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
 
     // Add basic autonomous commands
-    // m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
-    m_autoChooser.addDefaultOption("Top Cone Cube", Commands.none());
+    m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+    // m_autoChooser.addDefaultOption("three_wall", Commands.none());
 
     // Add PathPlanner Auto Commands
     PathPlannerUtil.getExistingPaths().forEach(path -> {
@@ -207,7 +216,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     DriverControls driverControls = new DriverControlsDualFlightStick(
-        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
+        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort,
+        DriveConstants.kDriveDeadband);
     // TeloepDriveTurnPID teleopDrive = new TeloepDriveTurnPID(m_drive, Constants.DriveConstants.holonomicDrive,
     //     driverControls::getDriveForward,
     //     driverControls::getDriveLeft,
@@ -215,7 +225,7 @@ public class RobotContainer {
     //     Constants.DriveConstants.kDriveDeadband,
     //     DriveConstants.kMaxAcceptedErrorMeters,
     //     DriveConstants.kMaxAcceptedAngleError);
-    TeloepDrive teleopDrive = new TeloepDrive(m_drive, driverControls::getDriveForward, driverControls::getDriveLeft,
+    TeleopDrive teleopDrive = new TeleopDrive(m_drive, driverControls::getDriveForward, driverControls::getDriveLeft,
         driverControls::getDriveRotation, DriveConstants.kDriveDeadband);
     m_drive.setDefaultCommand(teleopDrive);
 
@@ -400,29 +410,41 @@ public class RobotContainer {
       m_curSelectedAuto = selectedAuto;
       m_traj = m_autoFactory.loadPathGroupByName(selectedAuto);
     }
+
     if (m_traj != null) {
-      Pose2d desPose = m_traj.get(0).getInitialPose();
+      Pose2d desPose = m_traj.get(0).transformTrajectoryForAlliance(m_traj.get(0), DriverStation.getAlliance())
+          .getInitialHolonomicPose();
+      Logger.getInstance().recordOutput("Drive/wantedAutoPose", desPose);
 
       Pose2d pose = RobotState.getInstance().getCamPositionLowConfidence().toPose2d();
 
       if (pose != null) {
         // m_LED.setSolidColorNumber(Color.kBlue,
         //     (int) Math.ceil(pose.getTranslation().getDistance(new Translation3d(0, 0, 0))));
-        double distanceXY = pose.getTranslation().getDistance(desPose.getTranslation());
+        double distanceXY = Units.metersToInches(pose.getTranslation().getDistance(desPose.getTranslation()));
+        // System.out.println(distanceXY);
         double distanceTheta = Math.abs(pose.getRotation().getDegrees() - desPose.getRotation().getDegrees());
-        if (distanceXY > Units.inchesToMeters(1)) {
-          m_LED.setSolidColorNumber(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta));
-        } else if (distanceTheta > 1) {
-          m_LED.setSolidColorNumber(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta));
+        if (distanceTheta > 300) {
+          distanceTheta = Math.abs(360 - distanceTheta);
+        }
+        // System.out.println(distanceXY);
+        // System.out.println(distanceTheta);
+        if (distanceXY > 2) {
+          m_LED.setSolidColorNumberCommand(Color.kYellow, Color.kGreen, (int) Math.ceil(distanceXY))
+              .ignoringDisable(true).schedule();
+        } else if (distanceTheta > 2) {
+          m_LED.setSolidColorNumberCommand(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta))
+              .ignoringDisable(true).schedule();
         } else {
-          m_LED.setSolidColor(Color.kGreen);
+          // System.out.println("kBlue");
+          m_LED.setSolidColorCommand(Color.kBlue).ignoringDisable(true).schedule();
         }
 
       } else {
-        m_LED.setSolidColor(Color.kBlue);
+        m_LED.setSolidColorCommand(Color.kRed);
       }
     } else {
-      m_LED.setSolidColor(Color.kBrown);
+      m_LED.setSolidColorCommand(Color.kBrown);
     }
 
     // }

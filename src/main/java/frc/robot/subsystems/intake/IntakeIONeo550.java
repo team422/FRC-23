@@ -18,7 +18,7 @@ public class IntakeIONeo550 implements IntakeIO {
 
   @Override
   public void setIntakeVoltage(double voltage) {
-    voltage = MathUtil.clamp(voltage, -9, 9);
+    voltage = MathUtil.clamp(voltage, -11, 11);
     m_intakeMotor.setVoltage(voltage);
   }
 

@@ -44,23 +44,23 @@ public final class Constants {
   public static final class RobotConstants {
 
     public static final double robotWidth = Units.inchesToMeters(27.5);
-
+    public static final boolean AScopeLogging = true;
   }
 
   public static final class Setpoints {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
-    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
+    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 - 4.25 }; // OLD might revert
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
-    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -19 };
-    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
-    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 };
-    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 };
-    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 };
-    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 };
+    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 - 4.25 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -19 - 4.25 };
+    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 - 4.25 };
+    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 - 4.25 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 - 4.25 };
+    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 - 4.25 };
+    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 - 4.25 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 - 4.25 };
+    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 - 4.25 };
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
         new Translation2d(15.8, 7.37),
@@ -73,7 +73,7 @@ public final class Constants {
         new Translation2d(1.84 + .4, 0.43),
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint centerOfChargeStation = new ExtendedPathPoint(new Translation2d(3.88, 2.94),
-        new Rotation2d(), Rotation2d.fromDegrees(0));
+        new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint blueFirstGridCube = new ExtendedPathPoint(new Translation2d(1.84 + .4, 1.08),
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint blueFirstGridRightCone = new ExtendedPathPoint(
@@ -100,7 +100,7 @@ public final class Constants {
     public static final ExtendedPathPoint blueRightOfBalance = new ExtendedPathPoint(new Translation2d(3.74, 0.68),
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint bluePreLoadingStation = new ExtendedPathPoint(new Translation2d(12.77, 6.36),
-        new Rotation2d(), Rotation2d.fromDegrees(0));
+        new Rotation2d(), Rotation2d.fromDegrees(90));
     public static final ExtendedPathPoint redLeftWallLoadingStation = blueLeftWallLoadingStation.flipPathPoint();
     public static final ExtendedPathPoint redRightWallLoadingStation = blueRightWallLoadingStation.flipPathPoint();
     public static final ExtendedPathPoint redFirstGridLeftCone = blueFirstGridLeftCone.flipPathPoint();
@@ -179,7 +179,7 @@ public final class Constants {
 
   public static final class DriveConstants {
 
-    public static final double kDriveDeadband = 0.1;
+    public static final double kDriveDeadband = 0.04;
 
     public static final double kWheelDiameter = Units.inchesToMeters(3.7);
 
@@ -195,6 +195,7 @@ public final class Constants {
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;
     public static final double kMaxSpeedMetersPerSecond = 8.5; // 8.5
+    public static final double kMaxHighElevatorSpeedMetersPerSecond = 2.5; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
 
     public static final double kMaxAcceptedErrorMeters = 0.5;
@@ -204,6 +205,7 @@ public final class Constants {
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);
+    public static final double kMaxHighElevatorAngularSpeedRadiansPerSecond = Units.degreesToRadians(120);
 
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(180);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);

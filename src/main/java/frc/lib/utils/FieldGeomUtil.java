@@ -23,8 +23,8 @@ public class FieldGeomUtil {
   public FieldGeomUtil() {
     m_allianceColor = DriverStation.getAlliance();
 
-    allPoints.put("blueLeftWallLoadingStation", Constants.Setpoints.blueLeftWallLoadingStation);
-    allPoints.put("blueRightWallLoadingStation", Constants.Setpoints.blueRightWallLoadingStation);
+    // allPoints.put("blueLeftWallLoadingStation", Constants.Setpoints.blueLeftWallLoadingStation);
+    // allPoints.put("blueRightWallLoadingStation", Constants.Setpoints.blueRightWallLoadingStation);
     allPoints.put("blueFirstGridLeftCone", Constants.Setpoints.blueFirstGridLeftCone);
     allPoints.put("blueFirstGridCube", Constants.Setpoints.blueFirstGridCube);
     allPoints.put("blueFirstGridRightCone", Constants.Setpoints.blueFirstGridRightCone);

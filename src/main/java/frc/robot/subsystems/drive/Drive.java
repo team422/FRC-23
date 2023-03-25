@@ -11,10 +11,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
@@ -31,16 +33,19 @@ public class Drive extends SubsystemBase {
   private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
   private boolean m_hasResetOdometry;
   private double m_simGyroLastUpdated;
+  private double m_lastFPGATimestamp;
 
   /** Creates a new Drive. */
   public Drive(GyroIO gyro, Pose2d startPose, SwerveModuleIO... modules) {
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
-    for (SwerveModuleIO module : m_modules) {
-      module.resetDistance();
-      module.syncTurningEncoder();
-      // module.resetEncoders();
+    for (int i = 0; i < 10; i++) {
+      for (SwerveModuleIO module : m_modules) {
+        module.resetDistance();
+        module.syncTurningEncoder();
+        // module.resetEncoders();
+      }
     }
 
     m_inputs = new SwerveModuleInputsAutoLogged[modules.length];
@@ -50,17 +55,24 @@ public class Drive extends SubsystemBase {
     m_poseEstimator = new SwerveDrivePoseEstimator(
         Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
     m_hasResetOdometry = false;
+    m_lastFPGATimestamp = Timer.getFPGATimestamp();
   }
 
   public Command resetFirmwareCommand() {
-    return run(() -> {
-      for (SwerveModuleIO module : m_modules) {
-        module.setUpModuleFirmware();
-        module.syncTurningEncoder();
-        // module.resetEncoders();
-      }
-    });
+    return Commands.none();
+    // return run(() -> {
+    //   for (SwerveModuleIO module : m_modules) {
+    //     module.syncTurningEncoder();
+    //     // module.resetEncoders();
+    //   }
+    // });
+  }
 
+  public void resetFirmware() {
+    for (SwerveModuleIO module : m_modules) {
+      module.syncTurningEncoder();
+      module.setUpModuleFirmware();
+    }
   }
 
   @Override
@@ -77,8 +89,14 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
     Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
-    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
-        DriveConstants.kModuleTranslations);
+    if (RobotConstants.AScopeLogging) {
+      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+          DriveConstants.kModuleTranslations);
+    }
+    if (m_lastFPGATimestamp < Timer.getFPGATimestamp()) {
+      m_lastFPGATimestamp = Timer.getFPGATimestamp() + 1;
+      resetFirmware();
+    }
 
   }
 
@@ -89,9 +107,10 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
     Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
-
-    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
-        DriveConstants.kModuleTranslations);
+    if (RobotConstants.AScopeLogging) {
+      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+          DriveConstants.kModuleTranslations);
+    }
     double deltaTime = ts - m_simGyroLastUpdated;
 
     m_gyro.addAngle(Rotation2d.fromRadians(gyroDelta * deltaTime));

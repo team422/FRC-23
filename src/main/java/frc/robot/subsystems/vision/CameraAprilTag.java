@@ -41,7 +41,7 @@ public class CameraAprilTag extends SubsystemBase {
 
   public void periodic() {
     m_result = m_photonCamera.getLatestResult();
-    if (m_result.getTargets().size() < 2) {
+    if (m_result.getTargets().size() < 0) {
       m_photonEstimator.update(m_result).ifPresent(pose -> {
         frc.robot.RobotState.getInstance().setCamPositionLowConfidence(pose.estimatedPose);
       });

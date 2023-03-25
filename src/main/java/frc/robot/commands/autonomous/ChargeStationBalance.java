@@ -1,14 +1,10 @@
 package frc.robot.commands.autonomous;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.Setpoints;
-import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 
 public class ChargeStationBalance extends CommandBase {
@@ -33,12 +29,12 @@ public class ChargeStationBalance extends CommandBase {
     //       m_turnController.calculate(m_drive.getPose().getRotation().getRadians(), Math.PI),
     //       m_drive.getPose().getRotation()));
     // } else {
-    Pose3d curPose3d = RobotState.getInstance().get3dPosition();
-    if (curPose3d != null && Math.abs(m_drive.getGyro().getPitch().getRadians()) < Units.degreesToRadians(11)) {
-      m_drive.drive(DriveConstants.holonomicDrive.calculate(curPose3d.toPose2d(), Setpoints.centerOfChargeStation,
-          () -> 0.0, () -> 0.0, () -> 0.0, true));
-
-    } else if (Timer.getMatchTime() < .5) {
+    // Pose3d curPose3d = RobotState.getInstance().getCamPositionLowConfidence();
+    // if (curPose3d != null && Math.abs(m_drive.getGyro().getPitch().getRadians()) < Units.degreesToRadians(6)) {
+    //   m_drive.drive(DriveConstants.holonomicDrive.calculate(curPose3d.toPose2d(), Setpoints.centerOfChargeStation,
+    //       () -> 0.0, () -> 0.0, () -> 0.0, true));
+    // } else
+    if (Timer.getMatchTime() < .125) {
       m_drive.xBrake();
     } else if (Math.abs(m_drive.getGyro().getPitch().getDegrees()) < 2.5) {
       m_drive.xBrake();

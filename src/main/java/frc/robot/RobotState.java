@@ -40,10 +40,10 @@ public class RobotState {
   public Elevator m_elevator;
   public Wrist m_wrist;
 
-  public Pose3d m_armPosition;
-  public Pose3d m_wristPosition;
-  public Pose3d m_intakePosition;
-  public Pose3d m_elevatorPosition;
+  public Pose3d m_armPosition = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+  public Pose3d m_wristPosition = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+  public Pose3d m_intakePosition = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+  public Pose3d m_elevatorPosition = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
 
   public double elevatorYMeters;
   public double elevatorXMeters;
@@ -65,6 +65,7 @@ public class RobotState {
 
   public FullDesiredRobotState m_scoringPose = new FullDesiredRobotState(new Pose2d(), 0,
       Rotation2d.fromDegrees(0));
+  public double m_elevatorHeightMeters = 0;
 
   private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
     m_drive = drive;
@@ -72,6 +73,7 @@ public class RobotState {
     m_elevator = elevator;
     m_wrist = wrist;
     m_poseSetpoint = 5;
+    m_elevatorHeightMeters = m_elevator.getCurrentHeightMeters();
   }
 
   public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
@@ -89,9 +91,6 @@ public class RobotState {
   }
 
   public Pose3d get3dPosition() {
-    if (m_lastCameraTimestamp - Timer.getFPGATimestamp() > 0.1) {
-      return null;
-    }
     return m_robotPose;
 
   }
@@ -103,11 +102,13 @@ public class RobotState {
   public void setCamPositionLowConfidence(Pose3d pose) {
     m_robotPoseLowConfidence = pose;
     m_lastCameraTimestampLowConfidence = Timer.getFPGATimestamp();
+    Logger.getInstance().recordOutput("Drive/VisionLowConfidence", pose.toPose2d());
   }
 
   public void set3dPosition(Pose3d pose) {
     m_robotPose = pose;
     m_lastCameraTimestamp = Timer.getFPGATimestamp();
+    Logger.getInstance().recordOutput("Drive/VisionHighConfidence", pose);
   }
 
   public void increasePoseSetpoint() {
@@ -168,12 +169,14 @@ public class RobotState {
     realWantedWristRotation2d = m_wrist.userWantedAngle;
     // checkIfWristBreak(elevatorXMeters, wristAngleDesired);
     // checkIfBreakElevator();
-    Pose3d armPosition = getArmPosition(m_drive.getPose(), m_elevator.getPositionXMeters(),
+    Pose3d armPosition = new Pose3d();
+    // if (RobotConstants.AScopeLogging) {
+    armPosition = getArmPosition(m_drive.getPose(), m_elevator.getPositionXMeters(),
         m_elevator.getPositionYMeters(), wristAngleRotation2d,
         new Transform3d(new Translation3d(ElevatorConstants.kCarriageArmLength, 0, 0),
             new Rotation3d(0, wristAngleRotation2d.getRadians(), 0)),
         new Translation3d(Units.inchesToMeters(16), 0, 0));
-
+    // }
     // Mechanism2d fullMech = new Mechanism2d(2, 2);
     // fullMech.getRoot("ElevatorBottom", 0, ElevatorConstants.kMinHeightMeters)
     //     .append(new MechanismLigament2d("Elevator", m_elevator.getTravelDistanceMeters(),
@@ -187,6 +190,9 @@ public class RobotState {
     Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
     Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
     Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+    if (Robot.isSimulation()) {
+      setCamPositionLowConfidence(new Pose3d(m_drive.getPose()));
+    }
     // SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
 
   }
@@ -261,7 +267,7 @@ public class RobotState {
     }
 
     m_scoringSetpoint = fin;
-    System.out.println("scoring setpoint set to " + fin);
+    // System.out.println("scoring setpoint set to " + fin);
   }
 
   public Pose3d getArmPosition(Pose2d robotPose, double elevatorXMeters, double elevatorYMeters,
@@ -321,12 +327,12 @@ public class RobotState {
 
   public Command autoScore(Supplier<Pose3d> intakeEndPoseSup, Supplier<Rotation2d> intakeAngleSup,
       Supplier<Double> distanceToIntakeSup) {
-    Pose3d intakeEndPose = intakeEndPoseSup.get();
-    Rotation2d intakeAngle = intakeAngleSup.get();
-    double distanceToIntake = distanceToIntakeSup.get();
-    System.out.println(intakeEndPose);
-    System.out.println(intakeAngle);
-    System.out.println(distanceToIntake);
+    // Pose3d intakeEndPose = intakeEndPoseSup.get();
+    // Rotation2d intakeAngle = intakeAngleSup.get();
+    // double distanceToIntake = distanceToIntakeSup.get();
+    // System.out.println(intakeEndPose);
+    // System.out.println(intakeAngle);
+    // System.out.println(distanceToIntake);
     return Commands.sequence(
         Commands.runOnce(
             () -> RobotState.getInstance().getClosestPoseToSetpoint(intakeEndPoseSup.get(), intakeAngleSup.get(),
@@ -345,10 +351,7 @@ public class RobotState {
                 .getHeightOfElevator())),
             Commands.runOnce(() -> m_wrist.setAngle(RobotState.getInstance()
                 .getScoringSetpoint()
-                .getAngleOfWrist())),
-            Commands.runOnce(() -> System.out.println(RobotState.getInstance()
-                .getScoringSetpoint()
-                .getHeightOfElevator()))));
+                .getAngleOfWrist()))));
 
   }
 
@@ -362,15 +365,15 @@ public class RobotState {
     double elevatorXMeters = m_elevator.getPositionXMetersAtHeight(elevatorWantedHeight);
     double xDistance = intakeLength + armLength + elevatorXMeters
         - Constants.ElevatorConstants.kDistanceToCenterOfRobot + distanceToIntake;
-    System.out.println(
-        "intkae length:" + intakeLength +
-            " intake Height " + intakeHeight +
-            " Arm Length " + armLength +
-            " elevatorWantedHeight " + elevatorWantedHeight +
-            " elevatorXMeters " + elevatorXMeters +
-            "x final distance" + xDistance);
+    // System.out.println(
+    //     "intkae length:" + intakeLength +
+    //         " intake Height " + intakeHeight +
+    //         " Arm Length " + armLength +
+    //         " elevatorWantedHeight " + elevatorWantedHeight +
+    //         " elevatorXMeters " + elevatorXMeters +
+    //         "x final distance" + xDistance);
 
-    System.out.println("desired pose: " + intakeEndPose);
+    // System.out.println("desired pose: " + intakeEndPose);
     // for the sake of not overrunning the loop, we only check a setpoint every 10 degrees starting from x + distance 
     ArrayList<Pose2d> poses = new ArrayList<>();
     for (int i = -2; i < 2; i++) {
@@ -397,10 +400,10 @@ public class RobotState {
     //   Logger.getInstance().recordOutput("RobotState/ClosestPose: " + i, pose);
     //   i++;
     // }
-
     Logger.getInstance().recordOutput("RobotState/BestClosestPose", closestPose);
+
     // System.out.println("Closest Pose: " + closestPose);
-    System.out.println("height of elevator: " + elevatorWantedHeight);
+    // System.out.println("height of elevator: " + elevatorWantedHeight);
     FullDesiredRobotState desiredRobotState = new FullDesiredRobotState(closestPose, elevatorWantedHeight,
         intakeAngle);
     RobotState.getInstance().setScoringSetpoint(desiredRobotState);

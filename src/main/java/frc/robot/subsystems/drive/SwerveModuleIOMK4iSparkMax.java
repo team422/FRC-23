@@ -20,26 +20,22 @@ import frc.robot.util.TunableNumber;
 
 public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
-  private CANSparkMax m_driveMotor;
-  private CANSparkMax m_turningMotor;
+  private final CANSparkMax m_driveMotor;
+  private final CANSparkMax m_turningMotor;
 
-  private RelativeEncoder m_driveEncoder;
-  private RelativeEncoder m_turningEncoder;
+  private final RelativeEncoder m_driveEncoder;
+  private final RelativeEncoder m_turningEncoder;
 
-  private CANCoder m_turningCANCoder; // THIS MAY HAVE TO BE CHANGED BACK TO AN ANALOG ENCODER
+  private final CANCoder m_turningCANCoder; // THIS MAY HAVE TO BE CHANGED BACK TO AN ANALOG ENCODER
   // absolute offset for the CANCoder so that the wheels can be aligned when the
   // robot is turned on
   //    private final Rotation2d m_CANCoderOffset;
 
-  private SparkMaxPIDController m_turningController;
-  private SparkMaxPIDController m_driveController;
+  private final SparkMaxPIDController m_turningController;
+  private final SparkMaxPIDController m_driveController;
 
   private double adjustedSpeed;
   private String name;
-
-  private int m_driveMotorChannel;
-  private int m_turningMotorChannel;
-  private int m_turningCANCoderChannel;
 
   public static class ModuleConstants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
@@ -64,22 +60,15 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
       int driveMotorChannel,
       int turningMotorChannel,
       int turningCANCoderChannel) {
-
-    m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
-    m_driveMotor.restoreFactoryDefaults();
-    m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
-    m_turningMotor.restoreFactoryDefaults();
-    m_turningCANCoder = new CANCoder(m_turningCANCoderChannel);
-    driveMotorChannel = m_driveMotorChannel;
-    turningMotorChannel = m_turningMotorChannel;
-    m_turningCANCoderChannel = turningCANCoderChannel;
-    // setUpModuleFirmware();
     CanSparkMaxSetup setup = new CanSparkMaxSetup();
-
+    m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
+    // m_driveMotor.burnFlash();
+    m_driveMotor.restoreFactoryDefaults();
     setup.setupSparkMaxSlow(m_driveMotor);
     m_driveMotor.setInverted(true);
     m_driveMotor.setIdleMode(IdleMode.kCoast);
-
+    m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
+    m_turningMotor.restoreFactoryDefaults();
     // m_turningMotor.burnFlash();
     m_turningMotor.setIdleMode(IdleMode.kBrake);
     // m_driveMotor.burnFlash();
@@ -87,6 +76,8 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     setup.setupSparkMaxSlow(m_turningMotor);
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
+
+    m_turningCANCoder = new CANCoder(turningCANCoderChannel);
 
     m_turningCANCoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningCANCoder.configSensorDirection(false);
@@ -120,13 +111,6 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_driveController.setP(ModuleConstants.kDriveP.get());
     m_driveController.setI(ModuleConstants.kDriveI.get());
     m_driveController.setD(ModuleConstants.kDriveD.get());
-    m_driveMotor.burnFlash();
-    m_turningMotor.burnFlash();
-
-  }
-
-  public void setUpModuleFirmware() {
-
   }
 
   public String getName() {
@@ -215,6 +199,17 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   @Override
   public void syncTurningEncoder() {
     m_turningEncoder.setPosition(getAbsoluteRotation().getDegrees());
+  }
+
+  @Override
+  public void setUpModuleFirmware() {
+    m_driveMotor.setInverted(true);
+    m_turningMotor.setInverted(true);
+    // m_driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveConversionFactor / 60.0);
+    // m_driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveConversionFactor);
+
+    // m_turningEncoder.setVelocityConversionFactor((360.0 / ModuleConstants.kTurnPositionConversionFactor) / 60.0);
+    // m_turningEncoder.setPositionConversionFactor((360.0 / ModuleConstants.kTurnPositionConversionFactor)); // FIX THIS LATER ****
   }
 
   /** Zeros all the SwerveModule encoders. */
