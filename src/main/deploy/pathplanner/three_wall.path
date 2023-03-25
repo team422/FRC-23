@@ -23,7 +23,7 @@
           "intakeConeOut"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
+        "waitBehavior": "minimum",
         "waitTime": 1.0
       }
     },
@@ -333,7 +333,7 @@
       }
     }
   ],
-  "maxVelocity": 3.85,
+  "maxVelocity": 4.0,
   "maxAcceleration": 2.5,
   "isReversed": null,
   "markers": [

@@ -41,18 +41,19 @@ public class CameraAprilTag extends SubsystemBase {
 
   public void periodic() {
     m_result = m_photonCamera.getLatestResult();
-    if (m_result.getTargets().size() < 0) {
+    if (m_result.getTargets().size() < 2) {
       m_photonEstimator.update(m_result).ifPresent(pose -> {
         frc.robot.RobotState.getInstance().setCamPositionLowConfidence(pose.estimatedPose);
       });
+    } else {
+      m_photonEstimator.update(m_result).ifPresent(pose -> {
+        lastPose3d = pose.estimatedPose;
+        // System.out.println(pose.estimatedPose);
+        Logger.getInstance().recordOutput("Camera/" + m_camName, pose.estimatedPose);
+        m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
+            getMatrixStds(pose, getPipelineResult()));
+      });
     }
-    m_photonEstimator.update(m_result).ifPresent(pose -> {
-      lastPose3d = pose.estimatedPose;
-      // System.out.println(pose.estimatedPose);
-      Logger.getInstance().recordOutput("Camera/" + m_camName, pose.estimatedPose);
-      m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
-          getMatrixStds(pose, getPipelineResult()));
-    });
 
   }
 
@@ -67,7 +68,7 @@ public class CameraAprilTag extends SubsystemBase {
     frc.robot.RobotState.getInstance().set3dPosition(lastPose3d);
     Pose2d finalTagPose = tagPose.get().toPose2d();
     double distance = finalTagPose.getTranslation().getDistance(curRobotPose.estimatedPose.toPose2d().getTranslation());
-    return VecBuilder.fill(distance * 0.1, distance * 0.1, 50);
+    return VecBuilder.fill(distance * 0.15, distance * 0.15, 50);
   }
 
   public PhotonPipelineResult getPipelineResult() {

@@ -23,7 +23,7 @@
           "intakeConeOut"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
+        "waitBehavior": "minimum",
         "waitTime": 1.0
       }
     },
