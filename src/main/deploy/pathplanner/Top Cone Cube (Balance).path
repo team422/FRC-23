@@ -17,12 +17,13 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "intakeConeIn",
           "setpointConeHigh",
           "wait",
           "intakeConeOut"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
+        "waitBehavior": "minimum",
         "waitTime": 1.0
       }
     },
@@ -103,16 +104,16 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8061889356009102,
-        "y": 4.421767532260556
+        "x": 1.959007516360621,
+        "y": 4.396271375263339
       },
       "prevControl": {
-        "x": 2.171209408697413,
-        "y": 4.832248285513729
+        "x": 2.3240279894571243,
+        "y": 4.8067521285165125
       },
       "nextControl": {
-        "x": 2.171209408697413,
-        "y": 4.832248285513729
+        "x": 2.3240279894571243,
+        "y": 4.8067521285165125
       },
       "holonomicAngle": 180.0,
       "isReversal": true,

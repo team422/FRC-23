@@ -22,7 +22,7 @@
           "intakeConeOut"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
+        "waitBehavior": "minimum",
         "waitTime": 1.0
       }
     },
@@ -103,16 +103,16 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8061889356009102,
-        "y": 4.421767532260556
+        "x": 1.9219905803475823,
+        "y": 4.389461842649176
       },
       "prevControl": {
-        "x": 2.171209408697413,
-        "y": 4.832248285513729
+        "x": 2.287011053444087,
+        "y": 4.799942595902349
       },
       "nextControl": {
-        "x": 2.171209408697413,
-        "y": 4.832248285513729
+        "x": 2.287011053444087,
+        "y": 4.799942595902349
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
