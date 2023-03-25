@@ -26,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -84,7 +85,6 @@ public class RobotContainer {
   private AutoFactory m_autoFactory;
   private AprilTagFieldLayout m_layout;
   private LED m_LED;
-  private LED m_LED2;
   private String m_curSelectedAuto;
   private List<PathPlannerTrajectory> m_traj;
   // private LED m_LED2;
@@ -464,5 +464,12 @@ public class RobotContainer {
       m_robotState.update();
     }
 
+  }
+
+  public void checkLock() {
+    if (Timer.getMatchTime() < 0.125) {
+      m_drive.removeDefaultCommand();
+      m_drive.xBrakeCommand().schedule();
+    }
   }
 }
