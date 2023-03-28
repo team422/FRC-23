@@ -88,8 +88,8 @@ public final class Constants {
     public static final int kFrontRightCANCoderPort = 2;
 
     // Back Left Swerve Module Channels
-    public static final int kBackLeftTurnMotorPort = 2;
-    public static final int kBackLeftDriveMotorPort = 1;
+    public static final int kBackLeftTurnMotorPort = 1;
+    public static final int kBackLeftDriveMotorPort = 2;
     public static final int kBackLeftCANCoderPort = 0;
 
     // Back Right Swerve Module Channels

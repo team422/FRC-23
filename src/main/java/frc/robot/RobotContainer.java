@@ -19,7 +19,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -44,8 +43,7 @@ import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.debug.DebugCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.OperatorControls;
-import frc.robot.oi.SingleUserXboxControls;
+import frc.robot.oi.DualJoystickDriverControls;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.accelerometer.AccelerometerIOSim;
 import frc.robot.subsystems.drive.accelerometer.AccelerometerIOWPI;
@@ -206,9 +204,8 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    var singleUserControls = new SingleUserXboxControls(5);
-    DriverControls driverControls = singleUserControls;
-    OperatorControls operatorControls = singleUserControls;
+    var driverJoystickControls = new DualJoystickDriverControls(0, 1);
+    DriverControls driverControls = driverJoystickControls;
 
     // DriverControls driverControls = new DualJoystickDriverControls(0, 1);
     // OperatorControls operatorControls = new XboxOperatorControls(5);
@@ -232,14 +229,6 @@ public class RobotContainer {
     driverControls.testButton().onTrue(ChargeStationBalance.charge(m_drive));
     driverControls.resetPose().onTrue(m_drive.resetPoseCommand(new Pose2d(5, 3, Rotation2d.fromDegrees(0))));
     driverControls.resetPoseToVisionEst().onTrue(m_drive.resetPoseCommand(m_camera::getLatestEstimatedPose));
-
-    operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
-    operatorControls.zeroTurnAbsoluteEncoders().onTrue(DebugCommands.zeroTurnAbsoluteEncoders(m_drive));
-
-    // Elevator Buttons
-    operatorControls.setElevatorPositionHigh().onTrue(m_elevator.setPositionCommand(Units.feetToMeters(5)));
-    operatorControls.setElevatorPositionMid().onTrue(m_elevator.setPositionCommand(Units.feetToMeters(3)));
-    operatorControls.setElevatorPositionLow().onTrue(m_elevator.setPositionCommand(Units.feetToMeters(1.5)));
   }
 
   /**

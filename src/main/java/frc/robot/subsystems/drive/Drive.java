@@ -82,7 +82,7 @@ public class Drive extends SubsystemBase {
       Logger.getInstance().processInputs("Drive/Module" + i, m_moduleInputs[i]);
     }
 
-    m_poseEstimator.update(getGyroHeading(), getModulePositions());
+    // m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
     addAccel();
 
