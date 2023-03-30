@@ -170,7 +170,7 @@ public class RobotContainer {
       };
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
 
-      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_LED);
     } else {
       m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
           new SwerveModuleIOSim(),
@@ -185,7 +185,7 @@ public class RobotContainer {
           WristConstants.kMinAngle, WristConstants.kMaxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
-      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_LED);
     }
 
   }
@@ -338,9 +338,9 @@ public class RobotContainer {
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());
     driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
+
     driverControls.ledCone().onTrue(m_LED.coneCommand());
     driverControls.ledCube().onTrue(m_LED.cubeCommand());
-
   }
 
   public void onEnabled() {

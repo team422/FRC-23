@@ -29,6 +29,7 @@ import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.wrist.Wrist;
 
 public class RobotState {
@@ -55,22 +56,27 @@ public class RobotState {
   public int m_column = 1;
   public int m_height = 2;
 
+  public LED m_LED;
+  public double[] m_colors;
+
   public String m_scoringSetpoint = "blueFirstGridLeftHigh";
 
   public FullDesiredRobotState m_scoringPose = new FullDesiredRobotState(new Pose2d(), 0,
       Rotation2d.fromDegrees(0));
 
-  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist, LED led) {
     m_drive = drive;
     m_intake = intake;
     m_elevator = elevator;
     m_wrist = wrist;
     m_poseSetpoint = 5;
+    m_LED = led;
+    m_colors = new double[3];
   }
 
-  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist, LED led) {
     if (instance == null) {
-      instance = new RobotState(drive, intake, elevator, wrist);
+      instance = new RobotState(drive, intake, elevator, wrist, led);
     }
     return instance;
   }
@@ -159,6 +165,12 @@ public class RobotState {
     Logger.getInstance().recordOutput("RobotState/ElevatorSpot", m_elevatorPosition);
     Logger.getInstance().recordOutput("RobotState/IntakeSpot", m_intakePosition);
     Logger.getInstance().recordOutput("RobotState/ArmSpot", armPosition);
+
+    m_colors[0] = m_LED.getColor().red;
+    m_colors[1] = m_LED.getColor().blue;
+    m_colors[2] = m_LED.getColor().green;
+
+    Logger.getInstance().recordOutput("RobotState/LED", m_colors);
     // SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
 
   }

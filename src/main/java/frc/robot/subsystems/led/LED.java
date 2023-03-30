@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.led.Breathing;
 import frc.robot.commands.led.Rainbow;
@@ -16,7 +15,6 @@ public class LED extends SubsystemBase {
   private final AddressableLED m_LEDStrip;
   private final AddressableLEDBuffer m_LEDStripBuffer;
   private final Color[] m_colors;
-  private boolean currentToggle = true;
   private boolean m_currentCube = false;
   private boolean m_currentCone = false;
 
@@ -26,7 +24,7 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setLength(length);
     m_LEDStrip.start();
     m_colors = new Color[] { new Color(255, 200, 0), new Color(255, 0, 100) };
-    setSolidColor(m_colors[0]);
+    setSolidColor(Color.kGreen);
   }
 
   public void setSolidColor(Color color) {
@@ -47,18 +45,6 @@ public class LED extends SubsystemBase {
       }
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
-  }
-
-  public Command toggleColor() {
-    return Commands.run(() -> {
-      if (currentToggle == true) {
-        setSolidColor(m_colors[1]);
-        currentToggle = false;
-      } else {
-        setSolidColor(m_colors[0]);
-        currentToggle = true;
-      }
-    });
   }
 
   public void setColors(Color... colors) {
@@ -84,6 +70,10 @@ public class LED extends SubsystemBase {
     return m_LEDStripBuffer.getLength();
   }
 
+  public Color getColor() {
+    return m_LEDStripBuffer.getLED(0);
+  }
+
   public Command solidColorCommand(Color color) {
     return runOnce(() -> setSolidColor(color));
   }
@@ -105,38 +95,26 @@ public class LED extends SubsystemBase {
   }
 
   public Command coneCommand() {
-    if (m_currentCone && m_currentCube) {
-      m_currentCone = false;
-      m_currentCube = false;
-      return solidColorCommand(Color.kGreen);
-    } else if (m_currentCone && !m_currentCube) {
-      m_currentCone = false;
-      return solidColorCommand(Color.kGreen);
-    } else if (!m_currentCone && !m_currentCube) {
-      m_currentCone = true;
-      return solidColorCommand(Color.kYellow);
-    } else {
-      m_currentCube = false;
-      return solidColorCommand(Color.kYellow);
-    }
+    return runOnce(() -> {
+      m_currentCone = !m_currentCone;
+      if (m_currentCone) {
+        m_currentCube = false;
+        setSolidColor(m_colors[1]);
+      } else {
+        setSolidColor(Color.kGreen);
+      }
+    });
   }
 
   public Command cubeCommand() {
-    if (m_currentCone && m_currentCube) { // this case should never be possible
-      m_currentCone = false;
-      m_currentCube = false;
-      return solidColorCommand(Color.kGreen);
-    } else if (m_currentCone && !m_currentCube) {
-      m_currentCube = true;
-      m_currentCone = false;
-      return solidColorCommand(Color.kPurple);
-    } else if (!m_currentCone && !m_currentCube) {
-      m_currentCube = true;
-      return solidColorCommand(Color.kPurple);
-    } else {
-      m_currentCube = false;
-      return solidColorCommand(Color.kGreen);
-    }
+    return runOnce(() -> {
+      m_currentCube = !m_currentCube;
+      if (m_currentCube) {
+        m_currentCone = false;
+        setSolidColor(m_colors[0]);
+      } else {
+        setSolidColor(Color.kGreen);
+      }
+    });
   }
-
 }
