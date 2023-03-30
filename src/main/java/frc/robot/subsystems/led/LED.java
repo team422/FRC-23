@@ -15,9 +15,8 @@ public class LED extends SubsystemBase {
   private final AddressableLED m_LEDStrip;
   private final AddressableLEDBuffer m_LEDStripBuffer;
   private final Color[] m_colors;
-  // private boolean currentToggle = true;
-  private boolean m_toggleCube = false;
-  private boolean m_toggleCone = false;
+  private boolean m_currentCube = false;
+  private boolean m_currentCone = false;
 
   public LED(int PWMPort, int length) {
     m_LEDStrip = new AddressableLED(PWMPort);
@@ -47,18 +46,6 @@ public class LED extends SubsystemBase {
     }
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
-
-  // public Command toggleColor() {
-  //   return Commands.run(() -> {
-  //     if (currentToggle == true) {
-  //       setSolidColor(m_colors[1]);
-  //       currentToggle = false;
-  //     } else {
-  //       setSolidColor(m_colors[0]);
-  //       currentToggle = true;
-  //     }
-  //   });
-  // }
 
   public void setColors(Color... colors) {
     int length = Math.min(m_LEDStripBuffer.getLength(), colors.length);
@@ -107,75 +94,27 @@ public class LED extends SubsystemBase {
     return new Breathing(this, color);
   }
 
-  // public Command coneCommand() {
-  //   if (m_currentCone && m_currentCube) {
-  //     m_currentCone = false;
-  //     m_currentCube = false;
-  //     return solidColorCommand(Color.kGreen);
-  //   } else if (m_currentCone && !m_currentCube) {
-  //     m_currentCone = false;
-  //     return solidColorCommand(Color.kGreen);
-  //   } else if (!m_currentCone && !m_currentCube) {
-  //     m_currentCone = true;
-  //     return solidColorCommand(Color.kYellow);
-  //   } else {
-  //     m_currentCube = false;
-  //     return solidColorCommand(Color.kYellow);
-  //   }
-  // }
-
-  // public Command cubeCommand() {
-  // if (m_currentCone && m_currentCube) { // this case should never be possible
-  // m_currentCone = false;
-  // m_currentCube = false;
-  //     return solidColorCommand(Color.kGreen);
-  //   } else if (m_currentCone && !m_currentCube) {
-  //     m_currentCube = true;
-  //     m_currentCone = false;
-  //     return solidColorCommand(Color.kPurple);
-  //   } else if (!m_currentCone && !m_currentCube) {
-  //     m_currentCube = true;
-  //     return solidColorCommand(Color.kPurple);
-  //   } else {
-  //     m_currentCube = false;
-  //     return solidColorCommand(Color.kGreen);
-  //   }
-  // }
-
-  // this is how matthew wanted controls to work and wpilib's built in toggle doesnt work
-  public void toggleLEDCube() {
-    m_toggleCube = !m_toggleCube;
-    if (m_toggleCube) {
-      m_toggleCone = false;
-      setSolidColor(m_colors[0]);
-    } else {
-      setSolidColor(Color.kGreen);
-    }
+  public Command coneCommand() {
+    return runOnce(() -> {
+      m_currentCone = !m_currentCone;
+      if (m_currentCone) {
+        m_currentCube = false;
+        setSolidColor(m_colors[1]);
+      } else {
+        setSolidColor(Color.kGreen);
+      }
+    });
   }
 
-  public void toggleLEDCone() {
-    m_toggleCone = !m_toggleCone;
-    if (m_toggleCone) {
-      m_toggleCube = false;
-      setSolidColor(m_colors[1]);
-    } else {
-      setSolidColor(Color.kGreen);
-    }
-  }
-
-  public Command toggleLEDCubeCommand() {
-    return runOnce(this::toggleLEDCube);
-  }
-
-  public Command toggleLEDConeCommand() {
-    return runOnce(this::toggleLEDCone);
-  }
-
-  public Command testCommand() {
-    return runOnce(() -> setSolidColor(m_colors[0]));
-  }
-
-  public Command testCommand2() {
-    return runOnce(() -> setSolidColor(m_colors[1]));
+  public Command cubeCommand() {
+    return runOnce(() -> {
+      m_currentCube = !m_currentCube;
+      if (m_currentCube) {
+        m_currentCone = false;
+        setSolidColor(m_colors[0]);
+      } else {
+        setSolidColor(Color.kGreen);
+      }
+    });
   }
 }
