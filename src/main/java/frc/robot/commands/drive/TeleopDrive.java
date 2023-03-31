@@ -2,6 +2,7 @@ package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -21,6 +22,8 @@ public class TeleopDrive extends CommandBase {
   double deadzone;
   ChassisSpeeds speeds;
   EricNubControls m_controlsHandler;
+  double pidHeadingSetpoint;
+  PIDController pidHeadingController;
 
   public TeleopDrive(Drive drive, Supplier<Double> xSpeed, Supplier<Double> ySpeed,
       Supplier<Double> zRotation, double deadzone) {
@@ -30,6 +33,7 @@ public class TeleopDrive extends CommandBase {
     this.zRotation = zRotation;
     this.deadzone = deadzone;
     m_controlsHandler = new EricNubControls();
+    pidHeadingController = DriveConstants.turnHeadingPID;
     addRequirements(drive);
 
   }
@@ -38,6 +42,9 @@ public class TeleopDrive extends CommandBase {
     curXSpeed = xSpeed.get();
     curYSpeed = ySpeed.get();
     curZRotation = zRotation.get();
+    if (Math.abs(curZRotation) > 0) {
+      pidHeadingSetpoint = m_drive.getPose().getRotation().getRadians();
+    }
     if (RobotState.getInstance().elevatorYMeters < Units.inchesToMeters(20)) {
 
       curXSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
@@ -56,6 +63,10 @@ public class TeleopDrive extends CommandBase {
       curXSpeed *= DriveConstants.kMaxHighElevatorSpeedMetersPerSecond;
       curYSpeed *= DriveConstants.kMaxHighElevatorSpeedMetersPerSecond;
       curZRotation *= DriveConstants.kMaxHighElevatorAngularSpeedRadiansPerSecond;
+      if (curZRotation == 0) {
+        curZRotation = -pidHeadingController.calculate(m_drive.getPose().getRotation().getRadians(),
+            pidHeadingSetpoint);
+      }
     }
     // System.out.println(curXSpeed);
 

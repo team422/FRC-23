@@ -193,6 +193,7 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2.0, kTrackWidth / 2.0), // rear left
         new Translation2d(-kWheelBase / 2.0, -kTrackWidth / 2.0) // rear right
     };
+    public static final PIDController turnHeadingPID = new PIDController(0.1, 0, 0);
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;

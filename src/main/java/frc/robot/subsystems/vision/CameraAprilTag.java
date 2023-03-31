@@ -68,6 +68,9 @@ public class CameraAprilTag extends SubsystemBase {
     frc.robot.RobotState.getInstance().set3dPosition(lastPose3d);
     Pose2d finalTagPose = tagPose.get().toPose2d();
     double distance = finalTagPose.getTranslation().getDistance(curRobotPose.estimatedPose.toPose2d().getTranslation());
+    if (distance > 4) {
+      VecBuilder.fill(100, 100, 100);
+    }
     return VecBuilder.fill(distance * 0.15, distance * 0.15, 50);
   }
 

@@ -1,5 +1,9 @@
 package frc.robot.commands.autonomous;
 
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -11,13 +15,21 @@ public class ChargeStationBalance extends CommandBase {
   Drive m_drive;
   PIDController m_rollController;
   PIDController m_turnController;
+  double m_xBrakeTime = -1.0;
+  double m_oldPitchDegrees;
+  double m_dpitch;
+  Supplier<Double> m_pitchSupplierDeg;
 
   public ChargeStationBalance(Drive drive) {
     m_drive = drive;
     addRequirements(m_drive);
     m_rollController = new PIDController(.5, 0, 0);
     m_turnController = new PIDController(1, 0, 0);
-
+    m_pitchSupplierDeg = () -> {
+      return m_drive.getPose().getRotation().getSin() > 1 ? m_drive.getGyro().getPitch().getDegrees()
+          : -m_drive.getGyro().getPitch().getDegrees();
+    };
+    m_oldPitchDegrees = m_pitchSupplierDeg.get();
   }
 
   @Override
@@ -34,17 +46,32 @@ public class ChargeStationBalance extends CommandBase {
     //   m_drive.drive(DriveConstants.holonomicDrive.calculate(curPose3d.toPose2d(), Setpoints.centerOfChargeStation,
     //       () -> 0.0, () -> 0.0, () -> 0.0, true));
     // } else
+    m_dpitch = (m_pitchSupplierDeg.get() - m_oldPitchDegrees) / 0.020;
+    m_oldPitchDegrees = m_pitchSupplierDeg.get();
+    Logger.getInstance().recordOutput("pitchChange", m_dpitch);
+
+    if (m_xBrakeTime < 0.0) {
+      if (m_xBrakeTime - Timer.getFPGATimestamp() < 1.0) {
+        return;
+      }
+
+    } else {
+      if (m_dpitch > 1) {
+        m_drive.xBrake();
+        m_xBrakeTime = Timer.getFPGATimestamp();
+      }
+    }
     if (Timer.getMatchTime() < .125) {
       m_drive.xBrake();
-    } else if (Math.abs(m_drive.getGyro().getPitch().getDegrees()) < 2.5) {
+    } else if (Math.abs(m_pitchSupplierDeg.get()) < 2.5) {
       m_drive.xBrake();
-    } else if (Math.abs(m_drive.getGyro().getPitch().getRadians()) < Units.degreesToRadians(11)) {
+    } else if (Math.abs(m_pitchSupplierDeg.get()) < 11) {
       m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-          m_rollController.calculate(m_drive.getGyro().getPitch().getRadians(), 0) / 5, 0, 0,
+          m_rollController.calculate(Units.degreesToRadians(m_pitchSupplierDeg.get()), 0.0) / 5, 0, 0,
           m_drive.getPose().getRotation()));
     } else {
       m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-          -Math.signum(m_drive.getGyro().getPitch().getRadians()) * .7, 0, 0,
+          -Units.degreesToRadians(m_pitchSupplierDeg.get()) * .7, 0, 0,
           m_drive.getPose().getRotation()));
     }
 
