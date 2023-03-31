@@ -286,7 +286,7 @@ public class RobotContainer {
         }, () -> {
           return Setpoints.distanceToDropCone;
         }));
-    driverControls.stowIntakeAndElevator().onTrue(stowCommand);
+    driverControls.stowIntakeAndElevator().and(operatorControls.dropStationButton().negate()).onTrue(stowCommand);
     operatorControls.setpointMidCone().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).onTrue(coneMidCommand);
     operatorControls.setpointHighCone().and(operatorControls.heightModifier().negate())

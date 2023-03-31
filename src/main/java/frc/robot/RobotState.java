@@ -376,15 +376,13 @@ public class RobotState {
     // System.out.println("desired pose: " + intakeEndPose);
     // for the sake of not overrunning the loop, we only check a setpoint every 10 degrees starting from x + distance 
     ArrayList<Pose2d> poses = new ArrayList<>();
-    for (int i = -2; i < 2; i++) {
-      Rotation2d angle = Rotation2d.fromDegrees(i * 10);
-      double x = xDistance * angle.getCos();
-      double y = xDistance * angle.getSin();
-      intakeEndPose.toPose2d().plus(new Transform2d(new Translation2d(x, y), new Rotation2d()));
-      poses.add(
-          intakeEndPose.toPose2d()
-              .plus(new Transform2d(new Translation2d(x, y), angle.plus(Rotation2d.fromDegrees(180)))));
-    }
+    Rotation2d angle = Rotation2d.fromDegrees(0);
+    double x = xDistance * angle.getCos();
+    double y = xDistance * angle.getSin();
+    intakeEndPose.toPose2d().plus(new Transform2d(new Translation2d(x, y), new Rotation2d()));
+    poses.add(
+        intakeEndPose.toPose2d()
+            .plus(new Transform2d(new Translation2d(x, y), angle.plus(Rotation2d.fromDegrees(180)))));
     double minDistance = Double.MAX_VALUE;
 
     Pose2d closestPose = new Pose2d();

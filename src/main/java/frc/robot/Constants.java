@@ -101,8 +101,8 @@ public final class Constants {
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint blueRightOfBalance = new ExtendedPathPoint(new Translation2d(3.74, 0.68),
         new Rotation2d(), Rotation2d.fromDegrees(180));
-    public static final ExtendedPathPoint bluePreLoadingStation = new ExtendedPathPoint(new Translation2d(12.77, 6.36),
-        new Rotation2d(), Rotation2d.fromDegrees(90));
+    public static final ExtendedPathPoint bluePreLoadingStation = new ExtendedPathPoint(new Translation2d(14.28, 7.55),
+        new Rotation2d(), Rotation2d.fromDegrees(270));
     public static final ExtendedPathPoint redLeftWallLoadingStation = blueLeftWallLoadingStation.flipPathPoint();
     public static final ExtendedPathPoint redRightWallLoadingStation = blueRightWallLoadingStation.flipPathPoint();
     public static final ExtendedPathPoint redFirstGridLeftCone = blueFirstGridLeftCone.flipPathPoint();
