@@ -26,6 +26,8 @@ import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
 import frc.robot.subsystems.drive.module.SwerveModuleIO;
 import frc.robot.subsystems.drive.module.SwerveModuleInputsAutoLogged;
+import frc.robot.util.SecondOrderKinematics;
+import frc.robot.util.SwerveModuleAcceleration;
 
 public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
@@ -33,6 +35,13 @@ public class Drive extends SubsystemBase {
 
   private final GyroIO m_gyro;
   private final GyroInputsAutoLogged m_gyroInputs;
+
+  private final SecondOrderKinematics m_SecondOrderKinematics;
+  private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[4];
+  private Rotation2d[] m_moduleSteerThetaVels = new Rotation2d[4];
+  private Rotation2d[] m_moduleSteerOldTheta = new Rotation2d[4];
+  private Rotation2d m_oldRobotTheta = new Rotation2d();
+  private Rotation2d m_robotThetaVel = new Rotation2d();
 
   private final AccelerometerIO m_accel;
   private final AccelerometerInputsAutoLogged m_accelInputs;
@@ -65,10 +74,14 @@ public class Drive extends SubsystemBase {
 
     m_accel = accel;
     m_accelInputs = new AccelerometerInputsAutoLogged();
+    m_SecondOrderKinematics = new SecondOrderKinematics();
   }
 
   @Override
   public void periodic() {
+
+    updateSOKVars(0.02); //dt is 0.02 according to tick time
+
     // Update Gyro Log Inputs
     m_gyro.updateInputs(m_gyroInputs);
     Logger.getInstance().processInputs("Drive/Gyro", m_gyroInputs);
@@ -82,9 +95,11 @@ public class Drive extends SubsystemBase {
       Logger.getInstance().processInputs("Drive/Module" + i, m_moduleInputs[i]);
     }
 
-    // m_poseEstimator.update(getGyroHeading(), getModulePositions());
+    // Update SOK Log Inputs
 
-    addAccel();
+    for (int i = 0; i < m_modules.length; i++) {
+      Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
+    }
 
     Logger.getInstance().recordOutput("Odometry", getPose());
     Logger.getInstance().recordOutput("ModuleStates", getModuleStates());
@@ -94,17 +109,57 @@ public class Drive extends SubsystemBase {
         DriveConstants.kSwerveModuleTranslations);
   }
 
+  private void updateSOKVars(double deltaTime) {
+    SwerveModuleState[] moduleStates = getModuleStates();
+    for (int i = 0; i < m_modules.length; i++) {
+      //update moduleAccels and m_moduleSteerThetaVels
+      m_moduleAccelerations[i].calculate(moduleStates[i], deltaTime);
+      m_moduleSteerThetaVels[i] = new Rotation2d(
+          moduleStates[i].angle.minus(m_moduleSteerOldTheta[i]).getRadians() / deltaTime);
+    }
+    //update robotThetaVel
+    m_robotThetaVel = new Rotation2d(m_gyro.getRawGyroAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
+  }
+
+  public ChassisSpeeds getChassisSpeedsfromAccel(
+      double deltaTime) {
+
+    SwerveModuleState[] moduleStates = getModuleStates();
+    double[] moduleVelocities = new double[m_modules.length];
+    for (int i = 0; i < m_modules.length; i++) {
+      moduleVelocities[i] = moduleStates[i].speedMetersPerSecond;
+    }
+    Rotation2d robotTheta = m_gyro.getRawGyroAngle();
+    return DriveConstants.kDriveKinematics
+        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
+            m_moduleSteerThetaVels,
+            moduleVelocities, m_robotThetaVel, robotTheta, deltaTime));
+  }
+
+  public Pose2d getPose2dfromSOK(double deltaTime) {
+
+    ChassisSpeeds sokChassisSpeeds = getChassisSpeedsfromAccel(deltaTime);
+    return getPose().exp(new Twist2d(sokChassisSpeeds.vxMetersPerSecond * deltaTime,
+        sokChassisSpeeds.vyMetersPerSecond * deltaTime, sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
+  }
+
   private void addAccel() {
     Twist2d twist = new Twist2d(m_accelInputs.accelX, m_accelInputs.accelY, 0);
 
     Pose2d accelEstPose = getPoseEstimator().getEstimatedPosition().exp(twist);
+    Pose2d sokEstPose = getPose2dfromSOK(0.02); //deltaTime finally chosen to be tick time xd
 
     Logger.getInstance().recordOutput("Drive/Accel/EstimatedPose", accelEstPose);
+    Logger.getInstance().recordOutput("Drive/SOK/Estimatedpose", sokEstPose);
 
     m_poseEstimator.addVisionMeasurement(
         accelEstPose,
         Timer.getFPGATimestamp(),
         VecBuilder.fill(30, 30, Units.degreesToRadians(1000)));
+    m_poseEstimator.addVisionMeasurement(
+        sokEstPose,
+        Timer.getFPGATimestamp(),
+        VecBuilder.fill(50, 50, Units.degreesToRadians(1000)));
   }
 
   public void fieldRelativeDrive(ChassisSpeeds speeds) {
