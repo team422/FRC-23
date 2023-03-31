@@ -55,7 +55,7 @@ public class SingleUserXboxControls implements DriverControls, OperatorControls 
 
   @Override
   public Trigger resetPoseToVisionEst() {
-    return m_controller.y();
+    return new Trigger();
   }
 
   @Override

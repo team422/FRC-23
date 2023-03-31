@@ -40,7 +40,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectricalConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.autonomous.AutoFactory;
-import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.debug.DebugCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.oi.DriverControls;
@@ -229,7 +228,7 @@ public class RobotContainer {
     driverControls.robotRelativeDrive().whileTrue(robotRelativeDrive);
     driverControls.joystickAngleDrive().whileTrue(joystickAngleDrive);
 
-    driverControls.testButton().onTrue(ChargeStationBalance.charge(m_drive));
+    // driverControls.testButton().onTrue(ChargeStationBalance.charge(m_drive));
     driverControls.resetPose().onTrue(m_drive.resetPoseCommand(new Pose2d(5, 3, Rotation2d.fromDegrees(0))));
     driverControls.resetPoseToVisionEst().onTrue(m_drive.resetPoseCommand(m_camera::getLatestEstimatedPose));
 
