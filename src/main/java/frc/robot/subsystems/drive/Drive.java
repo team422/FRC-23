@@ -2,13 +2,16 @@ package frc.robot.subsystems.drive;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -74,7 +77,16 @@ public class Drive extends SubsystemBase {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
     }
+
+    // Update SOK Log Inputs
+
+    for (int i = 0; i < m_modules.length; i++) {
+      Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
+    }
+
     m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
+
+    addAccel();
 
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
@@ -123,6 +135,24 @@ public class Drive extends SubsystemBase {
         .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
             m_moduleSteerThetaVels,
             moduleVelocities, m_robotThetaVel, robotTheta, m_deltaTime));
+  }
+
+  public Pose2d getPose2dfromSOK(double deltaTime) {
+
+    ChassisSpeeds sokChassisSpeeds = getChassisSpeedsfromAccel();
+    return getPose().exp(new Twist2d(sokChassisSpeeds.vxMetersPerSecond * deltaTime,
+        sokChassisSpeeds.vyMetersPerSecond * deltaTime, sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
+  }
+
+  private void addAccel() {
+
+    Pose2d sokEstPose = getPose2dfromSOK(0.02); //deltaTime finally chosen to be tick time xd
+    Logger.getInstance().recordOutput("Drive/SOK/Estimatedpose", sokEstPose);
+
+    m_poseEstimator.addVisionMeasurement(
+        sokEstPose,
+        Timer.getFPGATimestamp(),
+        VecBuilder.fill(50, 50, Units.degreesToRadians(1000)));
   }
 
   public void resetOdometry() {
