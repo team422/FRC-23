@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.DriveConstants;
 
 /** 
  * An abstract command which provides base logic for driving a swerve base.
@@ -28,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  */
 public abstract class BaseDriveCommand extends CommandBase {
   protected final DriveCommandConfig m_drive;
+  PIDController headingPIDController = new PIDController(DriveConstants.kHeadingP, DriveConstants.kHeadingI,
+      DriveConstants.kHeadingD);
 
   public BaseDriveCommand(DriveCommandConfig drive) {
     m_drive = requireNonNullParam(drive, "drive", "BaseDriveCommand");
@@ -46,8 +50,13 @@ public abstract class BaseDriveCommand extends CommandBase {
     double y = getYSpeed();
     double omega = getRotationSpeed();
     boolean isFieldRelative = getFieldRelative();
+    double desiredHeading = m_drive.getPose().getRotation() + (joystick.getAxis(x));
 
-    ChassisSpeeds speeds = getChassisSpeeds(x, y, omega, isFieldRelative);
+    // ChassisSpeeds speeds = getChassisSpeeds(x, y, omega, isFieldRelative);
+    ChassisSpeeds speeds = getChassisSpeeds(x,
+        y,
+        headingPIDController.calculate(desiredHeading, m_drive.getPose().getRotation().getRadians()),
+        isFieldRelative);
     m_drive.acceptSpeeds(speeds);
   }
 
