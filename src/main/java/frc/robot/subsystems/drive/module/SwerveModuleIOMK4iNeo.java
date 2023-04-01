@@ -68,8 +68,8 @@ public class SwerveModuleIOMK4iNeo implements SwerveModuleIO {
     m_turnPIDController.setPositionPIDWrappingMinInput(-Math.PI);
     m_turnPIDController.setPositionPIDWrappingMaxInput(Math.PI);
 
-    setTurnPID(DriveConstants.kTurnP, DriveConstants.kTurnI, DriveConstants.kTurnD);
-    setDrivePID(DriveConstants.kDriveP, DriveConstants.kDriveI, DriveConstants.kDriveD);
+    setTurnPID(DriveConstants.kTurnP.get(), DriveConstants.kTurnI.get(), DriveConstants.kTurnD.get());
+    setDrivePID(DriveConstants.kDriveP.get(), DriveConstants.kDriveI.get(), DriveConstants.kDriveD.get());
   }
 
   @Override
@@ -112,7 +112,7 @@ public class SwerveModuleIOMK4iNeo implements SwerveModuleIO {
 
     // Set Drive Motor Setpoint
     m_drivePIDController.setReference(optimized.speedMetersPerSecond, ControlType.kVelocity, 0,
-        DriveConstants.kDriveFF * optimized.speedMetersPerSecond);
+        DriveConstants.kDriveFF.get() * optimized.speedMetersPerSecond);
   }
 
   @Override

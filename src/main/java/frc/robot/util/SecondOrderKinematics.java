@@ -116,6 +116,7 @@ public class SecondOrderKinematics {
 
     //init values
     SwerveModuleState[] modStatesFromAccelXY = new SwerveModuleState[4];
+    SwerveModulePoseVelocity[] modPosesFromAccelXY = new SwerveModulePoseVelocity[4];
 
     //calculate AccelX and AccelY
     SwerveModuleAcceleration[] accelX = calculateModulesPositionAccelXMetersPerSecondSquared(moduleAccelerations,
@@ -125,7 +126,7 @@ public class SecondOrderKinematics {
 
     double[] velXFromAccel = new double[4];
     double[] velYFromAccel = new double[4];
-    Rotation2d[] thetaFromAccel = new Rotation2d[4];
+    // Rotation2d[] thetaFromAccel = new Rotation2d[4];
 
     //Create and set velX, velY, and theta from moduleaccels and modulethetavels
     for (int i = 0; i < 4; i++) {
@@ -133,14 +134,21 @@ public class SecondOrderKinematics {
           + oldModuleStates[i].speedMetersPerSecond;
       velYFromAccel[i] = (accelY[i].getAccel() - oldModuleAccelerationsY[i].getAccel()) * deltaTime * 0.5
           + oldModuleStates[i].speedMetersPerSecond;
-      thetaFromAccel[i] = Rotation2d
-          .fromDegrees((moduleSteerThetaVels[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * deltaTime * 0.5
-              + oldModuleStates[i].angle.getDegrees());
+
+      // thetaFromAccel[i] = Rotation2d
+      //     .fromDegrees((moduleSteerThetaVels[i].getDegrees() - oldModuleStates[i].angle.getDegrees()) * deltaTime * 0.5
+      //         + oldModuleStates[i].angle.getDegrees());
     }
+
+    for (int i = 0; i < 4; i++) {
+      modPosesFromAccelXY[i] = new SwerveModulePoseVelocity(velXFromAccel[i], velYFromAccel[i]);
+    }
+
     //Create ModuleStates from velx, velY, and Theta
     for (int i = 0; i < 4; i++) {
       double velXY = Math.sqrt(velXFromAccel[i] * velXFromAccel[i] + velYFromAccel[i] * velYFromAccel[i]);
-      modStatesFromAccelXY[i] = new SwerveModuleState(velXY, thetaFromAccel[i]);
+      modStatesFromAccelXY[i] = new SwerveModuleState(velXY,
+          new Rotation2d(Math.atan2(velYFromAccel[i], velXFromAccel[i])));
     }
     return modStatesFromAccelXY;
   }
