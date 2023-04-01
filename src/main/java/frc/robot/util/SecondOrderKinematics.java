@@ -1,15 +1,20 @@
 package frc.robot.util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-public class SecondOrderKinematics extends SwerveDriveKinematics {
+public class SecondOrderKinematics {
 
-  SwerveModuleState[] oldModuleStates = new SwerveModuleState[4];
-  SwerveModuleAcceleration[] oldModuleAccelerationsX = new SwerveModuleAcceleration[4];
-  SwerveModuleAcceleration[] oldModuleAccelerationsY = new SwerveModuleAcceleration[4];
-  Rotation2d[] oldModuleTheta = new Rotation2d[4];
+  SwerveModuleState[] oldModuleStates = new SwerveModuleState[] { new SwerveModuleState(), new SwerveModuleState(),
+      new SwerveModuleState(), new SwerveModuleState() };
+  SwerveModuleAcceleration[] oldModuleAccelerationsX = new SwerveModuleAcceleration[] {
+      new SwerveModuleAcceleration(), new SwerveModuleAcceleration(), new SwerveModuleAcceleration(),
+      new SwerveModuleAcceleration() };
+  SwerveModuleAcceleration[] oldModuleAccelerationsY = new SwerveModuleAcceleration[] {
+      new SwerveModuleAcceleration(), new SwerveModuleAcceleration(), new SwerveModuleAcceleration(),
+      new SwerveModuleAcceleration() };
+  Rotation2d[] oldModuleTheta = new Rotation2d[] { new Rotation2d(), new Rotation2d(), new Rotation2d(),
+      new Rotation2d() };
 
   /**
   * Get a module's X Acceleration component
@@ -139,6 +144,4 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     }
     return modStatesFromAccelXY;
   }
-
-  //method to convert to pose2d??
 }

@@ -14,6 +14,7 @@ public class SwerveModuleAcceleration implements Comparable<SwerveModuleAccelera
    * @param accelMetersPerSecondSquared The accleration measured by the wheel of the module.
    */
   public SwerveModuleAcceleration() {
+
   }
 
   public SwerveModuleAcceleration(double accelMetersPerSecondSquared) {

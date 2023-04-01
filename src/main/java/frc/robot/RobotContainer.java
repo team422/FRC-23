@@ -158,22 +158,22 @@ public class RobotContainer {
               ElectricalConstants.kFrontLeftTurnMotorPort,
               ElectricalConstants.kFrontLeftDriveMotorPort,
               ElectricalConstants.kFrontLeftCANCoderPort,
-              Rotation2d.fromRadians(0.618)),
+              Rotation2d.fromRadians(0.62485)),
           new SwerveModuleIOMK2Neo(
               ElectricalConstants.kFrontRightTurnMotorPort,
               ElectricalConstants.kFrontRightDriveMotorPort,
               ElectricalConstants.kFrontRightCANCoderPort,
-              Rotation2d.fromRadians(2.966)),
+              Rotation2d.fromRadians(-1.40389)),
           new SwerveModuleIOMK2Neo(
               ElectricalConstants.kBackLeftTurnMotorPort,
               ElectricalConstants.kBackLeftDriveMotorPort,
               ElectricalConstants.kBackLeftCANCoderPort,
-              Rotation2d.fromRadians(0.548)),
+              Rotation2d.fromRadians(0.57044)),
           new SwerveModuleIOMK2Neo(
               ElectricalConstants.kBackRightTurnMotorPort,
               ElectricalConstants.kBackRightDriveMotorPort,
               ElectricalConstants.kBackRightCANCoderPort,
-              Rotation2d.fromRadians(0.993)));
+              Rotation2d.fromRadians(1.00722)));
       m_elevator = new Elevator(new ElevatorIOSim(), elevatorLigament);
       // m_elevator = new Elevator(new ElevatorIONeo(
       //     ElectricalConstants.kElevatorLeaderPort,
@@ -190,11 +190,11 @@ public class RobotContainer {
     }
 
     SmartDashboard.putData("Robot Mechanism", m_mechanism);
-    m_camera = new AprilTagCamera(
-        VisionConstants.kAprilTagCameraGrayConfig.getName(),
-        VisionConstants.kAprilTagCameraGrayConfig.getRobotToCamera(),
-        m_tagLayout,
-        m_drive.getPoseEstimator());
+    // m_camera = new AprilTagCamera(
+    //     VisionConstants.kAprilTagCameraGrayConfig.getName(),
+    //     VisionConstants.kAprilTagCameraGrayConfig.getRobotToCamera(),
+    //     m_tagLayout,
+    //     m_drive.getPoseEstimator());
   }
 
   /**
@@ -228,7 +228,7 @@ public class RobotContainer {
 
     driverControls.testButton().onTrue(ChargeStationBalance.charge(m_drive));
     driverControls.resetPose().onTrue(m_drive.resetPoseCommand(new Pose2d(5, 3, Rotation2d.fromDegrees(0))));
-    driverControls.resetPoseToVisionEst().onTrue(m_drive.resetPoseCommand(m_camera::getLatestEstimatedPose));
+    // driverControls.resetPoseToVisionEst().onTrue(m_drive.resetPoseCommand(m_camera::getLatestEstimatedPose));
   }
 
   /**
