@@ -71,6 +71,10 @@ public final class Constants {
     public static final double kTurnI = 0.0;
     public static final double kTurnD = 0.005;
 
+    public static final double kHeadingP = 0.1;
+    public static final double kHeadingI = 0.0;
+    public static final double kHeadingD = 0.005;
+
     // Max Speeds
     public static final double kMaxSpeedMetersPerSecond = 4.0;
     public static final double kMaxSpeedRadiansPerSecond = Units.degreesToRadians(360);
