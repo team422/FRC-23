@@ -11,7 +11,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
@@ -40,7 +42,7 @@ public class Elevator extends SubsystemBase {
     m_elevatorFeedForward = elevatorFeedForward;
 
     m_controller = Constants.ElevatorConstants.elevatorPIDController;
-    m_controller.setTolerance(Units.inchesToMeters(0.3));
+    m_controller.setTolerance(Units.inchesToMeters(1.5));
     m_elevatorFeedForward = Constants.ElevatorConstants.elevatorFeedForward;
 
     m_elevatorAngle = elevatorAngle;
@@ -53,6 +55,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
+    System.out.println("Elevator is " + (atSetpoint() ? "at setpoint" : "not at setpoint"));
     if (Constants.tuningMode) {
       if (ElevatorConstants.kP.hasChanged() || ElevatorConstants.kI.hasChanged()
           || ElevatorConstants.kD.hasChanged()) {
@@ -159,8 +162,34 @@ public class Elevator extends SubsystemBase {
     return run(() -> setHeight(heightMeters));
   }
 
+  public Command testSetHeightCommand(double heightMeters) {
+    return Commands.sequence(
+        setHeightCommand(heightMeters),
+        Commands.waitSeconds(0.1),
+        waitUntilAtSetpointCommand());
+  }
+
+  public Command testSetHeightCommand(double heightMeters, double tolerance) {
+    return Commands.sequence(
+        setHeightCommand(heightMeters),
+        Commands.waitSeconds(0.1),
+        waitUntilWithinToleranceCommand(tolerance));
+  }
+
+  public Command waitUntilWithinToleranceCommand(double tolerance) {
+    return new WaitUntilCommand(() -> withinTolerance(tolerance));
+  }
+
+  public Command waitUntilAtSetpointCommand() {
+    return new WaitUntilCommand(this::atSetpoint);
+  }
+
   public boolean atSetpoint() {
-    return Math.abs(getTravelDistanceMeters() - m_desiredHeight) < 0.5;
+    return m_controller.atGoal();
+  }
+
+  public boolean withinTolerance(double tolerance) {
+    return Math.abs(m_controller.getGoal().position - m_inputs.heightMeters) < tolerance;
   }
 
   public Command moveCommand(Supplier<Double> heightDelta) {

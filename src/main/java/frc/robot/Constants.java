@@ -61,7 +61,8 @@ public final class Constants {
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(47.489), 25 };
     public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(50), 25 };
     // public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(47), 50 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 - 4.25 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 - 4.25 - 5 };
+    public static final double[] coneHighCommandSetpointsAuto = { Units.inchesToMeters(51), -5 - 4.25 };
     public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 - 4.25 };
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
@@ -143,12 +144,12 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final boolean kTuningMode = true;
 
-    public static final TunableNumber kP = new TunableNumber("Elevator P", 12.8);
+    public static final TunableNumber kP = new TunableNumber("Elevator P", 14.0);
     public static final TunableNumber kManualSetpoint = new TunableNumber("Elevator Height", 0.0);
     public static final TunableNumber kI = new TunableNumber("Elevator I", 1.6);
     public static final TunableNumber kD = new TunableNumber("Elevator D", 0.3);
     public static final TunableNumber kKs = new TunableNumber("Elevator ks", .1);
-    public static final TunableNumber kKg = new TunableNumber("Elevator kg", .37);
+    public static final TunableNumber kKg = new TunableNumber("Elevator kg", .45);
     public static final TunableNumber kKv = new TunableNumber("Elevator kv", 0.1);
 
     public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(kKs.get(),
@@ -208,7 +209,7 @@ public final class Constants {
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);
-    public static final double kMaxHighElevatorAngularSpeedRadiansPerSecond = Units.degreesToRadians(120);
+    public static final double kMaxHighElevatorAngularSpeedRadiansPerSecond = Units.degreesToRadians(240);
 
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(180);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
@@ -291,13 +292,13 @@ public final class Constants {
 
   public static final class WristConstants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
-    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 12.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 4.0);
-    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 3.8);
+    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 15.0);
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 6.5);
+    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 4.0);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);
     public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.0);
-    public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .53);
+    public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6);
     public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.0);
     public static final TunableNumber kWristka = new TunableNumber("Wrist ka", 0.0);
     public static final boolean kWristTuning = false;

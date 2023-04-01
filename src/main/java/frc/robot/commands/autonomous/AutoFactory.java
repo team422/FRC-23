@@ -45,9 +45,9 @@ public class AutoFactory extends CommandBase {
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.stowVerticalCommandSetpoints[1])),
         Commands.print("stow"));
     Command coneHigh = Commands.sequence(
-        m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpoints[0]),
+        m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpointsAuto[0]),
         Commands.waitSeconds(0.1),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.coneHighCommandSetpoints[1])),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.coneHighCommandSetpointsAuto[1])),
         Commands.print("coneHighElevator"));
     // Command coneHigh = RobotState.getInstance().setpointCommandCone(null)
     Command cubeHigh = Commands.sequence(

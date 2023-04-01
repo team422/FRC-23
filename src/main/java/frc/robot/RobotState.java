@@ -306,11 +306,10 @@ public class RobotState {
   }
 
   public Command setpointCommandCone(double[] setpoint) {
-    return Commands.sequence(m_wrist.setAngleCommand(Rotation2d.fromDegrees(75)),
-        m_elevator.setHeightCommandContinously(setpoint[0]).until(() -> {
-          return m_elevator.atSetpoint();
-        })).andThen(
-            m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
+    return Commands.sequence(
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(75)),
+        m_elevator.testSetHeightCommand(setpoint[0], Units.inchesToMeters(20)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
   }
 
   public Command setpointCommandParallel(double[] setpoint) {

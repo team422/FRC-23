@@ -59,6 +59,8 @@ public class Wrist extends SubsystemBase {
     //         WristConstants.kWristkv.get(), WristConstants.kWristka.get());
     //   }
     // }
+    System.out.println("Wrist is " + (atSetpoint() ? "at setpoint" : "not at setpoint"));
+
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Wrist", m_inputs);
     Double curAngle = m_inputs.angleRad;
