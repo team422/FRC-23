@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import frc.lib.utils.GeometryUtil;
+import frc.robot.util.TunableNumber;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -24,6 +25,12 @@ import frc.lib.utils.GeometryUtil;
  */
 public final class Constants {
   public static final boolean kDebugMode = true;
+
+  public static final boolean tuningMode = true;
+
+  public static final class MetaConstants {
+    public static final boolean pathTuningMode = true;
+  }
 
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
@@ -62,14 +69,14 @@ public final class Constants {
     public static final double kTurnPositionConversionFactor = 2 * Math.PI / kTurnGearRatio;
 
     // PID Values
-    public static final double kDriveP = 0.1;
-    public static final double kDriveI = 0.0;
-    public static final double kDriveD = 0.001;
-    public static final double kDriveFF = 2.96;
+    public static final TunableNumber kDriveP = new TunableNumber("Drive P", 0.1);
+    public static final TunableNumber kDriveI = new TunableNumber("Drive I", 0.0);
+    public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
+    public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final double kTurnP = 0.1;
-    public static final double kTurnI = 0.0;
-    public static final double kTurnD = 0.005;
+    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
+    public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
+    public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
 
     // Max Speeds
     public static final double kMaxSpeedMetersPerSecond = 4.0;

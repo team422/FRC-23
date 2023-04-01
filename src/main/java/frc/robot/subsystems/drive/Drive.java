@@ -101,9 +101,9 @@ public class Drive extends SubsystemBase {
 
     // Update SOK Log Inputs
 
-    // for (int i = 0; i < m_modules.length; i++) {
-    //   Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
-    // }
+    for (int i = 0; i < m_modules.length; i++) {
+      Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
+    }
 
     m_poseEstimator.update(m_gyro.getRawGyroAngle(), getModulePositions());
 
@@ -177,7 +177,7 @@ public class Drive extends SubsystemBase {
     m_poseEstimator.addVisionMeasurement(
         sokEstPose,
         Timer.getFPGATimestamp(),
-        VecBuilder.fill(30, 30, Units.degreesToRadians(1000)));
+        VecBuilder.fill(20, 20, Units.degreesToRadians(250)));
   }
 
   public void fieldRelativeDrive(ChassisSpeeds speeds) {
