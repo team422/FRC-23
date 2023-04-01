@@ -292,14 +292,14 @@ public final class Constants {
 
   public static final class WristConstants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
-    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 15.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 8.5);
-    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 6.0);
+    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 20.0);
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 18.5);
+    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 5.0);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
-    public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);
-    public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.0);
+    public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.08);
+    public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.05);
     public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6);
-    public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.0);
+    public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.08);
     public static final TunableNumber kWristka = new TunableNumber("Wrist ka", 0.0);
     public static final boolean kWristTuning = false;
 
