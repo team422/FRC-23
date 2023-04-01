@@ -121,7 +121,7 @@ public class Drive extends SubsystemBase {
     SwerveModuleState[] moduleStates = getModuleStates();
     for (int i = 0; i < m_modules.length; i++) {
       //update moduleAccels and m_moduleSteerThetaVels
-      m_moduleAccelerations[i].calculate(moduleStates[i], deltaTime);
+      m_moduleAccelerations[i] = m_moduleAccelerations[i].calculate(moduleStates[i], deltaTime);
       m_moduleSteerThetaVels[i] = new Rotation2d(
           moduleStates[i].angle.minus(m_moduleSteerOldTheta[i]).getRadians() / deltaTime);
     }
@@ -137,13 +137,20 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < m_modules.length; i++) {
       moduleVelocities[i] = moduleStates[i].speedMetersPerSecond;
     }
-    Rotation2d robotTheta = m_gyro.getRawGyroAngle();
+    Rotation2d robotTheta = getPose().getRotation();
     ChassisSpeeds sokChassisSpeeds = DriveConstants.kDriveKinematics
-        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
+        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(
+            m_moduleAccelerations,
+            moduleStates,
             m_moduleSteerThetaVels,
-            moduleVelocities, m_robotThetaVel, robotTheta, deltaTime));
-    return getPose().exp(new Twist2d(sokChassisSpeeds.vxMetersPerSecond * deltaTime,
-        sokChassisSpeeds.vyMetersPerSecond * deltaTime, getChassisSpeeds().omegaRadiansPerSecond * deltaTime));
+            moduleVelocities,
+            m_robotThetaVel,
+            robotTheta,
+            deltaTime));
+    return getPose().exp(new Twist2d(
+        sokChassisSpeeds.vxMetersPerSecond * deltaTime,
+        sokChassisSpeeds.vyMetersPerSecond * deltaTime,
+        sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
   }
 
   private void addAccel() {
