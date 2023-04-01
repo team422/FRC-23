@@ -83,12 +83,12 @@
         "y": 4.765856731366241
       },
       "prevControl": {
-        "x": 4.78885312444758,
-        "y": 4.75631842714458
+        "x": 5.097851049868767,
+        "y": 4.754723042432196
       },
       "nextControl": {
-        "x": 4.3108964013066915,
-        "y": 4.7775702999322665
+        "x": 3.9148729274094527,
+        "y": 4.779881637858891
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -108,12 +108,12 @@
         "y": 4.3771634140490505
       },
       "prevControl": {
-        "x": 2.0148963697641453,
-        "y": 4.642910874874037
+        "x": 2.664966053890441,
+        "y": 4.860377111379223
       },
       "nextControl": {
-        "x": 2.0148963697641453,
-        "y": 4.642910874874037
+        "x": 2.664966053890441,
+        "y": 4.860377111379223
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
@@ -135,14 +135,14 @@
         "y": 4.845010301131713
       },
       "prevControl": {
-        "x": 4.6134360400380094,
-        "y": 4.890878512747547
+        "x": 4.134497017257924,
+        "y": 4.711406033923179
       },
       "nextControl": {
-        "x": 5.361108118793619,
-        "y": 4.787751329470913
+        "x": 5.817666724143323,
+        "y": 4.988526443003066
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -127.30980620970773,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -158,56 +158,6 @@
     },
     {
       "anchorPoint": {
-        "x": 5.8939098086529516,
-        "y": 4.715871107089437
-      },
-      "prevControl": {
-        "x": 5.727600330200661,
-        "y": 4.782557264767307
-      },
-      "nextControl": {
-        "x": 6.086573537516269,
-        "y": 4.638617519853448
-      },
-      "holonomicAngle": -46.06460017937236,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.433662249983813,
-        "y": 4.341042898538004
-      },
-      "prevControl": {
-        "x": 6.337822096543956,
-        "y": 4.477554226410588
-      },
-      "nextControl": {
-        "x": 6.531806618300736,
-        "y": 4.201249528418175
-      },
-      "holonomicAngle": -47.50499771739658,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
         "x": 6.691766194296278,
         "y": 3.6480227647955297
       },
@@ -215,7 +165,10 @@
         "x": 7.090074768027396,
         "y": 3.4571475436864283
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 6.29345762056516,
+        "y": 3.838897985904631
+      },
       "holonomicAngle": -59.333231740316876,
       "isReversal": false,
       "velOverride": 0.5,
@@ -226,6 +179,28 @@
         "executionBehavior": "parallel",
         "waitBehavior": "minimum",
         "waitTime": 0.3
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.331363726963565,
+        "y": 4.638109248440719
+      },
+      "prevControl": {
+        "x": 4.766043924448958,
+        "y": 5.408711291380915
+      },
+      "nextControl": null,
+      "holonomicAngle": 179.5743242919947,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     }
   ],
@@ -278,9 +253,15 @@
       ]
     },
     {
-      "position": 7.900994318181818,
+      "position": 4.61740056818182,
       "names": [
-        "setpointStow"
+        "setpointCubeGround"
+      ]
+    },
+    {
+      "position": 7.0,
+      "names": [
+        "shootCube"
       ]
     }
   ]

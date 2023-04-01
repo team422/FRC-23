@@ -87,6 +87,7 @@ public class AutoFactory extends CommandBase {
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
     Command cubeDrop = m_intake.setDesiredSpeedCommand(-1);
+    Command shootCube = m_intake.setDesiredSpeedCommand(-1);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(
@@ -99,6 +100,7 @@ public class AutoFactory extends CommandBase {
         Map.entry("intakeCubeIn", cubePickup),
         Map.entry("setpointConeVertical", coneVertical),
         Map.entry("intakeCubeOut", cubeDrop),
+        Map.entry("shootCube", shootCube),
         Map.entry("intakeConeIn", conePickup),
         Map.entry("intakeConeOut", coneDrop),
         Map.entry("wait", Commands.waitSeconds(.2)),
