@@ -45,19 +45,20 @@ public class CameraAprilTag extends SubsystemBase {
       m_photonEstimator.update(m_result).ifPresent(pose -> {
         frc.robot.RobotState.getInstance().setCamPositionLowConfidence(pose.estimatedPose);
       });
-      m_photonEstimator.update(m_result).ifPresent(pose -> {
-        lastPose3d = pose.estimatedPose;
-        // System.out.println(pose.estimatedPose);
-        Logger.getInstance().recordOutput("Camera/" + m_camName, pose.estimatedPose);
-        m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
-            getMatrixStdsOneCamera(pose, getPipelineResult()));
-      });
+      // m_photonEstimator.update(m_result).ifPresent(pose -> {
+      //   lastPose3d = pose.estimatedPose;
+      //   // System.out.println(pose.estimatedPose);
+      //   Logger.getInstance().recordOutput("Camera/" + m_camName, pose.estimatedPose);
+      //   m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
+      //       getMatrixStdsOneCamera(pose, getPipelineResult()));
+      // });
 
     } else {
       m_photonEstimator.update(m_result).ifPresent(pose -> {
         lastPose3d = pose.estimatedPose;
         // System.out.println(pose.estimatedPose);
         Logger.getInstance().recordOutput("Camera/" + m_camName, pose.estimatedPose);
+        frc.robot.RobotState.getInstance().set3dPosition(pose.estimatedPose);
         m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
             getMatrixStds(pose, getPipelineResult()));
       });

@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -101,6 +102,29 @@ public class Wrist extends SubsystemBase {
 
   public Command setAngleCommand(Rotation2d angle) {
     return run(() -> setAngle(angle)).until(m_controller::atGoal);
+  }
+
+  public Command testSetAngleCommandOnce(Rotation2d angle) {
+    return runOnce(() -> setAngle(angle));
+  }
+
+  public Command testSetAngleCommand(Rotation2d angle) {
+    return testSetAngleCommand(angle, Units.degreesToRadians(3.0));
+  }
+
+  public Command testSetAngleCommand(Rotation2d angle, double toleranceRadians) {
+    return Commands.sequence(
+        testSetAngleCommandOnce(angle),
+        Commands.waitSeconds(0.1),
+        waitUntilWithinTolerance(toleranceRadians));
+  }
+
+  public Command waitUntilWithinTolerance(double toleranceRadians) {
+    return Commands.waitUntil(() -> withinTolerance(toleranceRadians));
+  }
+
+  public boolean withinTolerance(double toleranceRadians) {
+    return Math.abs(m_controller.getGoal().position - m_inputs.angleRad) < toleranceRadians;
   }
 
   public Command moveCommand(Supplier<Double> delta) {

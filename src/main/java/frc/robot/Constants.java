@@ -205,7 +205,7 @@ public final class Constants {
     public static final double kMaxAcceptedErrorMeters = 0.5;
     public static final Rotation2d kMaxAcceptedAngleError = Rotation2d.fromDegrees(10);
 
-    public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
+    public static final double kMaxSpeedMetersPerSecondAuto = 3.85; // 3.85 is correct 2023-04-01
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);

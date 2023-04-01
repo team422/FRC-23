@@ -108,7 +108,7 @@ public class RobotState {
   public void set3dPosition(Pose3d pose) {
     m_robotPose = pose;
     m_lastCameraTimestamp = Timer.getFPGATimestamp();
-    Logger.getInstance().recordOutput("Drive/VisionHighConfidence", pose);
+    Logger.getInstance().recordOutput("Drive/VisionHighConfidence", pose.toPose2d());
   }
 
   public void increasePoseSetpoint() {
