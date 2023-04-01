@@ -71,10 +71,10 @@ public final class Constants {
     // PID Values
     public static final TunableNumber kDriveP = new TunableNumber("Drive P", 0.1);
     public static final TunableNumber kDriveI = new TunableNumber("Drive I", 0.0);
-    public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
+    public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.001);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurnP = new TunableNumber("TrP", 0.05);
+    public static final TunableNumber kTurnP = new TunableNumber("TrP", 0.6);
     public static final TunableNumber kTurnI = new TunableNumber("Turnin I", 0.00);
     public static final TunableNumber kTurnD = new TunableNumber("Turnin D", 0.005);
 
