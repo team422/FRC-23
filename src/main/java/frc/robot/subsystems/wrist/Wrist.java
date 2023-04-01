@@ -43,24 +43,6 @@ public class Wrist extends SubsystemBase {
   }
 
   public void periodic() {
-    // if (WristConstants.kWristTuning) {
-    //   if (WristConstants.kWristP.hasChanged() || WristConstants.kWristI.hasChanged()
-    //       || WristConstants.kWristD.hasChanged() || WristConstants.kWristAccel.hasChanged()
-    //       || WristConstants.kWristVelo.hasChanged()) {
-    //     m_controller.setPID(WristConstants.kWristP.get(), WristConstants.kWristI.get(), WristConstants.kWristD.get());
-    //     m_controller.setConstraints(new Constraints(WristConstants.kWristVelo.get(), WristConstants.kWristAccel.get()));
-    //   }
-    //   if (WristConstants.kWristSetpoint.hasChanged()) {
-    //     setAngle(Rotation2d.fromDegrees(WristConstants.kWristSetpoint.get()));
-    //   }
-    //   if (WristConstants.kWristkg.hasChanged() || WristConstants.kWristks.hasChanged()
-    //       || WristConstants.kWristkv.hasChanged() || WristConstants.kWristka.hasChanged()) {
-    //     m_feedforward = new ArmFeedforward(WristConstants.kWristks.get(), WristConstants.kWristkg.get(),
-    //         WristConstants.kWristkv.get(), WristConstants.kWristka.get());
-    //   }
-    // }
-    System.out.println("Wrist is " + (atSetpoint() ? "at setpoint" : "not at setpoint"));
-
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Wrist", m_inputs);
     Double curAngle = m_inputs.angleRad;

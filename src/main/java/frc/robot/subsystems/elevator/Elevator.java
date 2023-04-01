@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
@@ -55,7 +54,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    System.out.println("Elevator is " + (atSetpoint() ? "at setpoint" : "not at setpoint"));
     if (Constants.tuningMode) {
       if (ElevatorConstants.kP.hasChanged() || ElevatorConstants.kI.hasChanged()
           || ElevatorConstants.kD.hasChanged()) {
@@ -154,7 +152,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setHeightCommand(double heightMeters) {
-
     return runOnce(() -> setHeight(heightMeters));
   }
 
@@ -177,11 +174,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command waitUntilWithinToleranceCommand(double tolerance) {
-    return new WaitUntilCommand(() -> withinTolerance(tolerance));
+    return Commands.waitUntil(() -> withinTolerance(tolerance));
   }
 
   public Command waitUntilAtSetpointCommand() {
-    return new WaitUntilCommand(this::atSetpoint);
+    return Commands.waitUntil(this::atSetpoint);
   }
 
   public boolean atSetpoint() {
@@ -206,6 +203,5 @@ public class Elevator extends SubsystemBase {
 
   public void setBrakeMode(boolean mode) {
     m_io.setBrakeMode(mode);
-
   }
 }

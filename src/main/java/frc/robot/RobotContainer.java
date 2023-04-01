@@ -232,15 +232,15 @@ public class RobotContainer {
     OperatorControls operatorControls = new OperatorControlsXbox(5);
 
     Command pickUpConeVerticalCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommandCone(Setpoints.pickUpConeVerticalCommandSetpoints),
+        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpConeVerticalCommandSetpoints),
         m_intake.intakeConeCommand());
 
     Command pickUpCubeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommandCube(Setpoints.pickUpCubeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpCubeGroundCommandSetpoints),
         m_intake.intakeCubeCommand());
 
     Command pickUpConeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommandCone(Setpoints.pickUpConeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpConeGroundCommandSetpoints),
         m_intake.intakeConeCommand());
     Command pickUpConeGroundCommandDriver = RobotState.getInstance()
         .setpointCommandParallel(Setpoints.pickUpConeGroundCommandSetpoints);
@@ -253,11 +253,11 @@ public class RobotContainer {
         RobotState.getInstance().setpointCommandParallel(Setpoints.intakeFromLoadingStationCommand),
         m_intake.intakeConeCommand());
 
-    Command coneMidCommand = RobotState.getInstance().setpointCommandCone(Setpoints.coneMidCommandSetpoints);
-    Command coneHighCommand = RobotState.getInstance().setpointCommandCone(Setpoints.coneHighCommandSetpoints);
+    Command coneMidCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneMidCommandSetpoints);
+    Command coneHighCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneHighCommandSetpoints);
 
-    Command cubeMidCommand = RobotState.getInstance().setpointCommandCube(Setpoints.cubeMidCommandSetpoints);
-    Command cubeHighCommand = RobotState.getInstance().setpointCommandCube(Setpoints.cubeHighCommandSetpoints);
+    Command cubeMidCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.cubeMidCommandSetpoints);
+    Command cubeHighCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.cubeHighCommandSetpoints);
 
     // Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
     //     DriveConstants.holonomicDrive,
