@@ -74,9 +74,9 @@ public final class Constants {
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
-    public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
-    public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
+    public static final TunableNumber kTurnP = new TunableNumber("TrP", 0.05);
+    public static final TunableNumber kTurnI = new TunableNumber("Turnin I", 0.00);
+    public static final TunableNumber kTurnD = new TunableNumber("Turnin D", 0.005);
 
     // Max Speeds
     public static final double kMaxSpeedMetersPerSecond = 4.0;
