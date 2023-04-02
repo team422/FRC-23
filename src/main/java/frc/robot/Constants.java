@@ -74,13 +74,20 @@ public final class Constants {
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.001);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurnP = new TunableNumber("TrP", 0.6);
-    public static final TunableNumber kTurnI = new TunableNumber("Turnin I", 0.00);
-    public static final TunableNumber kTurnD = new TunableNumber("Turnin D", 0.005);
+    public static final TunableNumber kTurnP = new TunableNumber("TurnP", 0.6);
+    public static final TunableNumber kTurnI = new TunableNumber("Turn I", 0.00);
+    public static final TunableNumber kTurnD = new TunableNumber("Turn D", 0.005);
 
-    public static final double kHeadingP = 0.1;
-    public static final double kHeadingI = 0.0;
-    public static final double kHeadingD = 0.005;
+    //never used
+    // public static final double kHeadingP = 0.1;
+    // public static final double kHeadingI = 0.0;
+    // public static final double kHeadingD = 0.005;
+
+    //SOK Std Devs
+
+    public static final TunableNumber kSOKStDevX = new TunableNumber("SOKStDevX", 10);
+    public static final TunableNumber kSOKStDevY = new TunableNumber("SOKStDevY", 10);
+    public static final TunableNumber kSOKStDevTheta = new TunableNumber("SOKStDevTheta", 100);
 
     // Max Speeds
     public static final double kMaxSpeedMetersPerSecond = 4.0;

@@ -105,6 +105,9 @@ public class Drive extends SubsystemBase {
       Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
     }
 
+    //Update Robot Pose Logs 
+    Logger.getInstance().recordOutput("Drive/Pose", getPose());
+
     m_poseEstimator.update(m_gyro.getRawGyroAngle(), getModulePositions());
 
     addAccel();
@@ -176,10 +179,11 @@ public class Drive extends SubsystemBase {
 
     //commented out for future testing of other fixes to figure-8s
 
-    // m_poseEstimator.addVisionMeasurement(
-    //     sokEstPose,
-    //     Timer.getFPGATimestamp(),
-    //     VecBuilder.fill(20, 20, Units.degreesToRadians(250)));
+    m_poseEstimator.addVisionMeasurement(
+        sokEstPose,
+        Timer.getFPGATimestamp(),
+        VecBuilder.fill(DriveConstants.kSOKStDevX.get(), DriveConstants.kSOKStDevY.get(),
+            Units.degreesToRadians(DriveConstants.kSOKStDevTheta.get())));
   }
 
   public void fieldRelativeDrive(ChassisSpeeds speeds) {
