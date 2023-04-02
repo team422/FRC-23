@@ -249,10 +249,6 @@ public class RobotContainer {
     Command pickUpCubeGroundCommandDriver = RobotState.getInstance()
         .setpointCommandParallel(Setpoints.pickUpCubeGroundCommandSetpoints);
 
-    Command intakeFromLoadingStationCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommandParallel(Setpoints.intakeFromLoadingStationCommand),
-        m_intake.intakeConeCommand());
-
     Command coneMidCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneMidCommandSetpoints);
     Command coneHighCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneHighCommandSetpoints);
 
@@ -273,8 +269,7 @@ public class RobotContainer {
     operatorControls.charge().whileTrue(chargeCommand);
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])),
-        m_intake.intakeConeCommand());
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])));
 
     // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     // FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
@@ -303,13 +298,10 @@ public class RobotContainer {
             .parallel(RobotState.getInstance().setpointCommandParallel(Setpoints.stowVerticalCommandSetpoints)));
     operatorControls.intakeCubeGround().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).whileTrue(pickUpCubeGroundCommand).onFalse(stowCommand);
-    operatorControls.intakeFromLoadingStation().and(operatorControls.heightModifier().negate())
-        .and(operatorControls.columnModifier().negate()).whileTrue(intakeFromLoadingStationCommand)
-        .onFalse(stowCommand);
     operatorControls.stow().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).onTrue(stowCommand);
-    operatorControls.dropStationButton().and(operatorControls.heightModifier().negate())
-        .and(operatorControls.columnModifier().negate()).whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
+    // operatorControls.dropStationButton().and(operatorControls.heightModifier().negate())
+    //     .and(operatorControls.columnModifier().negate()).whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
     operatorControls.dropStationButton().whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
 
     operatorControls.columnModifier().and(operatorControls.firstGrid())

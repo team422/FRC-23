@@ -53,7 +53,7 @@ public final class Constants {
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
     public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 - 4.25 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -19 - 4.25 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -20 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 - 4.25 };
     public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 - 4.25 };
     public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 - 4.25 };
@@ -182,7 +182,7 @@ public final class Constants {
 
   public static final class DriveConstants {
 
-    public static final double kDriveDeadband = 0.04;
+    public static final double kDriveDeadband = 0.1;
 
     public static final double kWheelDiameter = Units.inchesToMeters(3.7);
 
@@ -199,7 +199,7 @@ public final class Constants {
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;
     public static final double kMaxSpeedMetersPerSecond = 8.5; // 8.5
-    public static final double kMaxHighElevatorSpeedMetersPerSecond = 2.5; // 8.5
+    public static final double kMaxHighElevatorSpeedMetersPerSecond = 1.8; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
 
     public static final double kMaxAcceptedErrorMeters = 0.5;

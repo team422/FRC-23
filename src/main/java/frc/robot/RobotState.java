@@ -301,7 +301,7 @@ public class RobotState {
   public Command setpointCommandSequential(double[] setpoint) {
     return Commands.sequence(
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(75)),
-        m_elevator.testSetHeightCommand(setpoint[0], Units.inchesToMeters(20)),
+        m_elevator.testSetHeightCommand(setpoint[0], Units.inchesToMeters(46)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
   }
 

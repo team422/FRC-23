@@ -55,7 +55,7 @@ public class AutoFactory extends CommandBase {
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
         m_elevator.testSetHeightCommand(Setpoints.cubeHighCommandSetpointsAuto[0], Units.inchesToMeters(25)),
         m_wrist.testSetAngleCommand(Rotation2d.fromDegrees(Setpoints.cubeHighCommandSetpointsAuto[1])),
-        Commands.print("coneHighElevator"));
+        Commands.print("cubeHighElevator"));
 
     Command autoConeHigh = Commands.sequence(
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
@@ -84,8 +84,8 @@ public class AutoFactory extends CommandBase {
     Command zeroHeading = new ZeroHeading(m_drive);
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
-    Command cubeDrop = m_intake.setDesiredSpeedCommand(-1);
-    Command shootCube = m_intake.setDesiredSpeedCommand(-1);
+    Command cubeDrop = m_intake.setDesiredSpeedCommand(-.6);
+    Command shootCube = m_intake.setDesiredSpeedCommand(-.6);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(
