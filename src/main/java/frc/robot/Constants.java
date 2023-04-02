@@ -201,6 +201,12 @@ public final class Constants {
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
         new PIDController(.01, 0, 0));
+
+    //SOK Std Devs
+    public static final TunableNumber kSOKStDevX = new TunableNumber("SOKStDevX", 10);
+    public static final TunableNumber kSOKStDevY = new TunableNumber("SOKStDevY", 10);
+    public static final TunableNumber kSOKStDevTheta = new TunableNumber("SOKStDevTheta", 100);
+
   }
 
   public static final class ModuleConstants {
@@ -209,7 +215,7 @@ public final class Constants {
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
+    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.6);
     public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
     public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
 

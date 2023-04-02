@@ -29,9 +29,13 @@ public class Drive extends SubsystemBase {
   private final SwerveModuleInputsAutoLogged[] m_inputs;
 
   private final SecondOrderKinematics m_SecondOrderKinematics;
-  private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[4];
-  private Rotation2d[] m_moduleSteerThetaVels = new Rotation2d[4];
-  private Rotation2d[] m_moduleSteerOldTheta = new Rotation2d[4];
+  private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[] {
+      new SwerveModuleAcceleration(), new SwerveModuleAcceleration(), new SwerveModuleAcceleration(),
+      new SwerveModuleAcceleration() };
+  private Rotation2d[] m_moduleSteerThetaVels = new Rotation2d[] { new Rotation2d(), new Rotation2d(), new Rotation2d(),
+      new Rotation2d() };
+  private Rotation2d[] m_moduleSteerOldTheta = new Rotation2d[] { new Rotation2d(), new Rotation2d(), new Rotation2d(),
+      new Rotation2d() };
   private Rotation2d m_oldRobotTheta = new Rotation2d();
   private Rotation2d m_robotThetaVel = new Rotation2d();
 
@@ -71,15 +75,17 @@ public class Drive extends SubsystemBase {
 
     updateSOKVars(m_deltaTime);
 
+    //Update Gyro Inputs/Logs
     m_gyro.updateInputs(m_gyroInputs);
-    // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+    Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+
+    //Update Swerve Module Inputs/Logs
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
       Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
     }
 
     // Update SOK Log Inputs
-
     for (int i = 0; i < m_modules.length; i++) {
       Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
     }
@@ -123,36 +129,42 @@ public class Drive extends SubsystemBase {
     m_robotThetaVel = new Rotation2d(m_gyro.getAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
   }
 
-  public ChassisSpeeds getChassisSpeedsfromAccel() {
+  public Pose2d getPose2dfromSOK(
+      double deltaTime) {
 
     SwerveModuleState[] moduleStates = getModuleStates();
     double[] moduleVelocities = new double[m_modules.length];
     for (int i = 0; i < m_modules.length; i++) {
       moduleVelocities[i] = moduleStates[i].speedMetersPerSecond;
     }
-    Rotation2d robotTheta = m_gyro.getAngle();
-    return DriveConstants.kDriveKinematics
-        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(m_moduleAccelerations, moduleStates,
+    Rotation2d robotTheta = getPose().getRotation();
+    ChassisSpeeds sokChassisSpeeds = DriveConstants.kDriveKinematics
+        .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(
+            m_moduleAccelerations,
+            moduleStates,
             m_moduleSteerThetaVels,
-            moduleVelocities, m_robotThetaVel, robotTheta, m_deltaTime));
-  }
-
-  public Pose2d getPose2dfromSOK(double deltaTime) {
-
-    ChassisSpeeds sokChassisSpeeds = getChassisSpeedsfromAccel();
-    return getPose().exp(new Twist2d(sokChassisSpeeds.vxMetersPerSecond * deltaTime,
-        sokChassisSpeeds.vyMetersPerSecond * deltaTime, sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
+            moduleVelocities,
+            m_robotThetaVel,
+            robotTheta,
+            deltaTime));
+    return getPose().exp(new Twist2d(
+        sokChassisSpeeds.vxMetersPerSecond * deltaTime,
+        sokChassisSpeeds.vyMetersPerSecond * deltaTime,
+        sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
   }
 
   private void addAccel() {
-
     Pose2d sokEstPose = getPose2dfromSOK(0.02); //deltaTime finally chosen to be tick time xd
+
     Logger.getInstance().recordOutput("Drive/SOK/Estimatedpose", sokEstPose);
+
+    //commented out for future testing of other fixes to figure-8s
 
     m_poseEstimator.addVisionMeasurement(
         sokEstPose,
         Timer.getFPGATimestamp(),
-        VecBuilder.fill(50, 50, Units.degreesToRadians(1000)));
+        VecBuilder.fill(DriveConstants.kSOKStDevX.get(), DriveConstants.kSOKStDevY.get(),
+            Units.degreesToRadians(DriveConstants.kSOKStDevTheta.get())));
   }
 
   public void resetOdometry() {
