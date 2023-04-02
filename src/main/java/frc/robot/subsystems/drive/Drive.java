@@ -100,7 +100,6 @@ public class Drive extends SubsystemBase {
     }
 
     // Update SOK Log Inputs
-
     for (int i = 0; i < m_modules.length; i++) {
       Logger.getInstance().recordOutput("Drive/SOK/ModuleAccels" + i, m_moduleAccelerations[i].getAccel());
     }
