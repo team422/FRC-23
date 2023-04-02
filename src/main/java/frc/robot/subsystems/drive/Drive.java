@@ -174,10 +174,12 @@ public class Drive extends SubsystemBase {
 
     Logger.getInstance().recordOutput("Drive/SOK/Estimatedpose", sokEstPose);
 
-    m_poseEstimator.addVisionMeasurement(
-        sokEstPose,
-        Timer.getFPGATimestamp(),
-        VecBuilder.fill(20, 20, Units.degreesToRadians(250)));
+    //commented out for future testing of other fixes to figure-8s
+
+    // m_poseEstimator.addVisionMeasurement(
+    //     sokEstPose,
+    //     Timer.getFPGATimestamp(),
+    //     VecBuilder.fill(20, 20, Units.degreesToRadians(250)));
   }
 
   public void fieldRelativeDrive(ChassisSpeeds speeds) {

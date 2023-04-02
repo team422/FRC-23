@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -48,14 +49,13 @@ public abstract class BaseDriveCommand extends CommandBase {
     double y = getYSpeed();
     double omega = getRotationSpeed();
     boolean isFieldRelative = getFieldRelative();
-    // double desiredHeading = m_drive.getPose().getRotation() + (joystick.getAxis(x));
 
-    ChassisSpeeds speeds = getChassisSpeeds(x, y, omega, isFieldRelative);
-    // ChassisSpeeds speeds = getChassisSpeeds(x,
-    //     y,
-    //     headingPIDController.calculate(desiredHeading, m_drive.getPose().getRotation().getRadians()),
-    //     isFieldRelative);
-    m_drive.acceptSpeeds(speeds);
+    Pose2d robotPoseVel = new Pose2d(x * 0.02, y * 0.02, Rotation2d.fromRadians(omega * 0.02));
+    Twist2d twistVel = new Pose2d(0, 0, Rotation2d.fromRadians(0)).log(robotPoseVel);
+    ChassisSpeeds newChassisSpeeds = getChassisSpeeds(
+        twistVel.dx / 0.02, twistVel.dy / 0.02, twistVel.dtheta / 0.02, isFieldRelative);
+
+    m_drive.acceptSpeeds(newChassisSpeeds);
   }
 
   /**
