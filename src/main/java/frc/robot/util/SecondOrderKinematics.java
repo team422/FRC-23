@@ -144,7 +144,7 @@ public class SecondOrderKinematics {
       modPosesFromAccelXY[i] = new SwerveModulePoseVelocity(velXFromAccel[i], velYFromAccel[i]);
     }
 
-    //Create ModuleStates from velx, velY, and Theta
+    //Create ModuleStates from velx, velY, and atan2(velX,velY)
     for (int i = 0; i < 4; i++) {
       double velXY = Math.sqrt(velXFromAccel[i] * velXFromAccel[i] + velYFromAccel[i] * velYFromAccel[i]);
       modStatesFromAccelXY[i] = new SwerveModuleState(velXY,
