@@ -106,7 +106,7 @@ public class Drive extends SubsystemBase {
 
     //Update Robot Pose Logs 
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
-    System.out.println(getPose().toString());
+    // System.out.println(getPose().toString());
 
     m_poseEstimator.update(m_gyro.getRawGyroAngle(), getModulePositions());
 
@@ -140,7 +140,7 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < m_modules.length; i++) {
       moduleVelocities[i] = moduleStates[i].speedMetersPerSecond;
     }
-    Rotation2d robotTheta = getPose().getRotation();
+    Rotation2d robotTheta = new Rotation2d(25);
     ChassisSpeeds sokChassisSpeeds = DriveConstants.kDriveKinematics
         .toChassisSpeeds(m_SecondOrderKinematics.getModuleStatesFromAccelXY(
             m_moduleAccelerations,
@@ -160,11 +160,11 @@ public class Drive extends SubsystemBase {
 
     //Implement Accelerometer into pose calculations
 
-    // Twist2d twist = new Twist2d(m_accelInputs.accelX, m_accelInputs.accelY, 0);
+    Twist2d twist = new Twist2d(m_accelInputs.accelX, m_accelInputs.accelY, 0);
 
-    // Pose2d accelEstPose = getPoseEstimator().getEstimatedPosition().exp(twist);
+    Pose2d accelEstPose = getPoseEstimator().getEstimatedPosition().exp(twist);
 
-    // Logger.getInstance().recordOutput("Drive/Accel/EstimatedPose", accelEstPose);
+    Logger.getInstance().recordOutput("Drive/Accel/EstimatedPose", accelEstPose);
 
     // m_poseEstimator.addVisionMeasurement(
     //     accelEstPose,
