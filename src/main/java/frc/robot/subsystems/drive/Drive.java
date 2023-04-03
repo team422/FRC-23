@@ -108,7 +108,7 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
     // System.out.println(getPose().toString());
 
-    m_poseEstimator.update(m_gyro.getRawGyroAngle(), getModulePositions());
+    m_poseEstimator.update(m_gyro.getRotation2d(), getModulePositions());
 
     addAccel();
 
@@ -129,7 +129,7 @@ public class Drive extends SubsystemBase {
           moduleStates[i].angle.minus(m_moduleSteerOldTheta[i]).getRadians() / deltaTime);
     }
     //update robotThetaVel
-    m_robotThetaVel = new Rotation2d(m_gyro.getRawGyroAngle().minus(m_oldRobotTheta).getRadians() / deltaTime);
+    m_robotThetaVel = new Rotation2d(m_gyro.getRotation2d().minus(m_oldRobotTheta).getRadians() / deltaTime);
   }
 
   public Pose2d getPose2dfromSOK(
@@ -166,10 +166,10 @@ public class Drive extends SubsystemBase {
 
     Logger.getInstance().recordOutput("Drive/Accel/EstimatedPose", accelEstPose);
 
-    // m_poseEstimator.addVisionMeasurement(
-    //     accelEstPose,
-    //     Timer.getFPGATimestamp(),
-    //     VecBuilder.fill(30, 30, Units.degreesToRadians(1000)));    
+    m_poseEstimator.addVisionMeasurement(
+        accelEstPose,
+        Timer.getFPGATimestamp(),
+        VecBuilder.fill(30, 30, Units.degreesToRadians(1000)));
 
     //Implement SOK into pose calculations
 
@@ -179,11 +179,11 @@ public class Drive extends SubsystemBase {
 
     //commented out for future testing of other fixes to figure-8s
 
-    // m_poseEstimator.addVisionMeasurement(
-    //     sokEstPose,
-    //     Timer.getFPGATimestamp(),
-    //     VecBuilder.fill(DriveConstants.kSOKStDevX.get(), DriveConstants.kSOKStDevY.get(),
-    //         Units.degreesToRadians(DriveConstants.kSOKStDevTheta.get())));
+    m_poseEstimator.addVisionMeasurement(
+        sokEstPose,
+        Timer.getFPGATimestamp(),
+        VecBuilder.fill(DriveConstants.kSOKStDevX.get(), DriveConstants.kSOKStDevY.get(),
+            Units.degreesToRadians(DriveConstants.kSOKStDevTheta.get())));
   }
 
   public void fieldRelativeDrive(ChassisSpeeds speeds) {
@@ -308,8 +308,8 @@ public class Drive extends SubsystemBase {
 
     getGyro().addAngleOffset(Rotation2d.fromRadians(gyroDelta * deltaTime));
     m_simGyroLastUpdated = ts;
-    System.out.println(getGyro().getOrientation());
-    System.out.println(getGyro().getRawGyroAngle());
+    // System.out.println(getGyro().getOrientation());
+    // System.out.println(getGyro().getRawGyroAngle());
   }
 
   //#endregion
