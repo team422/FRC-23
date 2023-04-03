@@ -90,7 +90,7 @@ public final class Constants {
     public static final TunableNumber kSOKStDevTheta = new TunableNumber("SOKStDevTheta", 100);
 
     // Max Speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.0;
+    public static final double kMaxSpeedMetersPerSecond = 5.0;
     public static final double kMaxSpeedRadiansPerSecond = Units.degreesToRadians(360);
   }
 
