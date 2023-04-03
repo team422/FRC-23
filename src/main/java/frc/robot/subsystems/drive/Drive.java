@@ -308,6 +308,8 @@ public class Drive extends SubsystemBase {
 
     getGyro().addAngleOffset(Rotation2d.fromRadians(gyroDelta * deltaTime));
     m_simGyroLastUpdated = ts;
+    System.out.println(getGyro().getOrientation());
+    System.out.println(getGyro().getRawGyroAngle());
   }
 
   //#endregion
