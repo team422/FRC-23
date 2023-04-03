@@ -56,6 +56,7 @@ public abstract class BaseDriveCommand extends CommandBase {
         twistVel.dx / 0.02, twistVel.dy / 0.02, twistVel.dtheta / 0.02, isFieldRelative);
 
     m_drive.acceptSpeeds(newChassisSpeeds);
+    // System.out.println("i'm running!");
   }
 
   /**
