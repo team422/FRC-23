@@ -110,7 +110,7 @@ public class Drive extends SubsystemBase {
 
     m_poseEstimator.update(m_gyro.getRotation2d(), getModulePositions());
 
-    addAccel();
+    addAccelAndSOK();
 
     Logger.getInstance().recordOutput("Odometry", getPose());
     Logger.getInstance().recordOutput("ModuleStates", getModuleStates());
@@ -156,7 +156,7 @@ public class Drive extends SubsystemBase {
         sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
   }
 
-  private void addAccel() {
+  private void addAccelAndSOK() {
 
     //Implement Accelerometer into pose calculations
 
