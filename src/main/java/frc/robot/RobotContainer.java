@@ -249,6 +249,13 @@ public class RobotContainer {
     Command pickUpCubeGroundCommandDriver = RobotState.getInstance()
         .setpointCommandParallel(Setpoints.pickUpCubeGroundCommandSetpoints);
 
+    Command lebronJamesConeCommand = Commands.sequence(
+        m_elevator.setHeightCommand(Units.inchesToMeters(18)),
+        Commands.waitSeconds(0.1),
+        m_wrist.testSetAngleCommandOnce(Rotation2d.fromDegrees(20)),
+        Commands.waitSeconds(0.1),
+        m_intake.dropConeCommand());
+
     Command coneMidCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneMidCommandSetpoints);
     Command coneHighCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneHighCommandSetpoints);
 
@@ -343,6 +350,7 @@ public class RobotContainer {
     operatorControls.charge().whileTrue(chargeCommand);
 
     driverControls.resetDrive().onTrue(m_drive.resetFirmwareCommand());
+    driverControls.lebronJames().onTrue(lebronJamesConeCommand);
 
     // operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
     //   m_robotState.increasePoseSetpoint();

@@ -52,7 +52,7 @@ public final class Constants {
     public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 - 4.25 }; // OLD might revert
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
-    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 - 4.25 };
+    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 15 - 4.25 };
     public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -20 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 - 4.25 };
     public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 - 4.25 };

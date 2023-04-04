@@ -56,7 +56,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
   }
 
   @Override
-  public Trigger setpointMidCone() {
+  public Trigger lebronJames() {
     return m_rightJoystick.button(4);
   }
 
@@ -135,7 +135,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger autoScore() {
-    return m_rightJoystick.button(4);
+    return m_rightJoystick.button(9);
   }
 
   @Override

@@ -293,6 +293,7 @@ public class RobotState {
   }
 
   public double getMorphedVelocityMultiplier() {
+
     double travelPercent = MathUtil.clamp(m_elevator.getTravelDistanceMeters() / ElevatorConstants.kMaxTravelMeters, 0,
         1);
     return Math.sqrt(1 - travelPercent);
