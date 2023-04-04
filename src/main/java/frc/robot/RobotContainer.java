@@ -47,6 +47,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOMK4iSparkMax;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
+import frc.robot.subsystems.drive.accelerometer.AccelerometerIOSim;
+import frc.robot.subsystems.drive.accelerometer.AccelerometerIOWPI;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
@@ -59,6 +61,7 @@ import frc.robot.subsystems.vision.CameraAprilTag;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristIOThroughBoreSparkMaxAlternate;
+import frc.robot.util.Pigeon2Accel;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -133,7 +136,9 @@ public class RobotContainer {
               Ports.leftRearCanCoderPort),
           new SwerveModuleIOMK4iSparkMax(Constants.Ports.rightRearDriveMotorPort, Ports.rightRearTurningMotorPort,
               Ports.rightRearCanCoderPort) };
-      m_drive = new Drive(new GyroIOPigeon(Constants.Ports.pigeonPort, Constants.DriveConstants.pitchAngle),
+      GyroIOPigeon pigeon = new GyroIOPigeon(Constants.Ports.pigeonPort, Constants.DriveConstants.pitchAngle);
+      m_drive = new Drive(pigeon,
+          new AccelerometerIOWPI(new Pigeon2Accel(Constants.Ports.pigeonPort)),
           Constants.DriveConstants.startPose,
           m_swerveModuleIOs);
       m_throughboreSparkMaxIntakeMotor = new CANSparkMax(Constants.Ports.intakeMotorPort, MotorType.kBrushless);
@@ -172,7 +177,9 @@ public class RobotContainer {
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
-      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
+      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()),
+          new AccelerometerIOSim(),
+          new Pose2d(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(), new SwerveModuleIOSim());
