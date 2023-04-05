@@ -14,10 +14,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.accelerometer.AccelerometerIO;
 import frc.robot.subsystems.drive.accelerometer.AccelerometerInputsAutoLogged;
@@ -52,18 +54,21 @@ public class Drive extends SubsystemBase {
   private final double[] m_lockAngles = new double[] { 45, 315, 45, 315 };
 
   private final double m_deltaTime = 0.02;
-
+  private boolean m_hasResetOdometry;
   private double m_simGyroLastUpdated;
+  private double m_lastFPGATimestamp;
 
   /** Creates a new Drive. */
   public Drive(GyroIO gyro, AccelerometerIO accel, Pose2d startPose, SwerveModuleIO... modules) {
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
-    for (SwerveModuleIO module : m_modules) {
-      module.resetDistance();
-      module.syncTurningEncoder();
-      // module.resetEncoders();
+    for (int i = 0; i < 10; i++) {
+      for (SwerveModuleIO module : m_modules) {
+        module.resetDistance();
+        module.syncTurningEncoder();
+        // module.resetEncoders();
+      }
     }
 
     m_inputs = new SwerveModuleInputsAutoLogged[modules.length];
@@ -76,6 +81,25 @@ public class Drive extends SubsystemBase {
     m_accel = accel;
     m_accelInputs = new AccelerometerInputsAutoLogged();
     m_SecondOrderKinematics = new SecondOrderKinematics();
+    m_hasResetOdometry = false;
+    m_lastFPGATimestamp = Timer.getFPGATimestamp();
+  }
+
+  public Command resetFirmwareCommand() {
+    return Commands.none();
+    // return run(() -> {
+    //   for (SwerveModuleIO module : m_modules) {
+    //     module.syncTurningEncoder();
+    //     // module.resetEncoders();
+    //   }
+    // });
+  }
+
+  public void resetFirmware() {
+    for (SwerveModuleIO module : m_modules) {
+      module.syncTurningEncoder();
+      module.setUpModuleFirmware();
+    }
   }
 
   @Override
@@ -105,8 +129,14 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().recordOutput("Drive/Pose", getPose());
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
     Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
-    FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
-        DriveConstants.kModuleTranslations);
+    if (RobotConstants.AScopeLogging) {
+      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+          DriveConstants.kModuleTranslations);
+    }
+    if (m_lastFPGATimestamp < Timer.getFPGATimestamp()) {
+      m_lastFPGATimestamp = Timer.getFPGATimestamp() + 1;
+      resetFirmware();
+    }
 
   }
 
@@ -114,7 +144,13 @@ public class Drive extends SubsystemBase {
   public void simulationPeriodic() {
     double gyroDelta = getChassisSpeeds().omegaRadiansPerSecond;
     double ts = Timer.getFPGATimestamp();
-
+    Logger.getInstance().recordOutput("Drive/Pose", getPose());
+    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
+    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    if (RobotConstants.AScopeLogging) {
+      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+          DriveConstants.kModuleTranslations);
+    }
     double deltaTime = ts - m_simGyroLastUpdated;
 
     m_gyro.addAngle(Rotation2d.fromRadians(gyroDelta * deltaTime));
@@ -192,10 +228,22 @@ public class Drive extends SubsystemBase {
   public void resetOdometry() {
     m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(),
         new Pose2d());//1.80, 1.14, new Rotation2d()
+    m_hasResetOdometry = true;
   }
 
   public void resetPose(Pose2d pose) {
     m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
+    m_hasResetOdometry = true;
+  }
+
+  public boolean hasResetOdometry() {
+    if (m_hasResetOdometry) {
+      m_hasResetOdometry = false;
+      return true;
+    } else {
+
+      return false;
+    }
   }
 
   public SwerveModulePosition[] getSwerveModulePositions() {

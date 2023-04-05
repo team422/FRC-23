@@ -2,29 +2,37 @@ package frc.robot.oi;
 
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.util.EricNubControls;
 
 public class DriverControlsDualFlightStick implements DriverControls {
   public CommandJoystick m_leftJoystick;
   public CommandJoystick m_rightJoystick;
+  public double m_deadzone;
+  public EricNubControls m_controls;
 
-  public DriverControlsDualFlightStick(int leftJoystick, int rightJoystick) {
+  public DriverControlsDualFlightStick(int leftJoystick, int rightJoystick, double deadzone) {
     m_leftJoystick = new CommandJoystick(leftJoystick);
     m_rightJoystick = new CommandJoystick(rightJoystick);
+    m_deadzone = deadzone;
+    m_controls = new EricNubControls();
   }
 
   @Override
   public double getDriveForward() {
-    return -Math.signum(m_leftJoystick.getY()) * Math.pow(m_leftJoystick.getY(), 2);
+    double val = m_controls.addDeadzoneScaled(m_leftJoystick.getY(), m_deadzone);
+    return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
   public double getDriveLeft() {
-    return -Math.signum(m_leftJoystick.getX()) * Math.pow(m_leftJoystick.getX(), 2);
+    double val = m_controls.addDeadzoneScaled(m_leftJoystick.getX(), m_deadzone);
+    return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
   public double getDriveRotation() {
-    return -Math.signum(m_rightJoystick.getX()) * Math.pow(m_rightJoystick.getX(), 2);
+    double val = m_controls.addDeadzoneScaled(m_rightJoystick.getX(), m_deadzone);
+    return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
@@ -48,7 +56,7 @@ public class DriverControlsDualFlightStick implements DriverControls {
   }
 
   @Override
-  public Trigger setpointMidCone() {
+  public Trigger lebronJames() {
     return m_rightJoystick.button(4);
   }
 
@@ -127,6 +135,11 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger autoScore() {
-    return m_rightJoystick.button(4);
+    return m_rightJoystick.button(9);
+  }
+
+  @Override
+  public Trigger resetDrive() {
+    return m_rightJoystick.button(11);
   }
 }

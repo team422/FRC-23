@@ -126,19 +126,19 @@
       }
     }
   ],
-  "maxVelocity": 3.85,
+  "maxVelocity": 4.0,
   "maxAcceleration": 2.5,
   "isReversed": null,
   "markers": [
     {
-      "position": 0.5,
+      "position": 0.19303977272727302,
       "names": [
         "setpointStow",
         "intakeStop"
       ]
     },
     {
-      "position": 2.0,
+      "position": 1.3299715909090901,
       "names": [
         "setpointCubeGround",
         "intakeCubeIn"

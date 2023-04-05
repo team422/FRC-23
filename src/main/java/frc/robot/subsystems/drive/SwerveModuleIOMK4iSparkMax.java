@@ -201,6 +201,17 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_turningEncoder.setPosition(getAbsoluteRotation().getDegrees());
   }
 
+  @Override
+  public void setUpModuleFirmware() {
+    m_driveMotor.setInverted(true);
+    m_turningMotor.setInverted(true);
+    // m_driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveConversionFactor / 60.0);
+    // m_driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveConversionFactor);
+
+    // m_turningEncoder.setVelocityConversionFactor((360.0 / ModuleConstants.kTurnPositionConversionFactor) / 60.0);
+    // m_turningEncoder.setPositionConversionFactor((360.0 / ModuleConstants.kTurnPositionConversionFactor)); // FIX THIS LATER ****
+  }
+
   /** Zeros all the SwerveModule encoders. */
   @Override
   public void resetEncoders() {

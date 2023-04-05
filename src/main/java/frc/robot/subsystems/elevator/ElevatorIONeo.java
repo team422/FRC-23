@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
+import frc.lib.utils.CanSparkMaxSetup;
 
 public class ElevatorIONeo implements ElevatorIO {
   private final CANSparkMax m_leaderMotor;
@@ -18,13 +19,15 @@ public class ElevatorIONeo implements ElevatorIO {
 
   public ElevatorIONeo(int leaderPort, int followerPort,
       int throughBoreEncoderPortA, int throughBoreEncoderPortB, double gearRatio, int encoderResolution) {
+    CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_leaderMotor = new CANSparkMax(leaderPort, MotorType.kBrushless);
     m_leaderMotor.setIdleMode(IdleMode.kCoast);
 
     m_followerMotor = new CANSparkMax(followerPort, MotorType.kBrushless);
     m_followerMotor.setIdleMode(IdleMode.kCoast);
     m_leaderEncoder = new Encoder(throughBoreEncoderPortA, throughBoreEncoderPortB, false);
-
+    setup.setupSparkMaxSlowFully(m_leaderMotor);
+    setup.setupSparkMaxSlowFully(m_followerMotor);
     m_leaderEncoder.setDistancePerPulse(Units.inchesToMeters(gearRatio / encoderResolution));
 
     m_leaderMotor.setInverted(true);

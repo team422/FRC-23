@@ -17,13 +17,14 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "intakeConeIn",
           "setpointConeHigh",
           "wait",
           "intakeConeOut"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "minimum",
+        "waitTime": 1.0
       }
     },
     {
@@ -151,6 +152,9 @@
       }
     }
   ],
+  "maxVelocity": null,
+  "maxAcceleration": 2.5,
+  "isReversed": null,
   "markers": [
     {
       "position": 0.26676136363636366,

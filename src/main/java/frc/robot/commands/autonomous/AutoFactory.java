@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -43,31 +44,36 @@ public class AutoFactory extends CommandBase {
     Command stow = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.stowVerticalCommandSetpoints[1])),
-        m_intake.setDesiredSpeedCommand(0), Commands.print("stow"));
+        Commands.print("stow"));
     Command coneHigh = Commands.sequence(
-        m_intake.setDesiredSpeedCommand(-0.2),
-        m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpoints[0]),
-        Commands.waitSeconds(0.5),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.coneHighCommandSetpoints[1])),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
+        m_elevator.testSetHeightCommand(Setpoints.coneHighCommandSetpointsAuto[0], Units.inchesToMeters(25)),
+        m_wrist.testSetAngleCommand(Rotation2d.fromDegrees(Setpoints.coneHighCommandSetpointsAuto[1])),
         Commands.print("coneHighElevator"));
+    // Command coneHigh = RobotState.getInstance().setpointCommandCone(null)
     Command cubeHigh = Commands.sequence(
-        m_elevator.setHeightCommand(Setpoints.cubeHighCommandSetpoints[0]),
-        Commands.waitSeconds(.5),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.cubeHighCommandSetpoints[1])),
-        Commands.print("coneHighElevator"));
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
+        m_elevator.testSetHeightCommand(Setpoints.cubeHighCommandSetpointsAuto[0], Units.inchesToMeters(25)),
+        m_wrist.testSetAngleCommand(Rotation2d.fromDegrees(Setpoints.cubeHighCommandSetpointsAuto[1])),
+        Commands.print("cubeHighElevator"));
 
     Command autoConeHigh = Commands.sequence(
-        Commands.parallel(
-            m_elevator.setHeightCommand(Setpoints.coneHighCommandSetpoints[0]),
-            m_wrist.setAngleCommand(Rotation2d.fromDegrees(85))),
-        Commands.waitSeconds(0.5),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
+        m_elevator.testSetHeightCommand(Setpoints.coneHighCommandSetpoints[0], Units.inchesToMeters(25)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.coneHighCommandSetpoints[1])));
 
     Command cubeGround = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.pickUpCubeGroundCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpCubeGroundCommandSetpoints[1])),
-        m_intake.setDesiredSpeedCommand(0),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpCubeGroundCommandSetpoints[1] + 1)),
         Commands.print("cubeGround"));
+    Command coneGround = Commands.parallel(
+        m_elevator.setHeightCommand(Setpoints.pickUpConeGroundCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpConeGroundCommandSetpoints[1] - 3)),
+        Commands.print("coneground"));
+    Command coneVertical = Commands.parallel(
+        m_elevator.setHeightCommand(Setpoints.pickUpConeVerticalCommandSetpoints[0]),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpConeVerticalCommandSetpoints[1])),
+        Commands.print("coneVertical"));
     Command cubeGroundBump = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.pickUpCubeGroundCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.pickUpCubeGroundCommandSetpoints[1])),
@@ -78,7 +84,8 @@ public class AutoFactory extends CommandBase {
     Command zeroHeading = new ZeroHeading(m_drive);
     Command coneDrop = m_intake.setDesiredSpeedCommand(0.5);
     Command conePickup = m_intake.setDesiredSpeedCommand(-0.5);
-    Command cubeDrop = m_intake.setDesiredSpeedCommand(-0.5);
+    Command cubeDrop = m_intake.setDesiredSpeedCommand(-.6);
+    Command shootCube = m_intake.setDesiredSpeedCommand(-.6);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
     m_eventMap = Map.ofEntries(
@@ -87,11 +94,14 @@ public class AutoFactory extends CommandBase {
         Map.entry("setpointCubeGroundBump", cubeGroundBump),
         Map.entry("setpointConeHigh", coneHigh),
         Map.entry("setpointCubeHigh", cubeHigh),
+        Map.entry("setpointConeGround", coneGround),
         Map.entry("intakeCubeIn", cubePickup),
+        Map.entry("setpointConeVertical", coneVertical),
         Map.entry("intakeCubeOut", cubeDrop),
+        Map.entry("shootCube", shootCube),
         Map.entry("intakeConeIn", conePickup),
         Map.entry("intakeConeOut", coneDrop),
-        Map.entry("wait", Commands.waitSeconds(.3)),
+        Map.entry("wait", Commands.waitSeconds(.25)),
         Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),

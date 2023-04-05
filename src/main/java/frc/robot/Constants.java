@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -43,23 +44,26 @@ public final class Constants {
   public static final class RobotConstants {
 
     public static final double robotWidth = Units.inchesToMeters(27.5);
-
+    public static final boolean AScopeLogging = true;
   }
 
   public static final class Setpoints {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
-    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 }; // OLD might revert
+    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 - 4.25 }; // OLD might revert
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
-    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 10 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -19 };
-    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 };
-    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 };
-    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 };
-    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(51), 22 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 };
-    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 };
+    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 15 - 4.25 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -20 };
+    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 - 4.25 };
+    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 - 4.25 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 - 4.25 };
+    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 - 4.25 };
+    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(47.489), 25 };
+    public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(50), 25 };
+    // public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(47), 50 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 - 4.25 - 5 };
+    public static final double[] coneHighCommandSetpointsAuto = { Units.inchesToMeters(51), -5 - 4.25 };
+    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 - 4.25 };
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
         new Translation2d(15.8, 7.37),
@@ -70,6 +74,8 @@ public final class Constants {
     // Grid is labeled first to third from edge of field without 
     public static final ExtendedPathPoint blueFirstGridLeftCone = new ExtendedPathPoint(
         new Translation2d(1.84 + .4, 0.43),
+        new Rotation2d(), Rotation2d.fromDegrees(180));
+    public static final ExtendedPathPoint centerOfChargeStation = new ExtendedPathPoint(new Translation2d(3.88, 2.94),
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint blueFirstGridCube = new ExtendedPathPoint(new Translation2d(1.84 + .4, 1.08),
         new Rotation2d(), Rotation2d.fromDegrees(180));
@@ -96,8 +102,8 @@ public final class Constants {
         new Rotation2d(), Rotation2d.fromDegrees(180));
     public static final ExtendedPathPoint blueRightOfBalance = new ExtendedPathPoint(new Translation2d(3.74, 0.68),
         new Rotation2d(), Rotation2d.fromDegrees(180));
-    public static final ExtendedPathPoint bluePreLoadingStation = new ExtendedPathPoint(new Translation2d(12.77, 6.36),
-        new Rotation2d(), Rotation2d.fromDegrees(0));
+    public static final ExtendedPathPoint bluePreLoadingStation = new ExtendedPathPoint(new Translation2d(14.28, 7.55),
+        new Rotation2d(), Rotation2d.fromDegrees(270));
     public static final ExtendedPathPoint redLeftWallLoadingStation = blueLeftWallLoadingStation.flipPathPoint();
     public static final ExtendedPathPoint redRightWallLoadingStation = blueRightWallLoadingStation.flipPathPoint();
     public static final ExtendedPathPoint redFirstGridLeftCone = blueFirstGridLeftCone.flipPathPoint();
@@ -130,19 +136,20 @@ public final class Constants {
 
   public static final class LEDConstants {
     // LED constants
-    public static final int kLEDLength = 150;
+    public static final int kLEDLength = 40;
     public static final int kLEDPort = 0;
+    public static final int kLEDPort2 = 1;
   }
 
   public static final class ElevatorConstants {
     public static final boolean kTuningMode = true;
 
-    public static final TunableNumber kP = new TunableNumber("Elevator P", 12.8);
+    public static final TunableNumber kP = new TunableNumber("Elevator P", 14.0);
     public static final TunableNumber kManualSetpoint = new TunableNumber("Elevator Height", 0.0);
     public static final TunableNumber kI = new TunableNumber("Elevator I", 1.6);
     public static final TunableNumber kD = new TunableNumber("Elevator D", 0.3);
     public static final TunableNumber kKs = new TunableNumber("Elevator ks", .1);
-    public static final TunableNumber kKg = new TunableNumber("Elevator kg", .37);
+    public static final TunableNumber kKg = new TunableNumber("Elevator kg", .45);
     public static final TunableNumber kKv = new TunableNumber("Elevator kv", 0.1);
 
     public static final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(kKs.get(),
@@ -187,20 +194,29 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2.0, kTrackWidth / 2.0), // rear left
         new Translation2d(-kWheelBase / 2.0, -kTrackWidth / 2.0) // rear right
     };
+    public static final PIDController turnHeadingPID = new PIDController(0.1, 0, 0);
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;
-    public static final double kMaxSpeedMetersPerSecond = 8.5;
+    public static final double kMaxSpeedMetersPerSecond = 8.5; // 8.5
+    public static final double kMaxHighElevatorSpeedMetersPerSecond = 1.8; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
 
-    public static final double kMaxSpeedMetersPerSecondAuto = 3.85;
+    public static final double kMaxAcceptedErrorMeters = 0.5;
+    public static final Rotation2d kMaxAcceptedAngleError = Rotation2d.fromDegrees(10);
+
+    public static final double kMaxSpeedMetersPerSecondAuto = 3.85; // 3.85 is correct 2023-04-01
     public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
 
-    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(540);
-    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(90);
+    public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);
+    public static final double kMaxHighElevatorAngularSpeedRadiansPerSecond = Units.degreesToRadians(240);
+
+    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(180);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
-    public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(.5, 0, 0),
-        new PIDController(.01, 0, 0));
+    public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(1.0, 0, 0),
+        new PIDController(.03, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
+        new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
+        new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
 
     //SOK Std Devs
     public static final TunableNumber kSOKStDevX = new TunableNumber("SOKStDevX", 10);
@@ -259,8 +275,8 @@ public final class Constants {
     public static final int leftRearCanCoderPort = 16;
 
     // Right Rear Ports
-    public static final int rightRearDriveMotorPort = 8;
-    public static final int rightRearTurningMotorPort = 3;
+    public static final int rightRearDriveMotorPort = 3;
+    public static final int rightRearTurningMotorPort = 8;
     public static final int rightRearCanCoderPort = 15;
   }
 
@@ -270,26 +286,26 @@ public final class Constants {
     public static final String klimelightName = "limelight";
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
-    public static final String khighCamera = "AprilTagCameraGreen";
-    public static final Transform3d khighCameraTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(7.228), Units.inchesToMeters(4.232), Units.inchesToMeters(36.695)),
-        new Rotation3d(0, Units.degreesToRadians(12), 0));
-    public static final String klowCameraName = "AprilTagCameraGray";
-    public static final Transform3d klowCameraTransform = new Pose3d(new Translation3d(
+    public static final String kRightCamera = "AprilTagCameraGreen";
+    public static final Transform3d kRightCameraTransform = new Pose3d(new Translation3d(
+        Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(36.65)),
+        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(-15))).minus(new Pose3d());
+    public static final String kleftCameraName = "AprilTagCameraGray";
+    public static final Transform3d kleftCameraTransform = new Pose3d(new Translation3d(
         Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(36.65)),
         new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
   }
 
   public static final class WristConstants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
-    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 12.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 4.0);
-    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 3.8);
+    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 20.0);
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 18.5);
+    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 5.0);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
-    public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.15);
-    public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.0);
-    public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .53);
-    public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.0);
+    public static final TunableNumber kWristD = new TunableNumber("Wrist D", 0.08);
+    public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.05);
+    public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6);
+    public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.08);
     public static final TunableNumber kWristka = new TunableNumber("Wrist ka", 0.0);
     public static final boolean kWristTuning = false;
 
