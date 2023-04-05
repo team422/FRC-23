@@ -19,7 +19,7 @@ public interface DriverControls {
 
   public Trigger startIntakeCubeInConeOut();
 
-  public Trigger setpointMidCone();
+  public Trigger lebronJames();
 
   public Trigger setpointHighCone();
 
@@ -48,5 +48,7 @@ public interface DriverControls {
   public Trigger zeroElevator();
 
   public Trigger autoScore();
+
+  public Trigger resetDrive();
 
 }

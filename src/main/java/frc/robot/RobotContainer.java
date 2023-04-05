@@ -5,10 +5,13 @@
 package frc.robot;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -23,7 +26,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.PathPlannerUtil;
@@ -32,13 +37,14 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
 import frc.robot.commands.drive.DriveToNode;
-import frc.robot.commands.drive.TeloepDrive;
+import frc.robot.commands.drive.TeleopDrive;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsDualFlightStick;
 import frc.robot.oi.OperatorControls;
@@ -79,6 +85,9 @@ public class RobotContainer {
   private AutoFactory m_autoFactory;
   private AprilTagFieldLayout m_layout;
   private LED m_LED;
+  private String m_curSelectedAuto;
+  private List<PathPlannerTrajectory> m_traj;
+  // private LED m_LED2;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -87,10 +96,17 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureLogging();
     configureAprilTags();
     configureSubsystems();
     configureButtonBindings();
     configureAuto();
+  }
+
+  public void configureLogging() {
+    if (!RobotConstants.AScopeLogging) {
+      Logger.getInstance().end();
+    }
   }
 
   public void configureAprilTags() {
@@ -113,8 +129,8 @@ public class RobotContainer {
     m_autoFactory = new AutoFactory(m_drive, m_elevator, m_wrist, m_intake);
 
     // Add basic autonomous commands
-    // m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
-    m_autoChooser.addDefaultOption("Top Cone Cube", Commands.none());
+    m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
+    // m_autoChooser.addDefaultOption("three_wall", Commands.none());
 
     // Add PathPlanner Auto Commands
     PathPlannerUtil.getExistingPaths().forEach(path -> {
@@ -151,7 +167,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(33 + 90 - 60 - 8)), // 253
+          Units.degreesToRadians(90 + 8)), // 253
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -163,12 +179,13 @@ public class RobotContainer {
           Constants.ElevatorConstants.kMaxHeightMeters,
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_cams = new CameraAprilTag[] {
-          new CameraAprilTag(VisionConstants.klowCameraName, m_layout, VisionConstants.klowCameraTransform,
+          new CameraAprilTag(VisionConstants.kleftCameraName, m_layout, VisionConstants.kleftCameraTransform,
               m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
-          // new CameraAprilTag(VisionConstants.khighCamera, m_layout, VisionConstants.khighCameraTransform,
-          //     m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+          new CameraAprilTag(VisionConstants.kRightCamera, m_layout, VisionConstants.kRightCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
       };
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
+      // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
@@ -185,6 +202,7 @@ public class RobotContainer {
           WristConstants.kMinAngle, WristConstants.kMaxAngle);
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
+      // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     }
 
@@ -198,43 +216,51 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     DriverControls driverControls = new DriverControlsDualFlightStick(
-        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort);
-    TeloepDrive teleopDrive = new TeloepDrive(m_drive,
-        driverControls::getDriveForward,
-        driverControls::getDriveLeft,
-        driverControls::getDriveRotation,
-        Constants.DriveConstants.kDriveDeadband);
+        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort,
+        DriveConstants.kDriveDeadband);
+    // TeloepDriveTurnPID teleopDrive = new TeloepDriveTurnPID(m_drive, Constants.DriveConstants.holonomicDrive,
+    //     driverControls::getDriveForward,
+    //     driverControls::getDriveLeft,
+    //     driverControls::getDriveRotation,
+    //     Constants.DriveConstants.kDriveDeadband,
+    //     DriveConstants.kMaxAcceptedErrorMeters,
+    //     DriveConstants.kMaxAcceptedAngleError);
+    TeleopDrive teleopDrive = new TeleopDrive(m_drive, driverControls::getDriveForward, driverControls::getDriveLeft,
+        driverControls::getDriveRotation, DriveConstants.kDriveDeadband);
     m_drive.setDefaultCommand(teleopDrive);
 
     OperatorControls operatorControls = new OperatorControlsXbox(5);
 
     Command pickUpConeVerticalCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(Setpoints.pickUpConeVerticalCommandSetpoints),
+        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpConeVerticalCommandSetpoints),
         m_intake.intakeConeCommand());
 
     Command pickUpCubeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(Setpoints.pickUpCubeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpCubeGroundCommandSetpoints),
         m_intake.intakeCubeCommand());
 
     Command pickUpConeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(Setpoints.pickUpConeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpConeGroundCommandSetpoints),
         m_intake.intakeConeCommand());
     Command pickUpConeGroundCommandDriver = RobotState.getInstance()
-        .setpointCommand(Setpoints.pickUpConeGroundCommandSetpoints);
+        .setpointCommandParallel(Setpoints.pickUpConeGroundCommandSetpoints);
     Command pickUpConeVerticalCommandDriver = RobotState.getInstance()
-        .setpointCommand(Setpoints.pickUpConeVerticalCommandSetpoints);
+        .setpointCommandParallel(Setpoints.pickUpConeVerticalCommandSetpoints);
     Command pickUpCubeGroundCommandDriver = RobotState.getInstance()
-        .setpointCommand(Setpoints.pickUpCubeGroundCommandSetpoints);
+        .setpointCommandParallel(Setpoints.pickUpCubeGroundCommandSetpoints);
 
-    Command intakeFromLoadingStationCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommand(Setpoints.intakeFromLoadingStationCommand),
-        m_intake.intakeConeCommand());
+    Command lebronJamesConeCommand = Commands.sequence(
+        m_elevator.setHeightCommand(Units.inchesToMeters(18)),
+        Commands.waitSeconds(0.1),
+        m_wrist.testSetAngleCommandOnce(Rotation2d.fromDegrees(20)),
+        Commands.waitSeconds(0.1),
+        m_intake.dropConeCommand());
 
-    Command coneMidCommand = RobotState.getInstance().setpointCommand(Setpoints.coneMidCommandSetpoints);
-    Command coneHighCommand = RobotState.getInstance().setpointCommand(Setpoints.coneHighCommandSetpoints);
+    Command coneMidCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneMidCommandSetpoints);
+    Command coneHighCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.coneHighCommandSetpoints);
 
-    Command cubeMidCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeMidCommandSetpoints);
-    Command cubeHighCommand = RobotState.getInstance().setpointCommand(Setpoints.cubeHighCommandSetpoints);
+    Command cubeMidCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.cubeMidCommandSetpoints);
+    Command cubeHighCommand = RobotState.getInstance().setpointCommandSequential(Setpoints.cubeHighCommandSetpoints);
 
     // Command driveThroughPointsToLoadingStationCommand = new DriveThroughPointsToLoadingStation(m_drive,
     //     DriveConstants.holonomicDrive,
@@ -250,8 +276,7 @@ public class RobotContainer {
     operatorControls.charge().whileTrue(chargeCommand);
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])),
-        m_intake.intakeConeCommand());
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])));
 
     // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     // FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
@@ -263,7 +288,7 @@ public class RobotContainer {
         }, () -> {
           return Setpoints.distanceToDropCone;
         }));
-    driverControls.stowIntakeAndElevator().onTrue(stowCommand);
+    driverControls.stowIntakeAndElevator().and(operatorControls.dropStationButton().negate()).onTrue(stowCommand);
     operatorControls.setpointMidCone().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).onTrue(coneMidCommand);
     operatorControls.setpointHighCone().and(operatorControls.heightModifier().negate())
@@ -276,16 +301,14 @@ public class RobotContainer {
         .and(operatorControls.columnModifier().negate()).whileTrue(pickUpConeGroundCommand).onFalse(stowCommand);
     operatorControls.intakeConeVertical().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).whileTrue(pickUpConeVerticalCommand)
-        .onFalse(Commands.parallel(RobotState.getInstance().setpointCommand(Setpoints.stowVerticalCommandSetpoints)));
+        .onFalse(Commands
+            .parallel(RobotState.getInstance().setpointCommandParallel(Setpoints.stowVerticalCommandSetpoints)));
     operatorControls.intakeCubeGround().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).whileTrue(pickUpCubeGroundCommand).onFalse(stowCommand);
-    operatorControls.intakeFromLoadingStation().and(operatorControls.heightModifier().negate())
-        .and(operatorControls.columnModifier().negate()).whileTrue(intakeFromLoadingStationCommand)
-        .onFalse(stowCommand);
     operatorControls.stow().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).onTrue(stowCommand);
-    operatorControls.dropStationButton().and(operatorControls.heightModifier().negate())
-        .and(operatorControls.columnModifier().negate()).whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
+    // operatorControls.dropStationButton().and(operatorControls.heightModifier().negate())
+    //     .and(operatorControls.columnModifier().negate()).whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
     operatorControls.dropStationButton().whileTrue(dropLoaderStationCommand).onFalse(stowCommand);
 
     operatorControls.columnModifier().and(operatorControls.firstGrid())
@@ -325,12 +348,16 @@ public class RobotContainer {
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
     operatorControls.charge().whileTrue(chargeCommand);
-    operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
-      m_robotState.increasePoseSetpoint();
-    }));
-    operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
-      m_robotState.decreasePoseSetpoint();
-    }));
+
+    driverControls.resetDrive().onTrue(m_drive.resetFirmwareCommand());
+    driverControls.lebronJames().onTrue(lebronJamesConeCommand);
+
+    // operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
+    //   m_robotState.increasePoseSetpoint();
+    // }));
+    // operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
+    //   m_robotState.decreasePoseSetpoint();
+    // }));
     operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
 
     Command driveToGridSetpointCommand = new DriveToNode(m_drive, new FieldGeomUtil(),
@@ -364,24 +391,64 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    if (Robot.isSimulation()) {
-      String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
-      if (PathPlannerUtil.getExistingPaths().contains(selectedAuto)) {
-        return m_autoFactory.getAutoCommand(selectedAuto);
-      }
-    }
+    // if (Robot.isSimulation()) {
+    //   String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+    //   if (PathPlannerUtil.getExistingPaths().contains(selectedAuto)) {
+    //     return m_autoFactory.getAutoCommand(selectedAuto);
+    //   }
+    // }
     return m_autoChooser.get();
   }
 
   public void disabledPeriodic() {
-    if (Robot.isSimulation()) {
-      return;
-    } else {
-      return;
+    // if (Robot.isSimulation()) {
+    //   return;
+    // } else {
+
+    String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
+    if (selectedAuto != m_curSelectedAuto) {
+      m_curSelectedAuto = selectedAuto;
+      m_traj = m_autoFactory.loadPathGroupByName(selectedAuto);
     }
-    // String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
-    // List<PathPlannerTrajectory> traj = m_autoFactory.loadPathGroupByName(selectedAuto);
-    // Pose2d desPose = traj.get(0).getInitialPose();
+
+    if (m_traj != null) {
+      Pose2d desPose = m_traj.get(0).transformTrajectoryForAlliance(m_traj.get(0), DriverStation.getAlliance())
+          .getInitialHolonomicPose();
+      Logger.getInstance().recordOutput("Drive/wantedAutoPose", desPose);
+
+      Pose2d pose = RobotState.getInstance().getCamPositionLowConfidence().toPose2d();
+
+      if (pose != null) {
+        // m_LED.setSolidColorNumber(Color.kBlue,
+        //     (int) Math.ceil(pose.getTranslation().getDistance(new Translation3d(0, 0, 0))));
+        double distanceXY = Units.metersToInches(pose.getTranslation().getDistance(desPose.getTranslation()));
+        // System.out.println(distanceXY);
+        double distanceTheta = Math.abs(pose.getRotation().getDegrees() - desPose.getRotation().getDegrees());
+        if (distanceTheta > 300) {
+          distanceTheta = Math.abs(360 - distanceTheta);
+        }
+        // System.out.println(distanceXY);
+        // System.out.println(distanceTheta);
+        if (distanceXY > 2) {
+          m_LED.setSolidColorNumberCommand(Color.kYellow, Color.kGreen, (int) Math.ceil(distanceXY))
+              .ignoringDisable(true).schedule();
+        } else if (distanceTheta > 2) {
+          m_LED.setSolidColorNumberCommand(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta))
+              .ignoringDisable(true).schedule();
+        } else {
+          // System.out.println("kBlue");
+          m_LED.setSolidColorCommand(Color.kBlue).ignoringDisable(true).schedule();
+        }
+
+      } else {
+        m_LED.setSolidColorCommand(Color.kRed);
+      }
+    } else {
+      m_LED.setSolidColorCommand(Color.kBrown);
+    }
+
+    // }
+
     // Pose2d curPose = m_drive.getPose();
     // double error = curPose.getTranslation().getDistance(desPose.getTranslation());
     // if (error > Units.inchesToMeters(1)) {
@@ -397,5 +464,12 @@ public class RobotContainer {
       m_robotState.update();
     }
 
+  }
+
+  public void checkLock() {
+    if (Timer.getMatchTime() < 0.125 && DriverStation.isFMSAttached()) {
+      // m_drive.removeDefaultCommand();
+      m_drive.xBrakeCommand().schedule();
+    }
   }
 }

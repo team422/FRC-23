@@ -26,36 +26,41 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setLength(length);
     m_LEDStrip.start();
     m_colors = new Color[] { new Color(255, 200, 0), new Color(255, 0, 100) };
-    setSolidColor(m_colors[0]);
+    setSolidColorCommand(m_colors[0]);
   }
 
-  public void setSolidColor(Color color) {
-    for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
-      m_LEDStripBuffer.setLED(i, color);
-    }
-    m_LEDStrip.setData(m_LEDStripBuffer);
-  }
-
-  public void setSolidColorNumber(Color color, int length) {
-    length = Math.min(length, m_LEDStripBuffer.getLength());
-    for (int i = 0; i < length; i++) {
-      m_LEDStripBuffer.setLED(i, color);
-    }
-    if (length < m_LEDStripBuffer.getLength()) {
-      for (int i = length; i < m_LEDStripBuffer.getLength(); i++) {
-        m_LEDStripBuffer.setLED(i, Color.kGreen);
+  public Command setSolidColorCommand(Color color) {
+    return Commands.runOnce(() -> {
+      System.out.println(color);
+      for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
+        m_LEDStripBuffer.setLED(i, color);
       }
-    }
-    m_LEDStrip.setData(m_LEDStripBuffer);
+      m_LEDStrip.setData(m_LEDStripBuffer);
+    });
+  }
+
+  public Command setSolidColorNumberCommand(Color color, Color secondColor, int length) {
+    return Commands.runOnce(() -> {
+      int lengthLeds = Math.min(length, m_LEDStripBuffer.getLength());
+      for (int i = 0; i < lengthLeds; i++) {
+        m_LEDStripBuffer.setLED(i, color);
+      }
+      if (lengthLeds < m_LEDStripBuffer.getLength()) {
+        for (int i = lengthLeds; i < m_LEDStripBuffer.getLength(); i++) {
+          m_LEDStripBuffer.setLED(i, secondColor);
+        }
+      }
+      m_LEDStrip.setData(m_LEDStripBuffer);
+    });
   }
 
   public Command toggleColor() {
     return Commands.run(() -> {
       if (currentToggle == true) {
-        setSolidColor(m_colors[1]);
+        setSolidColorCommand(m_colors[1]);
         currentToggle = false;
       } else {
-        setSolidColor(m_colors[0]);
+        setSolidColorCommand(m_colors[0]);
         currentToggle = true;
       }
     });
@@ -85,7 +90,7 @@ public class LED extends SubsystemBase {
   }
 
   public Command solidColorCommand(Color color) {
-    return runOnce(() -> setSolidColor(color));
+    return runOnce(() -> setSolidColorCommand(color));
   }
 
   public Command allianceColorCommand() {
