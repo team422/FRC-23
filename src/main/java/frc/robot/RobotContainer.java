@@ -88,7 +88,7 @@ public class RobotContainer {
   private AutoFactory m_autoFactory;
   private AprilTagFieldLayout m_layout;
   private LED m_LED;
-  private String m_curSelectedAuto;
+  private String m_curSelectedAuto = "none";
   private List<PathPlannerTrajectory> m_traj;
   // private LED m_LED2;
 

@@ -117,6 +117,10 @@ public class Elevator extends SubsystemBase {
     return m_inputs.heightMeters * Math.cos(m_elevatorAngle.getRadians()) + m_elevatorOffsetMeters;
   }
 
+  public double getPositionYMetersSetpoint() {
+    return m_desiredHeight * Math.cos(m_elevatorAngle.getRadians()) + m_elevatorOffsetMeters;
+  }
+
   public double getPositionXMeters() {
     return m_inputs.heightMeters * Math.sin(m_elevatorAngle.getRadians());
   }
