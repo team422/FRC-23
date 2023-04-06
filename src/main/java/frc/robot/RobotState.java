@@ -51,6 +51,7 @@ public class RobotState {
   public Rotation2d realWantedWristRotation2d;
   public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
   public int m_poseSetpoint;
+  public double elevatorYMetersSetpoint = 0.0;
 
   public int m_grid = 1;
   public int m_column = 1;
@@ -163,6 +164,7 @@ public class RobotState {
 
   public void update() {
     elevatorYMeters = m_elevator.getPositionYMeters();
+    elevatorYMeters = m_elevator.getPositionYMetersSetpoint();
     elevatorXMeters = m_elevator.getPositionXMeters();
     wristAngleRotation2d = m_wrist.getAngle();
     Rotation2d wristAngleDesired = m_wrist.m_desiredAngle;

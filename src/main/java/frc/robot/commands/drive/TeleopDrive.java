@@ -45,7 +45,7 @@ public class TeleopDrive extends CommandBase {
     if (Math.abs(curZRotation) > 0.001) {
       pidHeadingSetpoint = m_drive.getPose().getRotation().getRadians();
     }
-    if (RobotState.getInstance().elevatorYMeters < Units.inchesToMeters(20)) {
+    if (RobotState.getInstance().elevatorYMetersSetpoint < Units.inchesToMeters(20)) {
 
       curXSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
       curYSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
