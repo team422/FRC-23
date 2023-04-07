@@ -35,7 +35,8 @@ public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
   @Override
   public void updateInputs(WristInputs inputs) {
     inputs.angleRad = getAngleRad();
-    inputs.currentDraw = m_wristMotor.getAppliedOutput();
+    inputs.outputVoltage = m_wristMotor.getAppliedOutput() * m_wristMotor.getBusVoltage();
+    inputs.currentAmps = m_wristMotor.getOutputCurrent();
     inputs.velocity = m_wristEncoder.getVelocity();
 
   }
