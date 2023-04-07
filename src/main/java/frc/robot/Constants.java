@@ -56,7 +56,7 @@ public final class Constants {
     public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -20 };
     public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 - 4.25 };
     public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 - 4.25 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(42), -25 - 4.25 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(43), -29 };
     public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 - 4.25 };
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(47.489), 25 };
     public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(50), 25 };

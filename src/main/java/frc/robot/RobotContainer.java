@@ -167,7 +167,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(90 + 8)), // 253
+          Units.degreesToRadians(211.3)), // 253
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -236,11 +236,11 @@ public class RobotContainer {
         m_intake.intakeConeCommand());
 
     Command pickUpCubeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpCubeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommandParallel(Setpoints.pickUpCubeGroundCommandSetpoints),
         m_intake.intakeCubeCommand());
 
     Command pickUpConeGroundCommand = Commands.parallel(
-        RobotState.getInstance().setpointCommandSequential(Setpoints.pickUpConeGroundCommandSetpoints),
+        RobotState.getInstance().setpointCommandParallel(Setpoints.pickUpConeGroundCommandSetpoints),
         m_intake.intakeConeCommand());
     Command pickUpConeGroundCommandDriver = RobotState.getInstance()
         .setpointCommandParallel(Setpoints.pickUpConeGroundCommandSetpoints);
@@ -358,7 +358,7 @@ public class RobotContainer {
     // operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
     //   m_robotState.decreasePoseSetpoint();
     // }));
-    operatorControls.partyButton().whileTrue(m_LED.rainbowCommand());
+    operatorControls.partyButton().onTrue(m_LED.rainbowCommand());
 
     Command driveToGridSetpointCommand = new DriveToNode(m_drive, new FieldGeomUtil(),
         DriveConstants.holonomicDrive,
