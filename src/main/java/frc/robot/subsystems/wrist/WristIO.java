@@ -10,7 +10,8 @@ public interface WristIO extends LoggedIO<WristInputs> {
   @AutoLog
   public static class WristInputs {
     public double angleRad;
-    public double currentDraw;
+    public double outputVoltage;
+    public double currentAmps;
     public double velocity;
   }
 

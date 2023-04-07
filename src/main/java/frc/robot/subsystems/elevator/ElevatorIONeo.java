@@ -55,7 +55,8 @@ public class ElevatorIONeo implements ElevatorIO {
   @Override
   public void updateInputs(ElevatorInputs inputs) {
     inputs.heightMeters = getPositionMeters();
-    inputs.outputVoltage = m_leaderMotor.getBusVoltage();
+    inputs.outputVoltage = m_leaderMotor.getAppliedOutput() * m_leaderMotor.getBusVoltage();
+    inputs.currentAmps = m_leaderMotor.getOutputCurrent();
     inputs.setVoltage = setVoltage;
     inputs.velocityMetersPerSecond = getVelocityMetersPerSecond();
   }
