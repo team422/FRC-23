@@ -4,41 +4,25 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.math.controller.PIDController;
-
 public class ElevatorIOCANSparkMax implements ElevatorIO {
-  private final CANSparkMax m_leftMotor; // maybe the left motor
-  // private final RelativeEncoder m_leftEncoder;
-  private final CANSparkMax m_rightMotor; // probably t he right motor
-  private final RelativeEncoder m_rightEncoder;
-  private final PIDController m_controller; // kind o f the controller, guys. I know its hard to believe. Guys.
-  private double currSpeed;
+  private final CANSparkMax m_leftMotor;
+  private final CANSparkMax m_rightMotor;
+  private final RelativeEncoder m_encoder;
 
-  public ElevatorIOCANSparkMax(PIDController controller, int rightEncoderCPR, int leftEncoderCPR) {
-    m_rightMotor = new CANSparkMax(69, MotorType.kBrushless); // leader
-    m_leftMotor = new CANSparkMax(422, MotorType.kBrushless); // follower
+  public ElevatorIOCANSparkMax(int leftPort, int rightPort, int encoderCPR) {
+    m_leftMotor = new CANSparkMax(leftPort, MotorType.kBrushless);
+    m_rightMotor = new CANSparkMax(rightPort, MotorType.kBrushless);
+    m_encoder = m_leftMotor.getAlternateEncoder(encoderCPR);
 
-    m_leftMotor.setInverted(true);
-    m_leftMotor.follow(m_rightMotor);
-
-    // m_leftEncoder = m_leftMotor.getAlternateEncoder(leftEncoderCPR);
-    m_rightEncoder = m_rightMotor.getAlternateEncoder(rightEncoderCPR);
-
-    m_controller = controller;
-    m_controller.setTolerance(0.3);
+    m_rightMotor.setInverted(true);
+    m_rightMotor.follow(m_leftMotor);
   }
 
-  @Override
-  public void toSetPoint(double heightInches) {
-    m_controller.setSetpoint(heightInches);
+  public void setSpeed(double speed) {
+    m_leftMotor.set(speed);
   }
 
-  @Override
-  public void periodic() {
-    if (!m_controller.atSetpoint()) {
-      currSpeed = m_controller.calculate(m_rightEncoder.getPosition());
-      m_rightMotor.set(currSpeed);
-    }
+  public double getHeightInches() {
+    return m_encoder.getPosition();
   }
-
 }
