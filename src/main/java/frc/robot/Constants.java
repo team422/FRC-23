@@ -22,6 +22,11 @@ public final class Constants {
   public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
+
+    public final class ElevatorConstants {
+      public static final double kTallNodeHeight = 16.0;
+      public static final double kMediumNodeHeight = 8.0;
+    }
   }
 
   public static final class DriveConstants {
@@ -43,6 +48,10 @@ public final class Constants {
     // LED constants
     public static final int kLEDLength = 84;
     public static final int kLEDPort = 9;
+
+    // Elevator constants
+    public static final int kRightElevatorPort = 69;
+    public static final int kLeftElevatorPort = 422;
 
     // Front Left Swerve Module Channels
     public static final int kFrontLeftTurnMotorPort = 16;
