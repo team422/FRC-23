@@ -16,4 +16,19 @@ public class XboxOperatorController implements OperatorControls {
     return m_controller.rightBumper();
   }
 
+  @Override
+  public Trigger elevatorTopButton() {
+    return m_controller.povUp();
+  }
+
+  @Override
+  public Trigger elevatorMidButton() {
+    return m_controller.povRight();
+  }
+
+  @Override
+  public Trigger elevatorLowButton() {
+    return m_controller.povDown();
+  }
+
 }

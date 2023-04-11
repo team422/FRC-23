@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,6 +15,8 @@ import frc.robot.oi.DriverControls;
 import frc.robot.oi.OperatorControls;
 import frc.robot.oi.XboxOperatorController;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOCANSparkMax;
 import frc.robot.subsystems.led.LED;
 
 /**
@@ -27,9 +30,13 @@ public class RobotContainer {
   // Subsystems
   private Drive m_drive;
   private LED m_LED;
+  private Elevator m_Elevator;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+
+  //PID Controller
+  private PIDController m_PIDController;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -43,8 +50,20 @@ public class RobotContainer {
     if (Robot.isReal()) {
       m_drive = new Drive();
       m_LED = new LED(Constants.ElectricalConstants.kLEDPort, Constants.ElectricalConstants.kLEDLength);
+      m_PIDController = new PIDController(Constants.ElectricalConstants.kP, Constants.ElectricalConstants.kI,
+          Constants.ElectricalConstants.kD);
+      m_Elevator = new Elevator(
+          new ElevatorIOCANSparkMax(Constants.ElectricalConstants.kLeftElevatorPort,
+              Constants.ElectricalConstants.kRightElevatorPort, Constants.ElectricalConstants.kElevatorCPR),
+          m_PIDController, Constants.ElectricalConstants.PIDTolerance);
     } else {
       m_drive = new Drive();
+      m_PIDController = new PIDController(Constants.ElectricalConstants.kP, Constants.ElectricalConstants.kI,
+          Constants.ElectricalConstants.kD);
+      m_Elevator = new Elevator(
+          new ElevatorIOCANSparkMax(Constants.ElectricalConstants.kLeftElevatorPort,
+              Constants.ElectricalConstants.kRightElevatorPort, Constants.ElectricalConstants.kElevatorCPR),
+          m_PIDController, Constants.ElectricalConstants.PIDTolerance);
     }
   }
 
@@ -64,6 +83,9 @@ public class RobotContainer {
     driverControls.getExampleDriverButton().onTrue(m_drive.brakeCommand());
     operatorControls.getExampleOperatorButton().onTrue(Commands.print("Operator pressed a button!"));
     operatorControls.partyButton().onTrue(m_LED.togglePartyModeCommand());
+    operatorControls.elevatorTopButton().onTrue(m_Elevator.setPointTall());
+    operatorControls.elevatorMidButton().onTrue(m_Elevator.setPointMid());
+    operatorControls.elevatorLowButton().onTrue(m_Elevator.setPointLower());
   }
 
   /**

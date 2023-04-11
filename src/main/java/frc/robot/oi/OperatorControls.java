@@ -8,4 +8,10 @@ public interface OperatorControls {
   }
 
   public Trigger partyButton();
+
+  public Trigger elevatorTopButton();
+
+  public Trigger elevatorMidButton();
+
+  public Trigger elevatorLowButton();
 }

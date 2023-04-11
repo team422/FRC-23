@@ -52,6 +52,13 @@ public final class Constants {
     // Elevator constants
     public static final int kRightElevatorPort = 69;
     public static final int kLeftElevatorPort = 422;
+    public static final int kElevatorCPR = 1;
+
+    //PID constants
+    public static final int kP = 1;
+    public static final int kI = 1;
+    public static final int kD = 1;
+    public static final double PIDTolerance = 0.5;
 
     // Front Left Swerve Module Channels
     public static final int kFrontLeftTurnMotorPort = 16;
