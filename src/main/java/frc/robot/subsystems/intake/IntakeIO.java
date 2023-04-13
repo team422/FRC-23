@@ -14,4 +14,7 @@ public interface IntakeIO extends LoggedIO<IntakeIO.IntakeInputs> {
 
   public double getIntakeSpeed();
 
+  public default void setCurrentLimit(int currentLimit) {
+  };
+
 }

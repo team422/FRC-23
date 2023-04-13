@@ -57,6 +57,8 @@ public class RobotState {
   public int m_column = 1;
   public int m_height = 2;
 
+  public Pose2d m_cubePose;
+
   public String m_scoringSetpoint = "blueFirstGridLeftHigh";
 
   public Pose3d m_robotPose = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
@@ -82,6 +84,15 @@ public class RobotState {
       instance = new RobotState(drive, intake, elevator, wrist);
     }
     return instance;
+  }
+
+  public void setCubePose(Rotation2d offset, double distance) {
+    Rotation2d final_angle = m_drive.getPose().getRotation().plus(offset);
+    Pose2d pose = m_drive.getPose();
+    System.out.println(distance);
+    m_cubePose = new Pose2d(pose.getX() + final_angle.getCos() * distance,
+        pose.getY() + final_angle.getSin() * distance, final_angle);
+    Logger.getInstance().recordOutput("cubePose", m_cubePose);
   }
 
   public static RobotState getInstance() {

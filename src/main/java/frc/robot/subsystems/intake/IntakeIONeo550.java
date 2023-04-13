@@ -33,4 +33,9 @@ public class IntakeIONeo550 implements IntakeIO {
     inputs.intakeSpeed = m_intakeEncoder.getVelocity();
 
   }
+
+  @Override
+  public void setCurrentLimit(int limit) {
+    m_intakeMotor.setSmartCurrentLimit(limit);
+  }
 }

@@ -156,4 +156,9 @@ public class OperatorControlsXbox implements OperatorControls {
     return m_controller.y();
   }
 
+  @Override
+  public Trigger setIntakeHighPowerMode() {
+    return m_controller.leftTrigger();
+  }
+
 }

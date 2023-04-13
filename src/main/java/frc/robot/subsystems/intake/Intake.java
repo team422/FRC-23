@@ -30,6 +30,10 @@ public class Intake extends SubsystemBase {
     m_desiredVoltage = voltage;
   }
 
+  public void setSmartCurrentLimit(int currentLimit) {
+    m_io.setCurrentLimit(currentLimit);
+  }
+
   public Command setDesiredSpeedCommand(double speed) {
     return runOnce(() -> this.setDesiredVoltage(speed * 12));
   }
@@ -69,5 +73,13 @@ public class Intake extends SubsystemBase {
 
   public Command stopCommand() {
     return runOnce(() -> setDesiredVoltage(0));
+  }
+
+  public Command setHighPowerMode() {
+    return runEnd(() -> {
+      setSmartCurrentLimit(80);
+    }, () -> {
+      setSmartCurrentLimit(20);
+    });
   }
 }

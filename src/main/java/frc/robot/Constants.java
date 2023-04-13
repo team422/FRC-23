@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import org.ejml.simple.SimpleMatrix;
+
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -17,6 +20,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.lib.pathplanner.ExtendedPathPoint;
@@ -198,7 +204,7 @@ public final class Constants {
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
     public static final double kMaxModuleSpeedMetersPerSecond = 6;
-    public static final double kMaxSpeedMetersPerSecond = 8.5; // 8.5
+    public static final double kMaxSpeedMetersPerSecond = 2.5; // 8.5
     public static final double kMaxHighElevatorSpeedMetersPerSecond = 1.8; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
 
@@ -282,7 +288,8 @@ public final class Constants {
 
   public static final class VisionConstants {
     public static final int kAprilTagPipelineIndex = 0;
-    public static final int kReflectiveTapePipelineIndex = 1;
+    public static final int kCubeSearchPipelineIndex = 1;
+    public static final double kUseLowConfidenceThreshold = 6.0;
     public static final String klimelightName = "limelight";
     public static final Transform3d klimelightTransform = new Transform3d(new Translation3d(0, 0, 0),
         new Rotation3d());
@@ -290,10 +297,35 @@ public final class Constants {
     public static final Transform3d kRightCameraTransform = new Pose3d(new Translation3d(
         Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(36.65)),
         new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(-15))).minus(new Pose3d());
+
+    public static final double[][] simpleRightMatrixExtrinsics = new double[][] {
+        { 894.615709772545, 0.0, 581.0767987446387 },
+        { 0.0, 879.9275957208279, 391.75614240135394 }, { 0.0, 0.0, 1.0 } };
+    public static final Matrix<N3, N3> kRightCameraExtrinsics = new Matrix<N3, N3>(
+        new SimpleMatrix(simpleRightMatrixExtrinsics));
+    public static final double[][] simpleRightMatrixIntrinsics = new double[][] { { 0.029058955415919636 }, {
+        -0.14595357208084572 }, { -0.005584054792136502 }, { -0.007924914596299184 }, { 0.21512183857516967 } };
+    public static final Matrix<N5, N1> kRightCameraIntrinsics = new Matrix<N5, N1>(
+        new SimpleMatrix(simpleRightMatrixIntrinsics));
     public static final String kleftCameraName = "AprilTagCameraGray";
+    // public static final String kleftCameraName = "Microsoft_LifeCam_HD-3000";
     public static final Transform3d kleftCameraTransform = new Pose3d(new Translation3d(
         Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(36.65)),
         new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
+    public static final double[][] simpleLeftMatrixExtrinsics = new double[][] {
+        { 894.615709772545, 0.0, 581.0767987446387 },
+        { 0.0, 879.9275957208279, 391.75614240135394 }, { 0.0, 0.0, 1.0 } };
+    public static final Matrix<N3, N3> kLeftCameraExtrinsics = new Matrix<N3, N3>(
+        new SimpleMatrix(simpleLeftMatrixExtrinsics));
+    public static final double[][] simpleLeftMatrixIntrinsics = new double[][] { { 0.029058955415919636 }, {
+        -0.14595357208084572 }, { -0.005584054792136502 }, { -0.007924914596299184 }, { 0.21512183857516967 } };
+    public static final Matrix<N5, N1> kLeftCameraIntrinsics = new Matrix<N5, N1>(
+        new SimpleMatrix(simpleLeftMatrixIntrinsics));
+    public static final String kLimelightCameraName = "Microsoft_LifeCam_HD-3000";
+    public static final Transform3d kLimelightCameraTransform = new Pose3d(new Translation3d(
+        Units.inchesToMeters(7), Units.inchesToMeters(0), Units.inchesToMeters(42)),
+        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
+
   }
 
   public static final class WristConstants {
