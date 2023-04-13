@@ -180,9 +180,11 @@ public class RobotContainer {
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_cams = new CameraAprilTag[] {
           new CameraAprilTag(VisionConstants.kleftCameraName, m_layout, VisionConstants.kleftCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex),
           new CameraAprilTag(VisionConstants.kRightCamera, m_layout, VisionConstants.kRightCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex),
+          new CameraAprilTag(VisionConstants.kLimelightCameraName, m_layout, VisionConstants.kLimelightCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kCubeSearchPipelineIndex)
       };
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
@@ -274,6 +276,7 @@ public class RobotContainer {
     //     new ChargeStationBalance(m_drive));
     Command chargeCommand = new ChargeStationBalance(m_drive);
     operatorControls.charge().whileTrue(chargeCommand);
+    operatorControls.setIntakeHighPowerMode().whileTrue(m_intake.setHighPowerMode());
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])));
