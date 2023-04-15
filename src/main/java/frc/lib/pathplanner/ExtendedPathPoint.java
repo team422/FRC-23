@@ -74,4 +74,11 @@ public class ExtendedPathPoint extends PathPoint {
     return new ExtendedPathPoint(m_pose.plus(transform), m_heading, m_holonomicHeading);
   }
 
+  public boolean atXY(Pose2d pose) {
+    if (pose.getTranslation().getDistance(m_pose) < m_acceptedPoseError.getDistance(new Translation2d())) {
+      return true;
+    }
+    return false;
+  }
+
 }

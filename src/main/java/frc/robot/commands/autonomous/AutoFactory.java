@@ -15,9 +15,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Setpoints;
+import frc.robot.RobotState;
+import frc.robot.commands.drive.DriveToCubeAuton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -39,6 +42,7 @@ public class AutoFactory extends CommandBase {
     m_elevator = elevator;
     m_wrist = wrist;
     m_intake = intake;
+    FieldGeomUtil fieldUtil = new FieldGeomUtil();
 
     // Define PathPlanner Event Map
     Command stow = Commands.parallel(
@@ -88,6 +92,24 @@ public class AutoFactory extends CommandBase {
     Command shootCube = m_intake.setDesiredSpeedCommand(-.6);
     Command cubePickup = m_intake.setDesiredSpeedCommand(0.5);
     Command stopIntake = m_intake.setDesiredSpeedCommand(0.0);
+
+    Command cubeWallFar = new DriveToCubeAuton(m_drive, () -> {
+      return RobotState.getInstance().m_cubePose;
+    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
+        () -> fieldUtil.getGamePieceLocation("wallFar"));
+    Command cubeWallMiddle = new DriveToCubeAuton(m_drive, () -> {
+      return RobotState.getInstance().m_cubePose;
+    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
+        () -> fieldUtil.getGamePieceLocation("wallMiddle"));
+    Command cubeBumpMiddle = new DriveToCubeAuton(m_drive, () -> {
+      return RobotState.getInstance().m_cubePose;
+    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
+        () -> fieldUtil.getGamePieceLocation("bumpMiddle"));
+    Command cubeBumpFar = new DriveToCubeAuton(m_drive, () -> {
+      return RobotState.getInstance().m_cubePose;
+    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
+        () -> fieldUtil.getGamePieceLocation("bumpFar"));
+
     m_eventMap = Map.ofEntries(
         Map.entry("setpointStow", stow),
         Map.entry("setpointCubeGround", cubeGround),
@@ -105,7 +127,8 @@ public class AutoFactory extends CommandBase {
         Map.entry("intakeStop", stopIntake),
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),
-        Map.entry("setpointConeHighWait", autoConeHigh));
+        Map.entry("setpointConeHighWait", autoConeHigh), Map.entry("cubeBumpFar", cubeBumpFar),
+        Map.entry("cubeBumpMiddle", cubeBumpMiddle));
     // m_eventMap = Map.ofEntries(
     //     Map.entry("a", Commands.print("aaaaaaaaaaaaa a")),
     //     Map.entry("stow", stow),
@@ -124,6 +147,7 @@ public class AutoFactory extends CommandBase {
     if (Constants.MetaConstants.pathTuningMode) {
       PathPlannerServer.startServer(5811);
     }
+
   }
 
   public List<PathPlannerTrajectory> loadPathGroupByName(String name) {
@@ -148,7 +172,6 @@ public class AutoFactory extends CommandBase {
         m_eventMap,
         true, // TODO: ENABLE (AND TEST) BEFORE COMP
         m_drive);
-
     return autoBuilder.fullAuto(paths).andThen(m_drive.brakeCommand());
   }
 }

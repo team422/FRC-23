@@ -1,6 +1,5 @@
 package frc.robot.subsystems.vision;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -8,10 +7,8 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.estimation.OpenCVHelp;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.photonvision.targeting.TargetCorner;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
@@ -22,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,12 +34,19 @@ public class CameraAprilTag extends SubsystemBase {
   public PhotonPoseEstimator m_photonEstimator;
   public AprilTagFieldLayout m_layout;
   public String m_camName;
+  public Transform3d m_transform;
+  public Rotation2d m_VFOV;
+  public Rotation2d m_HFOV;
 
   public CameraAprilTag(String photonCamera, AprilTagFieldLayout tagLayout, Transform3d cameraToRobot,
-      SwerveDrivePoseEstimator poseEstimator, PoseStrategy poseStrategy, int initalPipeline) {
+      SwerveDrivePoseEstimator poseEstimator, PoseStrategy poseStrategy, int initalPipeline, Rotation2d VFOV,
+      Rotation2d HFOV) {
     m_poseEstimator = poseEstimator;
     m_camName = photonCamera;
     m_layout = tagLayout;
+    m_transform = cameraToRobot;
+    m_HFOV = HFOV;
+    m_VFOV = VFOV;
     m_photonCamera = new PhotonCamera(photonCamera);
     m_photonCamera.setPipelineIndex(initalPipeline);
     m_photonEstimator = new PhotonPoseEstimator(m_layout, poseStrategy, m_photonCamera, cameraToRobot);
@@ -49,7 +54,7 @@ public class CameraAprilTag extends SubsystemBase {
 
   public void periodic() {
 
-    if (m_photonCamera.getPipelineIndex() == VisionConstants.kAprilTagPipelineIndex) { // UPDATE LATER
+    if (m_photonCamera.getName() != "limelight") { // UPDATE LATER
       m_result = m_photonCamera.getLatestResult();
       if (m_result.getTargets().size() < 2) {
         m_photonEstimator.update(m_result).ifPresent(pose -> {
@@ -60,7 +65,7 @@ public class CameraAprilTag extends SubsystemBase {
             // System.out.println(pose.estimatedPose);
             Logger.getInstance().recordOutput("Camera/" + m_camName, pose.estimatedPose);
             m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
-                getMatrixStdsOneCamera(pose, getPipelineResult()));
+                getMatrixStdsOneTag(pose, getPipelineResult()));
           }
         });
 
@@ -78,18 +83,38 @@ public class CameraAprilTag extends SubsystemBase {
       m_result = m_photonCamera.getLatestResult();
       if (m_result.hasTargets()) {
         PhotonTrackedTarget bestCubeEstimate = m_result.getBestTarget();
-        double cubeYaw = bestCubeEstimate.getYaw();
-        double cubePitch = bestCubeEstimate.getPitch();
-        TargetCorner cubeCenter = new TargetCorner(cubeYaw, cubePitch);
-        if (m_photonCamera.getCameraMatrix().isPresent() && m_photonCamera.getDistCoeffs().isPresent()) {
-          cubeCenter = OpenCVHelp
-              .undistortPoints(m_photonCamera.getCameraMatrix().get(), m_photonCamera.getDistCoeffs().get(),
-                  List.of(cubeCenter))
-              .get(0);
-        }
-        frc.robot.RobotState.getInstance().setCubePose(Rotation2d.fromDegrees(cubeYaw),
-            (cubeCenter.y + 25) * 2 / 40);
-        Logger.getInstance().recordOutput("distanceY", (cubeCenter.y + 25) * 3 / 40);
+        Rotation2d camYaw = Rotation2d.fromDegrees(bestCubeEstimate.getYaw());
+        Rotation2d camPitch = Rotation2d.fromDegrees(bestCubeEstimate.getPitch());
+        Logger.getInstance().recordOutput("Cube/camPitch", camPitch.getDegrees());
+        Rotation2d realPitch = Rotation2d.fromDegrees(90)
+            .minus(Rotation2d.fromDegrees(Units.radiansToDegrees(m_transform.getRotation().getY())))
+            .plus(camPitch);
+        Rotation2d realYaw = Rotation2d.fromDegrees(m_transform.getRotation().getZ()).plus(camYaw).times(-1);
+        Logger.getInstance().recordOutput("Cube/realPitchUndadjusted", realPitch.getDegrees());
+        Logger.getInstance().recordOutput("Cube/realYawUndadjusted", realYaw.getDegrees());
+        // List<TargetCorner> cubeCenter = bestCubeEstimate.getDetectedCorners();
+        // System.out.println(cubeCenter);
+
+        // if (m_photonCamera.getCameraMatrix().isPresent() && m_photonCamera.getDistCoeffs().isPresent()) {
+        //   cubeCenter = OpenCVHelp
+        //       .undistortPoints(m_photonCamera.getCameraMatrix().get(), m_photonCamera.getDistCoeffs().get(),
+        //           List.of(cubeCenter))
+        //       .get(0);
+        //   realPitch = Rotation2d.fromRadians(cubeCenter.y * m_VFOV.getRadians())
+        //       .plus(Rotation2d.fromDegrees(m_transform.getRotation().getY()));
+        //   realYaw = Rotation2d.fromRadians((cubeCenter.x - 0.5) * m_HFOV.getRadians())
+        //       .plus(Rotation2d.fromDegrees(m_transform.getRotation().getZ()));
+        //   Logger.getInstance().recordOutput("Cube/realPitchAdjusted", realPitch.getDegrees());
+        //   Logger.getInstance().recordOutput("Cube/realPitchAdjusted", realYaw.getDegrees());
+        double metersX = Math.tan(realPitch.getRadians()) * (m_transform.getZ() - Units.inchesToMeters(4));
+        Logger.getInstance().recordOutput("Cube/CubeDistanceYMeters",
+            metersX);
+        double metersY = Math.tan(realYaw.getRadians()) * metersX;
+        Logger.getInstance().recordOutput("Cube/CubeDistanceXMeters", metersY);
+        frc.robot.RobotState.getInstance().setCubePose(realYaw, metersX, metersY);
+        //   Logger.getInstance().recordOutput("Cube/Y", cubeCenter.y);
+        //   Logger.getInstance().recordOutput("Cube/X", cubeCenter.x);
+        // }
       }
     }
 
@@ -112,7 +137,7 @@ public class CameraAprilTag extends SubsystemBase {
     return VecBuilder.fill(distance * 0.15, distance * 0.15, 50);
   }
 
-  public Vector<N3> getMatrixStdsOneCamera(EstimatedRobotPose curRobotPose, PhotonPipelineResult result) {
+  public Vector<N3> getMatrixStdsOneTag(EstimatedRobotPose curRobotPose, PhotonPipelineResult result) {
     if (RobotState.isDisabled()) {
       return VecBuilder.fill(3, 3, 10);
     }

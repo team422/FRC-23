@@ -51,4 +51,6 @@ public interface DriverControls {
 
   public Trigger resetDrive();
 
+  public Trigger autoIntakeCube();
+
 }
