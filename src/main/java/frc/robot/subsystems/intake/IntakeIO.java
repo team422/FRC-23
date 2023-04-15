@@ -8,6 +8,7 @@ public interface IntakeIO extends LoggedIO<IntakeIO.IntakeInputs> {
   @AutoLog
   public static class IntakeInputs {
     public double intakeSpeed;
+    public double intakeOutputCurrent;
   }
 
   public void setIntakeVoltage(double voltage);
@@ -16,5 +17,7 @@ public interface IntakeIO extends LoggedIO<IntakeIO.IntakeInputs> {
 
   public default void setCurrentLimit(int currentLimit) {
   };
+
+  public boolean hasGamePiece();
 
 }

@@ -82,4 +82,8 @@ public class Intake extends SubsystemBase {
       setSmartCurrentLimit(20);
     });
   }
+
+  public boolean hasGamePiece() {
+    return m_io.hasGamePiece();
+  }
 }

@@ -31,6 +31,7 @@ public class IntakeIONeo550 implements IntakeIO {
   @Override
   public void updateInputs(IntakeInputs inputs) {
     inputs.intakeSpeed = m_intakeEncoder.getVelocity();
+    inputs.intakeOutputCurrent = m_intakeMotor.getOutputCurrent();
 
   }
 
@@ -38,4 +39,10 @@ public class IntakeIONeo550 implements IntakeIO {
   public void setCurrentLimit(int limit) {
     m_intakeMotor.setSmartCurrentLimit(limit);
   }
+
+  @Override
+  public boolean hasGamePiece() {
+    return m_intakeMotor.getOutputCurrent() > 35;
+  }
+
 }
