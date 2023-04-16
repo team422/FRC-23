@@ -54,7 +54,7 @@ public class CameraAprilTag extends SubsystemBase {
 
   public void periodic() {
 
-    if (m_photonCamera.getName() != "limelight") { // UPDATE LATER
+    if (m_photonCamera.getPipelineIndex() == VisionConstants.kAprilTagPipelineIndex) { // UPDATE LATER
       m_result = m_photonCamera.getLatestResult();
       if (m_result.getTargets().size() < 2) {
         m_photonEstimator.update(m_result).ifPresent(pose -> {

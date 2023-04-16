@@ -11,6 +11,7 @@ public class Intake extends SubsystemBase {
   public double m_desiredVoltage;
   public PIDController m_intakePIDController;
   public IntakeInputsAutoLogged m_inputs;
+  public int m_intakeFramesGamePiece;
 
   public Intake(IntakeIO io, PIDController intakePIDController) {
     m_io = io;
@@ -23,6 +24,12 @@ public class Intake extends SubsystemBase {
     m_io.updateInputs(m_inputs);
     Logger.getInstance().processInputs("Intake", m_inputs);
     m_io.setIntakeVoltage(m_desiredVoltage);
+    if (m_io.hasGamePiece()) {
+      m_intakeFramesGamePiece += 1;
+    } else {
+      m_intakeFramesGamePiece = 0;
+    }
+    Logger.getInstance().recordOutput("intakeFramesGamePiece", m_intakeFramesGamePiece);
 
   }
 
@@ -84,6 +91,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean hasGamePiece() {
-    return m_io.hasGamePiece();
+    return m_intakeFramesGamePiece > 10;
   }
+
 }

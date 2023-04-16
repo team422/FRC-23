@@ -289,9 +289,11 @@ public class RobotContainer {
     Command chargeCommand = new ChargeStationBalance(m_drive);
     operatorControls.charge().whileTrue(chargeCommand);
     operatorControls.setIntakeHighPowerMode().whileTrue(m_intake.setHighPowerMode());
-    Command intakeCubeTeleop = new DriveToCube(m_drive, () -> {
+    Command intakeCubeTeleop = Commands.parallel(new DriveToCube(m_drive, () -> {
       return RobotState.getInstance().m_cubePose;
-    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0);
+    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0),
+        RobotState.getInstance().setpointCommandParallel(Setpoints.pickUpCubeGroundCommandSetpoints),
+        m_intake.intakeCubeCommand());
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])));
@@ -447,10 +449,10 @@ public class RobotContainer {
         }
         // System.out.println(distanceXY);
         // System.out.println(distanceTheta);
-        if (distanceXY > 2) {
+        if (distanceXY > 1) {
           m_LED.setSolidColorNumberCommand(Color.kYellow, Color.kGreen, (int) Math.ceil(distanceXY))
               .ignoringDisable(true).schedule();
-        } else if (distanceTheta > 2) {
+        } else if (distanceTheta > 1) {
           m_LED.setSolidColorNumberCommand(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta))
               .ignoringDisable(true).schedule();
         } else {

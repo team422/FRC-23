@@ -54,49 +54,26 @@
     },
     {
       "anchorPoint": {
-        "x": 5.903187882764654,
-        "y": 3.112851852439816
+        "x": 5.609362873239636,
+        "y": 2.844077643016397
       },
       "prevControl": {
-        "x": 6.236618671154009,
-        "y": 3.1127648704950186
+        "x": 5.3139796009473566,
+        "y": 2.8730973372383843
       },
       "nextControl": {
-        "x": 5.5697570943753,
-        "y": 3.1129388343846136
+        "x": 5.3139796009473566,
+        "y": 2.8730973372383843
       },
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.60681382821099,
-        "y": 3.468434042770863
-      },
-      "prevControl": {
-        "x": 6.311430555918711,
-        "y": 3.4974537369928504
-      },
-      "nextControl": {
-        "x": 6.311430555918711,
-        "y": 3.4974537369928504
-      },
-      "holonomicAngle": -4.129889041561359,
+      "holonomicAngle": -22.458116738014997,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "cubeBumpMiddle"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "minimum",
         "waitTime": 0.01
@@ -188,13 +165,13 @@
       ]
     },
     {
-      "position": 3.08,
+      "position": 2.7088068181818175,
       "names": [
         "setpointStow"
       ]
     },
     {
-      "position": 4.241122159090908,
+      "position": 3.2411221590909083,
       "names": [
         "setpointCubeHigh"
       ]
@@ -206,7 +183,7 @@
       ]
     },
     {
-      "position": 5.434872159090909,
+      "position": 4.434872159090909,
       "names": [
         "setpointCubeGround",
         "intakeCubeIn"
@@ -220,7 +197,7 @@
       ]
     },
     {
-      "position": 5.141122159090901,
+      "position": 4.141122159090901,
       "names": [
         "setpointStow"
       ]

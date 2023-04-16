@@ -3,6 +3,8 @@ package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -52,7 +54,9 @@ public class DriveToCubeAuton extends CommandBase {
     Pose2d targetPose = m_adjustedPoseSupplier.get();
 
     if (targetPose != null) {
-      if (targetPose.getTranslation().getDistance(m_basePose.getTranslation()) < Units.inchesToMeters(12)) {
+      double cubeDistanceFromExpectedAuton = targetPose.getTranslation().getDistance(m_basePose.getTranslation());
+      Logger.getInstance().recordOutput("Cube/cubeErrorAuton", cubeDistanceFromExpectedAuton);
+      if (cubeDistanceFromExpectedAuton < Units.inchesToMeters(24)) {
         m_targetPose = new ExtendedPathPoint(targetPose.getTranslation(), targetPose.getRotation(),
             targetPose.getRotation());
       }
@@ -67,7 +71,7 @@ public class DriveToCubeAuton extends CommandBase {
   @Override
   public boolean isFinished() {
     // return m_HolmDrive.atReference();
-    return m_intake.hasGamePiece();
+    return m_intake.hasGamePiece() || m_targetPose.atXY(m_swerveBase.getPose());
   }
 
   @Override

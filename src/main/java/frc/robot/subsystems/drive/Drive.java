@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.utils.FieldGeomUtil;
 import frc.lib.utils.FieldUtil;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -109,7 +110,11 @@ public class Drive extends SubsystemBase {
 
     //Update Gyro Inputs/Logs
     m_gyro.updateInputs(m_gyroInputs);
-    Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+    // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+
+    double cubeDistanceFromExpectedAuton = new FieldGeomUtil().allGamePieces.get("bumpFar").getTranslation()
+        .getDistance(getPose().getTranslation());
+    Logger.getInstance().recordOutput("Cube/cubeErrorAutonBumpFar", cubeDistanceFromExpectedAuton);
 
     //Update Swerve Module Inputs/Logs
     for (int i = 0; i < m_modules.length; i++) {
@@ -266,6 +271,10 @@ public class Drive extends SubsystemBase {
     return run(this::xBrake);
   }
 
+  public Command xBrakeInstantCommand() {
+    return runOnce(this::xBrake);
+  }
+
   public void xBrake() {
     SwerveModuleState[] positions = new SwerveModuleState[m_modules.length];
     for (int i = 0; i < m_modules.length; i++) {
@@ -282,6 +291,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds speeds) {
+
     double angularMultiplier = RobotState.getInstance().getMorphedVelocityMultiplier();
     speeds.omegaRadiansPerSecond *= angularMultiplier;
 
@@ -297,6 +307,8 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < moduleStates.length; i++) {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
     }
+    Logger.getInstance().recordOutput("Drive/DesiredSpeeds",
+        moduleStates);
 
     // Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
 
