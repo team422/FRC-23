@@ -19,6 +19,9 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public SwerveModulePosition getPosition();
 
+  public default void setUpModuleFirmware() {
+  };
+
   public void resetDistance();
 
   public void syncTurningEncoder();

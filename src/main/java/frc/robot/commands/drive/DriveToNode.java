@@ -3,8 +3,6 @@ package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.pathplanner.ExtendedPathPoint;
@@ -43,11 +41,19 @@ public class DriveToNode extends CommandBase {
 
   @Override
   public void execute() {
-    ChassisSpeeds speeds = m_HolmDrive.calculateOnlyY(m_swerveBase.getPose(), m_targetPose.getPose2d(), xSpeed, ySpeed,
-        zRotation);
-    m_targetPose = m_targetPose.addTransform(new Translation2d(xSpeed.get() / 10.0, new Rotation2d()));
-    m_swerveBase.drive(speeds);
+    System.out.println(m_targetPose.getPose2d().getRotation().getSin());
+    if (Math.round(m_targetPose.getPose2d().getRotation().getSin()) == 0.0) {
 
+      ChassisSpeeds speeds = m_HolmDrive.calculateOnlyY(m_swerveBase.getPose(), m_targetPose.getPose2d(), xSpeed,
+          ySpeed,
+          zRotation);
+      m_swerveBase.drive(speeds);
+    } else {
+      ChassisSpeeds speeds = m_HolmDrive.calculateOnlyX(m_swerveBase.getPose(), m_targetPose.getPose2d(), xSpeed,
+          ySpeed,
+          zRotation);
+      m_swerveBase.drive(speeds);
+    }
   }
 
   @Override

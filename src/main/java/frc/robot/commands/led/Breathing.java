@@ -31,7 +31,7 @@ public class Breathing extends CommandBase {
         m_color.blue * m_breathPercent,
         m_color.green * m_breathPercent);
 
-    m_led.setSolidColor(color);
+    m_led.setSolidColorCommand(color);
   }
 
   @Override

@@ -7,16 +7,18 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.commands.led.Breathing;
+import frc.robot.commands.led.Fade;
 import frc.robot.commands.led.Rainbow;
 
 public class LED extends SubsystemBase {
   private final AddressableLED m_LEDStrip;
   private final AddressableLEDBuffer m_LEDStripBuffer;
   private final Color[] m_colors;
-  private boolean m_currentCube = false;
-  private boolean m_currentCone = false;
+  private Fade m_fade;
 
   public LED(int PWMPort, int length) {
     m_LEDStrip = new AddressableLED(PWMPort);
@@ -24,7 +26,11 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setLength(length);
     m_LEDStrip.start();
     m_colors = new Color[] { new Color(255, 200, 0), new Color(255, 0, 100) };
-    setSolidColor(Color.kGreen);
+    setSolidColorCommand(m_colors[0]);
+
+    m_fade = new Fade(this,
+        new Color[] { Constants.LEDConstants.kMechTechGreen, Constants.LEDConstants.kChargedUpGold });
+    m_fade.initialize();
   }
 
   public void setSolidColor(Color color) {
@@ -34,17 +40,25 @@ public class LED extends SubsystemBase {
     m_LEDStrip.setData(m_LEDStripBuffer);
   }
 
-  public void setSolidColorNumber(Color color, int length) {
-    length = Math.min(length, m_LEDStripBuffer.getLength());
-    for (int i = 0; i < length; i++) {
-      m_LEDStripBuffer.setLED(i, color);
-    }
-    if (length < m_LEDStripBuffer.getLength()) {
-      for (int i = length; i < m_LEDStripBuffer.getLength(); i++) {
-        m_LEDStripBuffer.setLED(i, Color.kGreen);
+  public Command setSolidColorCommand(Color color) {
+    return Commands.runOnce(() -> {
+      setSolidColor(color);
+    });
+  }
+
+  public Command setSolidColorNumberCommand(Color color, Color secondColor, int length) {
+    return Commands.runOnce(() -> {
+      int lengthLeds = Math.min(length, m_LEDStripBuffer.getLength());
+      for (int i = 0; i < lengthLeds; i++) {
+        m_LEDStripBuffer.setLED(i, color);
       }
-    }
-    m_LEDStrip.setData(m_LEDStripBuffer);
+      if (lengthLeds < m_LEDStripBuffer.getLength()) {
+        for (int i = lengthLeds; i < m_LEDStripBuffer.getLength(); i++) {
+          m_LEDStripBuffer.setLED(i, secondColor);
+        }
+      }
+      m_LEDStrip.setData(m_LEDStripBuffer);
+    });
   }
 
   public void setColors(Color... colors) {
@@ -70,20 +84,12 @@ public class LED extends SubsystemBase {
     return m_LEDStripBuffer.getLength();
   }
 
-  public Color getColor() {
-    return m_LEDStripBuffer.getLED(0);
-  }
-
-  public Command solidColorCommand(Color color) {
-    return runOnce(() -> setSolidColor(color));
-  }
-
   public Command allianceColorCommand() {
     Color color = DriverStation.getAlliance() == Alliance.Blue
         ? Color.kMediumBlue
         : Color.kRed;
 
-    return solidColorCommand(color);
+    return setSolidColorCommand(color);
   }
 
   public Command rainbowCommand() {
@@ -94,27 +100,9 @@ public class LED extends SubsystemBase {
     return new Breathing(this, color);
   }
 
-  public Command coneCommand() {
-    return runOnce(() -> {
-      m_currentCone = !m_currentCone;
-      if (m_currentCone) {
-        m_currentCube = false;
-        setSolidColor(m_colors[1]);
-      } else {
-        setSolidColor(Color.kGreen);
-      }
-    });
+  @Override
+  public void periodic() {
+    m_fade.execute();
   }
 
-  public Command cubeCommand() {
-    return runOnce(() -> {
-      m_currentCube = !m_currentCube;
-      if (m_currentCube) {
-        m_currentCone = false;
-        setSolidColor(m_colors[0]);
-      } else {
-        setSolidColor(Color.kGreen);
-      }
-    });
-  }
 }

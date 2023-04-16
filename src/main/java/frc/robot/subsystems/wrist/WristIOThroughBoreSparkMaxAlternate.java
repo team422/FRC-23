@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 
 import edu.wpi.first.math.MathUtil;
+import frc.lib.utils.CanSparkMaxSetup;
 
 public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
   public CANSparkMax m_wristMotor;
@@ -14,7 +15,9 @@ public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
   public WristIOThroughBoreSparkMaxAlternate(int wristMotorPort, int wristEncoderCPR,
       SparkMaxAbsoluteEncoder wristThroughbore,
       Double wristEncoderOffset) {
+    CanSparkMaxSetup setup = new CanSparkMaxSetup();
     m_wristMotor = new CANSparkMax(wristMotorPort, CANSparkMax.MotorType.kBrushless);
+    setup.setupSparkMaxSlowFully(m_wristMotor);
     m_wristEncoder = wristThroughbore;
     m_wristMotor.setInverted(false);
     m_wristMotor.setIdleMode(IdleMode.kBrake);

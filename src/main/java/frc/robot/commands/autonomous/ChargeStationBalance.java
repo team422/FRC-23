@@ -29,7 +29,7 @@ public class ChargeStationBalance extends CommandBase {
     //       m_turnController.calculate(m_drive.getPose().getRotation().getRadians(), Math.PI),
     //       m_drive.getPose().getRotation()));
     // } else {
-    if (Timer.getMatchTime() < .5) {
+    if (Timer.getMatchTime() < .125) {
       m_drive.xBrake();
     } else if (Math.abs(m_drive.getGyro().getPitch().getDegrees()) < 2.5) {
       m_drive.xBrake();
