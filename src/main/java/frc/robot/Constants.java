@@ -212,8 +212,8 @@ public final class Constants {
     public static final double kMaxAcceptedErrorMeters = 0.5;
     public static final Rotation2d kMaxAcceptedAngleError = Rotation2d.fromDegrees(10);
 
-    public static final double kMaxSpeedMetersPerSecondAuto = 3.85; // 3.85 is correct 2023-04-01
-    public static final double kMaxAccelMetersPerSecondSqAuto = 2.5;
+    public static final double kMaxSpeedMetersPerSecondAuto = 4; // 3.85 is correct 2023-04-01
+    public static final double kMaxAccelMetersPerSecondSqAuto = 3.3;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);
     public static final double kMaxHighElevatorAngularSpeedRadiansPerSecond = Units.degreesToRadians(240);
@@ -221,7 +221,7 @@ public final class Constants {
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Units.degreesToRadians(180);
     public static final Rotation2d pitchAngle = Rotation2d.fromDegrees(-1.17);
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(1.0, 0, 0),
-        new PIDController(.03, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
+        new PIDController(.08, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
   }
@@ -329,8 +329,8 @@ public final class Constants {
   public static final class WristConstants {
     public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
     public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 25.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 35);
-    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 4.0);
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 30);
+    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 5.5);
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", .3);
     public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.05);

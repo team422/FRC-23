@@ -42,7 +42,7 @@ public class IntakeIONeo550 implements IntakeIO {
 
   @Override
   public boolean hasGamePiece() {
-    return m_intakeMotor.getOutputCurrent() > 35;
+    return Math.round(m_intakeMotor.getOutputCurrent()) > 15 && Math.round(getIntakeSpeed()) == 0;
   }
 
 }

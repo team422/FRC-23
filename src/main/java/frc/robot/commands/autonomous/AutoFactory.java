@@ -49,6 +49,8 @@ public class AutoFactory extends CommandBase {
         m_elevator.setHeightCommand(Setpoints.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.stowVerticalCommandSetpoints[1])),
         Commands.print("stow"));
+
+    Command xBrake = m_drive.xBrakeInstantCommand();
     Command coneHigh = Commands.sequence(
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
         m_elevator.testSetHeightCommand(Setpoints.coneHighCommandSetpointsAuto[0], Units.inchesToMeters(25)),
@@ -59,6 +61,11 @@ public class AutoFactory extends CommandBase {
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
         m_elevator.testSetHeightCommand(Setpoints.cubeHighCommandSetpointsAuto[0], Units.inchesToMeters(25)),
         m_wrist.testSetAngleCommand(Rotation2d.fromDegrees(Setpoints.cubeHighCommandSetpointsAuto[1])),
+        Commands.print("cubeHighElevator"));
+    Command cubeMid = Commands.sequence(
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(77)),
+        m_elevator.testSetHeightCommand(Setpoints.cubeMidCommandSetpoints[0], Units.inchesToMeters(25)),
+        m_wrist.testSetAngleCommand(Rotation2d.fromDegrees(Setpoints.cubeMidCommandSetpoints[1])),
         Commands.print("cubeHighElevator"));
 
     Command autoConeHigh = Commands.sequence(
@@ -96,19 +103,19 @@ public class AutoFactory extends CommandBase {
     Command cubeWallFar = new DriveToCubeAuton(m_drive, () -> {
       return RobotState.getInstance().m_cubePose;
     }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
-        () -> fieldUtil.getGamePieceLocation("wallFar"));
+        () -> fieldUtil.getGamePieceLocation("wallFar")).withTimeout(2);
     Command cubeWallMiddle = new DriveToCubeAuton(m_drive, () -> {
       return RobotState.getInstance().m_cubePose;
     }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
-        () -> fieldUtil.getGamePieceLocation("wallMiddle"));
+        () -> fieldUtil.getGamePieceLocation("wallMiddle")).withTimeout(2);
     Command cubeBumpMiddle = new DriveToCubeAuton(m_drive, () -> {
       return RobotState.getInstance().m_cubePose;
     }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
-        () -> fieldUtil.getGamePieceLocation("bumpMiddle"));
+        () -> fieldUtil.getGamePieceLocation("bumpMiddle")).withTimeout(2);
     Command cubeBumpFar = new DriveToCubeAuton(m_drive, () -> {
       return RobotState.getInstance().m_cubePose;
     }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0, m_intake,
-        () -> fieldUtil.getGamePieceLocation("bumpFar"));
+        () -> fieldUtil.getGamePieceLocation("bumpFar")).withTimeout(2);
 
     m_eventMap = Map.ofEntries(
         Map.entry("setpointStow", stow),
@@ -116,6 +123,7 @@ public class AutoFactory extends CommandBase {
         Map.entry("setpointCubeGroundBump", cubeGroundBump),
         Map.entry("setpointConeHigh", coneHigh),
         Map.entry("setpointCubeHigh", cubeHigh),
+        Map.entry("setpointCubeMid", cubeMid),
         Map.entry("setpointConeGround", coneGround),
         Map.entry("intakeCubeIn", cubePickup),
         Map.entry("setpointConeVertical", coneVertical),
@@ -128,7 +136,10 @@ public class AutoFactory extends CommandBase {
         Map.entry("balance", balanceStation),
         Map.entry("zeroHeading", zeroHeading),
         Map.entry("setpointConeHighWait", autoConeHigh), Map.entry("cubeBumpFar", cubeBumpFar),
-        Map.entry("cubeBumpMiddle", cubeBumpMiddle));
+        Map.entry("cubeBumpMiddle", cubeBumpMiddle),
+        Map.entry("cubeWallFar", cubeWallFar),
+        Map.entry("cubeWallMiddle", cubeWallMiddle),
+        Map.entry("xBrakeCommand", xBrake));
     // m_eventMap = Map.ofEntries(
     //     Map.entry("a", Commands.print("aaaaaaaaaaaaa a")),
     //     Map.entry("stow", stow),
@@ -172,6 +183,6 @@ public class AutoFactory extends CommandBase {
         m_eventMap,
         true, // TODO: ENABLE (AND TEST) BEFORE COMP
         m_drive);
-    return autoBuilder.fullAuto(paths).andThen(m_drive.brakeCommand());
+    return Commands.sequence(m_drive.brakeCommand(), autoBuilder.fullAuto(paths).andThen(m_drive.brakeCommand()));
   }
 }
