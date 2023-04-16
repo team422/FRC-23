@@ -385,8 +385,6 @@ public class RobotContainer {
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());
     driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
-    driverControls.ledCone().onTrue(m_LED.coneCommand());
-    driverControls.ledCube().onTrue(m_LED.cubeCommand());
 
   }
 
