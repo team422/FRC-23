@@ -25,6 +25,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.robot.util.CustomHolmonomicDrive;
 import frc.robot.util.TunableNumber;
@@ -145,6 +146,10 @@ public final class Constants {
     public static final int kLEDLength = 40;
     public static final int kLEDPort = 0;
     public static final int kLEDPort2 = 1;
+
+    // LED fade colors
+    public static final Color kMechTechGreen = new Color(0, 183, 96);
+    public static final Color kChargedUpGold = new Color(255, 183, 0);
   }
 
   public static final class ElevatorConstants {
