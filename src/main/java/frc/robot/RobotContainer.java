@@ -43,6 +43,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
+import frc.robot.commands.drive.DriveToCube;
 import frc.robot.commands.drive.DriveToNode;
 import frc.robot.commands.drive.TeleopDrive;
 import frc.robot.oi.DriverControls;
@@ -167,7 +168,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(330)), // 253
+          Units.degreesToRadians(334)), // 118 is back of wrist
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -180,15 +181,22 @@ public class RobotContainer {
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
       m_cams = new CameraAprilTag[] {
           new CameraAprilTag(VisionConstants.kleftCameraName, m_layout, VisionConstants.kleftCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
+              VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
           new CameraAprilTag(VisionConstants.kRightCamera, m_layout, VisionConstants.kRightCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP),
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
+              VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
+          new CameraAprilTag(VisionConstants.kLimelightCameraName, m_layout, VisionConstants.kLimelightCameraTransform,
+              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kCubeSearchPipelineIndex,
+              VisionConstants.ktopCameraHFOV, VisionConstants.ktopCameraVFOV)
       };
+
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
 
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
     } else {
+
       m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
@@ -274,6 +282,12 @@ public class RobotContainer {
     //     new ChargeStationBalance(m_drive));
     Command chargeCommand = new ChargeStationBalance(m_drive);
     operatorControls.charge().whileTrue(chargeCommand);
+    operatorControls.setIntakeHighPowerMode().whileTrue(m_intake.setHighPowerMode());
+    Command intakeCubeTeleop = Commands.parallel(new DriveToCube(m_drive, () -> {
+      return RobotState.getInstance().m_cubePose;
+    }, DriveConstants.holonomicDrive, () -> 0.0, () -> 0.0, () -> 0.0),
+        RobotState.getInstance().setpointCommandParallel(Setpoints.pickUpCubeGroundCommandSetpoints),
+        m_intake.intakeCubeCommand());
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])));
@@ -344,7 +358,7 @@ public class RobotContainer {
     driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommandDriver);
     driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommandDriver);
     // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
-
+    driverControls.autoIntakeCube().whileTrue(intakeCubeTeleop);
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
     operatorControls.charge().whileTrue(chargeCommand);
@@ -365,8 +379,6 @@ public class RobotContainer {
         () -> driverControls.getDriveForward(), () -> driverControls.getDriveLeft(),
         () -> driverControls.getDriveRotation());
     driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
-    driverControls.ledCone().onTrue(m_LED.coneCommand());
-    driverControls.ledCube().onTrue(m_LED.cubeCommand());
 
   }
 
@@ -404,7 +416,7 @@ public class RobotContainer {
     // if (Robot.isSimulation()) {
     //   return;
     // } else {
-
+    // RENABLE
     String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
     if (selectedAuto != m_curSelectedAuto) {
       m_curSelectedAuto = selectedAuto;
@@ -429,10 +441,10 @@ public class RobotContainer {
         }
         // System.out.println(distanceXY);
         // System.out.println(distanceTheta);
-        if (distanceXY > 2) {
+        if (distanceXY > 1) {
           m_LED.setSolidColorNumberCommand(Color.kYellow, Color.kGreen, (int) Math.ceil(distanceXY))
               .ignoringDisable(true).schedule();
-        } else if (distanceTheta > 2) {
+        } else if (distanceTheta > 1) {
           m_LED.setSolidColorNumberCommand(Color.kRed, Color.kGreen, (int) Math.ceil(distanceTheta))
               .ignoringDisable(true).schedule();
         } else {
