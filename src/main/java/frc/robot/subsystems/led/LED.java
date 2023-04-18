@@ -30,7 +30,6 @@ public class LED extends SubsystemBase {
 
     m_fade = new Fade(this,
         new Color[] { Constants.LEDConstants.kMechTechGreen, Constants.LEDConstants.kChargedUpGold });
-    m_fade.initialize();
   }
 
   public void setSolidColor(Color color) {
@@ -103,6 +102,14 @@ public class LED extends SubsystemBase {
   @Override
   public void periodic() {
     m_fade.execute();
+  }
+
+  public void startFade() {
+    m_fade.schedule();
+  }
+
+  public void stopFade() {
+    m_fade.end(true);
   }
 
 }
