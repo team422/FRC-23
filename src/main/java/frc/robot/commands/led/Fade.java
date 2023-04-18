@@ -25,16 +25,20 @@ public class Fade extends CommandBase {
   public Fade(LED led, Color[] colors) {
     m_LED = led;
     m_colors = colors;
+
+    // random initializations, prevent errors but are never used
+    m_currentColor = new Color(0, 0, 0);
+    m_rate = new double[3];
   }
 
   @Override
   public void initialize() {
-    m_LED.start();
     m_currentDirection = true;
     m_rate = calcRate(m_colors[0], m_colors[1]);
     m_wait = 0;
     m_currentColor = m_colors[1];
     m_fadePercentage = 0;
+    m_LED.start();
   }
 
   @Override
@@ -73,6 +77,11 @@ public class Fade extends CommandBase {
     m_currentColor = new Color(r, g, b);
 
     m_LED.setSolidColor(m_currentColor);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    m_LED.stop();
   }
 
   private double[] calcRate(Color color1, Color color2) {

@@ -388,6 +388,7 @@ public class RobotContainer {
     m_wrist.setBrakeMode(false);
     m_wrist.reset();
     m_elevator.reset();
+    m_LED.startFade();
   }
 
   public void onDisabled() {
@@ -395,6 +396,7 @@ public class RobotContainer {
     m_wrist.setBrakeMode(true);
     m_wrist.reset();
     m_elevator.reset();
+    m_LED.stopFade();
   }
 
   /**
