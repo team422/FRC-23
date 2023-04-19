@@ -68,8 +68,8 @@ public final class Constants {
     public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(47.489), 28 };
     public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(50), 28 };
     // public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(47), 50 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(51), -5 - 7.25 - 5 };
-    public static final double[] coneHighCommandSetpointsAuto = { Units.inchesToMeters(51), -5 - 7.25 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(50.6), -5 - 7.25 - 5 };
+    public static final double[] coneHighCommandSetpointsAuto = { Units.inchesToMeters(50.6), -5 - 7.25 };
     public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 - 7.25 };
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
@@ -155,10 +155,10 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final boolean kTuningMode = true;
 
-    public static final TunableNumber kP = new TunableNumber("Elevator P", 14.0);
+    public static final TunableNumber kP = new TunableNumber("Elevator P", 28.0);
     public static final TunableNumber kManualSetpoint = new TunableNumber("Elevator Height", 0.0);
-    public static final TunableNumber kI = new TunableNumber("Elevator I", 1.6);
-    public static final TunableNumber kD = new TunableNumber("Elevator D", 0.3);
+    public static final TunableNumber kI = new TunableNumber("Elevator I", 1.4);
+    public static final TunableNumber kD = new TunableNumber("Elevator D", 0.5);
     public static final TunableNumber kKs = new TunableNumber("Elevator ks", .1);
     public static final TunableNumber kKg = new TunableNumber("Elevator kg", .45);
     public static final TunableNumber kKv = new TunableNumber("Elevator kv", 0.1);
@@ -167,13 +167,13 @@ public final class Constants {
         kKg.get(), kKv.get());
     public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(kP.get(),
         kI.get(), kD.get(),
-        new Constraints(30, 10));
+        new Constraints(30, 6));
 
     public static final double kGearRatio = 2.256 * Math.PI;
     public static final int kEncoderCPR = 2048;
 
     public static final Rotation2d kAngle = Rotation2d.fromDegrees(56);
-    public static final double kMaxTravelMeters = Units.inchesToMeters(55);
+    public static final double kMaxTravelMeters = Units.inchesToMeters(54.5);
 
     public static final double kMinHeightMeters = Units.inchesToMeters(6.566);
     public static final double kMaxHeightMeters = kMinHeightMeters + kMaxTravelMeters * kAngle.getSin();

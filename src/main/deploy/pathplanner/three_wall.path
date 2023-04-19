@@ -129,16 +129,16 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8253003467812492,
-        "y": 4.330831031453729
+        "x": 1.83341866162899,
+        "y": 4.406157395648124
       },
       "prevControl": {
-        "x": 2.2741271819349196,
-        "y": 4.608535387209663
+        "x": 2.28224549678266,
+        "y": 4.683861751404058
       },
       "nextControl": {
-        "x": 2.2741271819349196,
-        "y": 4.608535387209663
+        "x": 2.28224549678266,
+        "y": 4.683861751404058
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
@@ -150,7 +150,7 @@
           "intakeCubeOut"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "minimum",
+        "waitBehavior": "before",
         "waitTime": 0.5
       }
     },
