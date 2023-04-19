@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.823618695848503,
-        "y": 0.4585688129709584
+        "x": 1.8241405875172862,
+        "y": 0.494579338117009
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.161883246197049,
-        "y": 0.7259513112776221
+        "x": 2.162405137865832,
+        "y": 0.7619618364236731
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -248,7 +248,7 @@
         "x": 5.370800392642452,
         "y": 1.0386803968052372
       },
-      "holonomicAngle": -124.84256177410613,
+      "holonomicAngle": 179.35177841459023,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -327,7 +327,7 @@
       ]
     },
     {
-      "position": 3.4035156249999985,
+      "position": 2.856640624999999,
       "names": [
         "setpointCubeHigh"
       ]
@@ -368,12 +368,6 @@
       "position": 10.9765625,
       "names": [
         "shootCube"
-      ]
-    },
-    {
-      "position": 10.411718749999984,
-      "names": [
-        "setpointCubeMid"
       ]
     }
   ]
