@@ -155,9 +155,9 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final boolean kTuningMode = true;
 
-    public static final TunableNumber kP = new TunableNumber("Elevator P", 28.0);
+    public static final TunableNumber kP = new TunableNumber("Elevator P", 14.0);
     public static final TunableNumber kManualSetpoint = new TunableNumber("Elevator Height", 0.0);
-    public static final TunableNumber kI = new TunableNumber("Elevator I", 1.4);
+    public static final TunableNumber kI = new TunableNumber("Elevator I", 1.6);
     public static final TunableNumber kD = new TunableNumber("Elevator D", 0.5);
     public static final TunableNumber kKs = new TunableNumber("Elevator ks", .1);
     public static final TunableNumber kKg = new TunableNumber("Elevator kg", .45);

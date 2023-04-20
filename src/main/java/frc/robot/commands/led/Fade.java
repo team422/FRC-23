@@ -38,7 +38,6 @@ public class Fade extends CommandBase {
     m_wait = 0;
     m_currentColor = m_colors[1];
     m_fadePercentage = 0;
-    m_LED.start();
   }
 
   @Override
@@ -81,7 +80,6 @@ public class Fade extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    m_LED.stop();
   }
 
   private double[] calcRate(Color color1, Color color2) {
