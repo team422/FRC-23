@@ -2,7 +2,6 @@ package frc.robot.commands.led;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.LEDConstants;
 import frc.robot.subsystems.led.LED;
 
 public class Rainbow extends CommandBase {
@@ -16,8 +15,8 @@ public class Rainbow extends CommandBase {
     m_led = led;
     // m_rainbowColors = new Color[] { Color.kRed, Color.kOrange, Color.kYellow, LEDConstants.kMechTechGreen, Color.kBlue,
     //     Color.kIndigo, Color.kViolet };
-    // m_rainbowColors = new Color[] { new Color(85, 205, 252), Color.kWhite, new Color(247, 168, 184) };
-    m_rainbowColors = new Color[] { LEDConstants.kMechTechGreen, LEDConstants.kChargedUpGold };
+    m_rainbowColors = new Color[] { new Color(55, 175, 252), Color.kWhite, new Color(255, 100, 100) };
+    // m_rainbowColors = new Color[] { LEDConstants.kMechTechGreen, LEDConstants.kChargedUpGold };
     m_multiple = 5;
   }
 
