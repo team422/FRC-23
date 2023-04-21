@@ -9,16 +9,14 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.commands.led.Breathing;
-import frc.robot.commands.led.Fade;
 import frc.robot.commands.led.Rainbow;
 
 public class LED extends SubsystemBase {
   private final AddressableLED m_LEDStrip;
   private final AddressableLEDBuffer m_LEDStripBuffer;
   private final Color[] m_colors;
-  private Fade m_fade;
+  private Rainbow m_fade;
 
   public LED(int PWMPort, int length) {
     m_LEDStrip = new AddressableLED(PWMPort);
@@ -28,9 +26,9 @@ public class LED extends SubsystemBase {
     m_colors = new Color[] { new Color(255, 200, 0), new Color(255, 0, 100) };
     setSolidColorCommand(m_colors[0]);
 
-    m_fade = new Fade(this,
-        new Color[] { Constants.LEDConstants.kMechTechGreen, Constants.LEDConstants.kChargedUpGold });
-    m_fade.initialize();
+    // m_fade = new Fade(this,
+    //     new Color[] { Constants.LEDConstants.kMechTechGreen, Constants.LEDConstants.kChargedUpGold });
+    m_fade = new Rainbow(this);
   }
 
   public void setSolidColor(Color color) {
@@ -102,7 +100,15 @@ public class LED extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_fade.execute();
+
+  }
+
+  public void startFade() {
+    m_fade.schedule();
+  }
+
+  public void stopFade() {
+    m_fade.end(true);
   }
 
 }

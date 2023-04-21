@@ -38,6 +38,7 @@ public class Elevator extends SubsystemBase {
     m_inputs = new ElevatorInputsAutoLogged();
 
     m_controller = elevatorPIDController;
+    m_controller.setTolerance(Units.inchesToMeters(0.1));
     m_elevatorFeedForward = elevatorFeedForward;
 
     m_controller = Constants.ElevatorConstants.elevatorPIDController;
