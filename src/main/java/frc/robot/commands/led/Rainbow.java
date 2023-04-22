@@ -15,7 +15,8 @@ public class Rainbow extends CommandBase {
     m_led = led;
     // m_rainbowColors = new Color[] { Color.kRed, Color.kOrange, Color.kYellow, LEDConstants.kMechTechGreen, Color.kBlue,
     //     Color.kIndigo, Color.kViolet };
-    m_rainbowColors = new Color[] { new Color(55, 175, 252), Color.kWhite, new Color(255, 100, 100) };
+    m_rainbowColors = new Color[] { new Color(255, 100, 100), new Color(55, 175, 252), Color.kWhite,
+        new Color(55, 175, 252) };
     // m_rainbowColors = new Color[] { LEDConstants.kMechTechGreen, LEDConstants.kChargedUpGold };
     m_multiple = 5;
   }
