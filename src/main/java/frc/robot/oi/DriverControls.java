@@ -53,4 +53,6 @@ public interface DriverControls {
 
   public Trigger autoIntakeCube();
 
+  public Trigger ledFlash();
+
 }

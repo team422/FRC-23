@@ -148,4 +148,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger autoIntakeCube() {
     return m_rightJoystick.button(5);
   }
+
+  @Override
+  public Trigger ledFlash() {
+    return m_rightJoystick.button(8);
+  }
 }
