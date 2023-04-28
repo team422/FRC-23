@@ -386,6 +386,7 @@ public class RobotContainer {
         () -> driverControls.getDriveRotation());
     driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
 
+    driverControls.ledFlash().onTrue(m_LED.startFlash());
   }
 
   public void onEnabled() {
@@ -394,7 +395,7 @@ public class RobotContainer {
     m_wrist.setBrakeMode(false);
     m_wrist.reset();
     m_elevator.reset();
-    m_LED.startFade();
+    m_LED.initFlash();
   }
 
   public void onDisabled() {
@@ -402,7 +403,7 @@ public class RobotContainer {
     m_wrist.setBrakeMode(true);
     m_wrist.reset();
     m_elevator.reset();
-    m_LED.stopFade();
+    m_LED.resetFlash();
   }
 
   /**
