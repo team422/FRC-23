@@ -3,6 +3,9 @@ package frc.robot.commands.drive;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -42,6 +45,10 @@ public class TeleopDrive extends CommandBase {
     curXSpeed = xSpeed.get();
     curYSpeed = ySpeed.get();
     curZRotation = zRotation.get();
+    // curXSpeed = MathUtil.applyDeadband(curZRotation, curYSpeed)
+    curXSpeed = m_controlsHandler.addDeadzoneScaled(curXSpeed, deadzone);
+    curYSpeed = m_controlsHandler.addDeadzoneScaled(curYSpeed, deadzone);
+    curZRotation = m_controlsHandler.addDeadzoneScaled(curZRotation, deadzone);
     if (Math.abs(curZRotation) > 0.001) {
       pidHeadingSetpoint = m_drive.getPose().getRotation().getRadians();
     }
@@ -70,9 +77,14 @@ public class TeleopDrive extends CommandBase {
     }
     // System.out.println(curXSpeed);
 
-    speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
+    Pose2d robotPoseVel = new Pose2d(curXSpeed * 0.02, curYSpeed * 0.02, Rotation2d.fromRadians(curZRotation * 0.02));
+    Twist2d twistVel = new Pose2d(0, 0, Rotation2d.fromRadians(0)).log(robotPoseVel);
+    speeds = ChassisSpeeds.fromFieldRelativeSpeeds(twistVel.dx / 0.02, twistVel.dy / 0.02, twistVel.dtheta / 0.02,
         m_drive.getPose().getRotation());
-    ;
+
+    // speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
+    //     m_drive.getPose().getRotation());
+
     // speeds = new ChassisSpeeds(curXSpeed, curYSpeed, curZRotation);
     m_drive.drive(speeds);
   }
