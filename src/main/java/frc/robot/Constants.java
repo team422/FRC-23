@@ -231,9 +231,9 @@ public final class Constants {
         new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
 
     //SOK Std Devs
-    public static final TunableNumber kSOKStDevX = new TunableNumber("SOKStDevX", 10);
-    public static final TunableNumber kSOKStDevY = new TunableNumber("SOKStDevY", 10);
-    public static final TunableNumber kSOKStDevTheta = new TunableNumber("SOKStDevTheta", 100);
+    public static final TunableNumber kSOKStDevX = new TunableNumber("SOKStDevX", 20);
+    public static final TunableNumber kSOKStDevY = new TunableNumber("SOKStDevY", 20);
+    public static final TunableNumber kSOKStDevTheta = new TunableNumber("SOKStDevTheta", 200);
 
   }
 
@@ -243,9 +243,9 @@ public final class Constants {
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
-    public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
-    public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
+    public static final TunableNumber kTurningP = new TunableNumber("TurnP", 0.06);
+    public static final TunableNumber kTurningI = new TunableNumber("Turn I", 0.00);
+    public static final TunableNumber kTurningD = new TunableNumber("Turn D", 0.005);
 
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.85); // 0.09398; // 3.7 in
 
