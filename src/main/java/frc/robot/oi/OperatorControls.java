@@ -59,4 +59,6 @@ public interface OperatorControls {
 
   public Trigger high();
 
+  public Trigger setIntakeHighPowerMode();
+
 }

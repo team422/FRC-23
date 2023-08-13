@@ -68,7 +68,7 @@ public class OperatorControlsXbox implements OperatorControls {
 
   @Override
   public double moveElevatorInput() {
-    return m_controls.addDeadzoneScaled(-m_controller.getLeftY(), .1) / 20;
+    return m_controls.addDeadzoneScaled(-m_controller.getLeftY(), .1);
   }
 
   @Override
@@ -154,6 +154,11 @@ public class OperatorControlsXbox implements OperatorControls {
   @Override
   public Trigger high() {
     return m_controller.y();
+  }
+
+  @Override
+  public Trigger setIntakeHighPowerMode() {
+    return m_controller.leftTrigger();
   }
 
 }

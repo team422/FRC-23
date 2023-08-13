@@ -52,6 +52,10 @@ public class Wrist extends SubsystemBase {
       curAngle = -curAngle;
     }
     double pidVoltage = m_controller.calculate(curAngle, m_desiredAngle.getRadians());
+    if (Rotation2d.fromRadians(m_inputs.angleRad).getCos() < .2) {
+      pidVoltage /= 2;
+
+    }
     double positionSetpoint = m_controller.getSetpoint().position;
     // double positionSetpoint = m_controller.
     double velocitySetpoint = m_controller.getSetpoint().velocity;
