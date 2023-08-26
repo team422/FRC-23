@@ -30,6 +30,7 @@ public class Drive extends SubsystemBase {
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleInputsAutoLogged[] m_inputs;
 
+  //SOK vars
   private final SecondOrderKinematics m_SecondOrderKinematics;
   private SwerveModuleAcceleration[] m_moduleAccelerations = new SwerveModuleAcceleration[] {
       new SwerveModuleAcceleration(), new SwerveModuleAcceleration(), new SwerveModuleAcceleration(),
@@ -155,7 +156,7 @@ public class Drive extends SubsystemBase {
             m_robotThetaVel,
             robotTheta,
             deltaTime));
-    return getPose().exp(new Twist2d(
+    return getPoseEstimator().getEstimatedPosition().exp(new Twist2d(
         sokChassisSpeeds.vxMetersPerSecond * deltaTime,
         sokChassisSpeeds.vyMetersPerSecond * deltaTime,
         sokChassisSpeeds.omegaRadiansPerSecond * deltaTime));
@@ -163,7 +164,7 @@ public class Drive extends SubsystemBase {
 
   private void addAccelAndSOK() {
 
-    //Implement Accelerometer into pose calculations
+    //Implement Accelerometer and SOK into pose calculations
 
     Twist2d twist = new Twist2d(m_accelInputs.accelX, m_accelInputs.accelY, 0);
 
