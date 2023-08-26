@@ -49,6 +49,7 @@ public class TeloepDrive extends CommandBase {
     curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond;
     // System.out.println(curXSpeed);
 
+    //calculate the speeds from applying calculated Twist2d to robotPoseVel
     Pose2d robotPoseVel = new Pose2d(curXSpeed * 0.02, curYSpeed * 0.02, Rotation2d.fromRadians(curZRotation * 0.02));
     Twist2d twistVel = new Pose2d(0, 0, Rotation2d.fromRadians(0)).log(robotPoseVel);
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(twistVel.dx / 0.02, twistVel.dy / 0.02, twistVel.dtheta / 0.02,
