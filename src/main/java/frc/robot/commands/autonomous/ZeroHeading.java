@@ -14,16 +14,17 @@ public class ZeroHeading extends CommandBase {
     m_drive = drive;
     addRequirements(m_drive);
     m_turnController = new PIDController(0.1, 0, 0);
+    m_turnController.enableContinuousInput(-180, 180);
   }
 
   @Override
   public void execute() {
     m_drive.drive(
         new ChassisSpeeds(
-          0,
-          0,
-          m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(),
-          0)));
+            0,
+            0,
+            m_turnController.calculate(m_drive.getPose().getRotation().getDegrees(),
+                0)));
   }
 
   @Override

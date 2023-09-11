@@ -62,7 +62,8 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
   @Override
   public Trigger setpointHighCone() {
-    return m_rightJoystick.button(5);
+    // return m_rightJoystick.button(5);
+    return new Trigger();
   }
 
   @Override
@@ -141,5 +142,15 @@ public class DriverControlsDualFlightStick implements DriverControls {
   @Override
   public Trigger resetDrive() {
     return m_rightJoystick.button(11);
+  }
+
+  @Override
+  public Trigger autoIntakeCube() {
+    return m_rightJoystick.button(5);
+  }
+
+  @Override
+  public Trigger ledFlash() {
+    return m_rightJoystick.button(8);
   }
 }

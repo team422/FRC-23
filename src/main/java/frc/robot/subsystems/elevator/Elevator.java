@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import java.util.HashMap;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -12,12 +13,17 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.hardwareprofiler.DataPoint;
+import frc.lib.hardwareprofiler.HardwareProfiler;
+import frc.lib.hardwareprofiler.PowerConsumptionHelper;
+import frc.lib.hardwareprofiler.ProfiledSubsystem;
+import frc.lib.hardwareprofiler.ProfilingScheduling;
+import frc.lib.utils.SubsystemProfiles;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
-public class Elevator extends SubsystemBase {
-  private final ElevatorInputsAutoLogged m_inputs;
+public class Elevator extends ProfiledSubsystem {
+  public final ElevatorInputsAutoLogged m_inputs;
   private final ElevatorIO m_io;
   // private final ElevatorInputs m_inputs;
   private ProfiledPIDController m_controller;
@@ -32,12 +38,35 @@ public class Elevator extends SubsystemBase {
 
   private boolean m_curZeroing;
 
+  private SubsystemProfiles m_profiles;
+
+  private HashMap<Double, Double> m_lastStallMap;
+
+  public enum ElevatorProfilingSuite {
+    kSetpointTime, kSetpointDeltaAtTime, kNone, kResetting, kWaiting
+  }
+
+  public enum ElevatorProfiles {
+    kDefault, kTuning, kTesting, kZeroing
+  }
+
+  // Profiling variables
+  public ElevatorProfilingSuite m_currentProfileTest = ElevatorProfilingSuite.kNone;
+  public ElevatorProfilingSuite m_lastProfileTest = ElevatorProfilingSuite.kNone;
+  public int m_profileTestIndex = 0;
+  public HardwareProfiler m_profiler = null;
+  public HardwareProfiler m_profiler2 = null;
+  public PowerConsumptionHelper testPowerConsumption = null;
+  public boolean m_profileTestRunning = false;
+  public Double m_testStartTime = null;
+
   public Elevator(ElevatorIO io, ProfiledPIDController elevatorPIDController, ElevatorFeedforward elevatorFeedForward,
       double ElevatorOffsetMeters, double maxHeight, Rotation2d elevatorAngle) {
     m_io = io;
     m_inputs = new ElevatorInputsAutoLogged();
 
     m_controller = elevatorPIDController;
+    m_controller.setTolerance(Units.inchesToMeters(0.1));
     m_elevatorFeedForward = elevatorFeedForward;
 
     m_controller = Constants.ElevatorConstants.elevatorPIDController;
@@ -51,29 +80,18 @@ public class Elevator extends SubsystemBase {
     m_lastTime = Timer.getFPGATimestamp();
     m_curZeroing = false;
 
+    HashMap<Enum<?>, Runnable> elevatorPeriodicHash = new HashMap<Enum<?>, Runnable>();
+    elevatorPeriodicHash.put(ElevatorProfiles.kDefault, this::defaultPeriodic);
+    elevatorPeriodicHash.put(ElevatorProfiles.kTuning, this::tuningPeriodic);
+    elevatorPeriodicHash.put(ElevatorProfiles.kTesting, this::testingPeriodic);
+    elevatorPeriodicHash.put(ElevatorProfiles.kZeroing, this::zeroingPeriodic);
+    Class<? extends Enum<?>> profileEnumClass = ElevatorProfiles.class;
+    Enum<?> defaultProfile = ElevatorProfiles.kDefault;
+    m_profiles = new SubsystemProfiles(profileEnumClass, elevatorPeriodicHash, defaultProfile);
+
   }
 
-  public void periodic() {
-    if (Constants.tuningMode) {
-      if (ElevatorConstants.kP.hasChanged() || ElevatorConstants.kI.hasChanged()
-          || ElevatorConstants.kD.hasChanged()) {
-        m_controller.setP(ElevatorConstants.kP.get());
-        m_controller.setI(ElevatorConstants.kI.get());
-        m_controller.setD(ElevatorConstants.kD.get());
-      }
-      if (ElevatorConstants.kKs.hasChanged() || ElevatorConstants.kKv.hasChanged()
-          || ElevatorConstants.kKg.hasChanged()) {
-        m_elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kKs.get(),
-            ElevatorConstants.kKg.get(), ElevatorConstants.kKv.get());
-      }
-    }
-    if (ElevatorConstants.kTuningMode && ElevatorConstants.kManualSetpoint.hasChanged()) {
-      setHeight(Units.inchesToMeters(ElevatorConstants.kManualSetpoint.get()));
-    }
-
-    m_io.updateInputs(m_inputs);
-    Logger.getInstance().processInputs("Elevator", m_inputs);
-
+  public void defaultPeriodic() {
     double dt = Timer.getFPGATimestamp() - m_lastTime;
 
     double pidVoltage = m_controller.calculate(m_inputs.heightMeters, m_desiredHeight);
@@ -83,26 +101,223 @@ public class Elevator extends SubsystemBase {
         accelerationSetpoint);
 
     double outputVoltage = pidVoltage + feedForwardVoltage;
-    if (m_curZeroing) {
-      m_io.setVoltage(-3);
-      m_io.zeroHeight();
-    } else {
-      m_io.setVoltage(outputVoltage);
-    }
+    m_io.setVoltage(outputVoltage);
     // m_io.setVoltage(feedForwardVoltage);
+    // Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);
+    // Logger.getInstance().recordOutput("Elevator/FFVoltage", feedForwardVoltage);
+    // Logger.getInstance().recordOutput("Elevator/OutputVoltage", outputVoltage);
 
-    Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);
-    Logger.getInstance().recordOutput("Elevator/FFVoltage", feedForwardVoltage);
-    Logger.getInstance().recordOutput("Elevator/OutputVoltage", outputVoltage);
+    m_lastVelocity = velocitySetpoint;
+    m_lastTime = Timer.getFPGATimestamp();
+  }
+
+  public void recordOutputs() {
 
     Logger.getInstance().recordOutput("Elevator/SetpointInches",
         Units.metersToInches(convertTravelToReal(m_desiredHeight)));
     Logger.getInstance().recordOutput("Elevator/HeightInches", Units.metersToInches(getPositionYMeters()));
     Logger.getInstance().recordOutput("Elevator/XInches", Units.metersToInches(getPositionXMeters()));
+  }
 
-    m_lastVelocity = velocitySetpoint;
-    m_lastTime = Timer.getFPGATimestamp();
+  public void tuningPeriodic() {
+    if (ElevatorConstants.kP.hasChanged() || ElevatorConstants.kI.hasChanged()
+        || ElevatorConstants.kD.hasChanged()) {
+      m_controller.setP(ElevatorConstants.kP.get());
+      m_controller.setI(ElevatorConstants.kI.get());
+      m_controller.setD(ElevatorConstants.kD.get());
+    }
+    if (ElevatorConstants.kKs.hasChanged() || ElevatorConstants.kKv.hasChanged()
+        || ElevatorConstants.kKg.hasChanged()) {
+      m_elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kKs.get(),
+          ElevatorConstants.kKg.get(), ElevatorConstants.kKv.get());
+    }
+    if (ElevatorConstants.kTuningMode && ElevatorConstants.kManualSetpoint.hasChanged()) {
+      setHeight(Units.inchesToMeters(ElevatorConstants.kManualSetpoint.get()));
+    }
+    defaultPeriodic();
+  }
 
+  public void zeroingPeriodic() {
+    m_io.setVoltage(-3);
+    if (m_inputs.currentAmps > ElevatorConstants.kZeroAmperageThreshold) {
+      m_lastStallMap.put(Timer.getFPGATimestamp(), m_inputs.currentAmps);
+    }
+    if (m_lastStallMap.size() > ElevatorConstants.kZeroAmperageCountThreshold) {
+      for (HashMap.Entry<Double, Double> entry : m_lastStallMap.entrySet()) {
+        if (Timer.getFPGATimestamp() - entry.getKey() > ElevatorConstants.kZeroAmperageTimeThreshold) {
+          m_lastStallMap.remove(entry.getKey());
+        }
+      }
+    }
+    m_io.zeroHeight();
+    m_profiles.revertToLastProfile();
+  }
+
+  public void testingPeriodic() {
+    switch (m_currentProfileTest) {
+      case kWaiting:
+        if (ProfilingScheduling.getInstance().checkReadyNextPoint()) {
+          setTestProfile(m_currentProfileTest);
+        }
+      case kSetpointTime:
+        if (m_profiler == null) {
+          String name = "Elevator Setpoint Time";
+          double time = Timer.getFPGATimestamp();
+          int subsystemId = ElevatorConstants.kId;
+          int id = 1;
+          String[] Units = { "Time", "Height" };
+          HardwareProfiler.ProfilingType profilingType = HardwareProfiler.ProfilingType.TIME_TO_SETPOINT;
+          int testNumber = 1;
+          double[] testParamters = { 1.0 };
+          String[] testParameterNames = { "Tolerance Inches" };
+          m_profiler = new HardwareProfiler(name, time, id, subsystemId, Units, profilingType, testNumber,
+              testParamters, testParameterNames);
+
+          name = "Elevator Power Consumption by Height";
+          Units = new String[] { "Power", "Height" };
+          id = 3;
+          profilingType = HardwareProfiler.ProfilingType.POWER_CONSUMPTION_BY_SETPOINT;
+          testNumber = 1;
+          testParamters = new double[] { 1.0 };
+          testParameterNames = new String[] { "Tolerance Inches" };
+          m_profiler2 = new HardwareProfiler(name, time, id, subsystemId, Units, profilingType, testNumber,
+              testParamters, testParameterNames);
+        }
+        double curTestHeight = ElevatorConstants.kElevatorTestHeights[m_profileTestIndex];
+        setHeight(curTestHeight);
+        if (testPowerConsumption == null) {
+          testPowerConsumption = new PowerConsumptionHelper();
+        }
+        testPowerConsumption.update(m_inputs.currentAmps, m_inputs.setVoltage, Timer.getFPGATimestamp());
+        System.out.println(testPowerConsumption.getPowerUsage());
+        if (m_testStartTime == null) {
+          m_testStartTime = Timer.getFPGATimestamp();
+          System.out.println(curTestHeight);
+        }
+        if (Math.abs(getPositionYMeters() - curTestHeight) < Units.inchesToMeters(1.0)) {
+          m_profiler.addDataPoint(new DataPoint(
+              new double[] { Timer.getFPGATimestamp() - m_testStartTime, Units.metersToInches(curTestHeight) }));
+          m_profiler2.addDataPoint(new DataPoint(
+              new double[] { testPowerConsumption.getPowerUsage(), Units.metersToInches(curTestHeight), }));
+          m_profileTestIndex++;
+          m_testStartTime = null;
+          if (m_profileTestIndex >= ElevatorConstants.kElevatorTestHeights.length) {
+            m_profileTestIndex = 0;
+            m_profiler.toJSON();
+            m_profiler2.toJSON();
+            m_profiler = null;
+            m_profiler2 = null;
+            m_testStartTime = null;
+            testPowerConsumption = null;
+            // setTestProfile(ElevatorProfilingSuite.kSetpointDeltaAtTime);
+            ProfilingScheduling.getInstance().setFinishTest(m_currentProfileTest);
+          } else {
+            setTestProfile(ElevatorProfilingSuite.kResetting);
+            testPowerConsumption = null;
+          }
+        } else {
+          defaultPeriodic();
+        }
+        break;
+      case kSetpointDeltaAtTime:
+        if (m_profiler == null
+            && Units.metersToInches(Math.abs(getCurrentHeightMeters() - m_elevatorOffsetMeters)) > 1) {
+          setTestProfile(ElevatorProfilingSuite.kResetting);
+          break;
+        }
+        if (m_profiler == null) {
+          String name = "Elevator Setpoint Delta At Time";
+          double time = Timer.getFPGATimestamp();
+          int subsystemId = ElevatorConstants.kId;
+          int id = 2;
+          String[] Units = { "Delta Height (inches)", "Expected Height (inches)" };
+          HardwareProfiler.ProfilingType profilingType = HardwareProfiler.ProfilingType.DELTA_AT_TIME;
+          int testNumber = 1;
+          double[] testParamters = { 1.0 };
+          String[] testParameterNames = { "Time" };
+          m_profiler = new HardwareProfiler(name, time, id, subsystemId, Units, profilingType, testNumber,
+              testParamters, testParameterNames);
+        }
+        double curTestHeightTime = ElevatorConstants.kElevatorTestHeights[m_profileTestIndex];
+        setHeight(curTestHeightTime);
+
+        if (m_testStartTime == null) {
+          m_testStartTime = Timer.getFPGATimestamp();
+          System.out.println(curTestHeightTime);
+          System.out.println(Units.metersToInches(Math.abs(getPositionYMeters() - m_elevatorOffsetMeters)));
+
+        }
+        if ((Timer.getFPGATimestamp() - m_testStartTime) > 1.0) {
+          m_profiler.addDataPoint(new DataPoint(
+              new double[] { Units.metersToInches(Math.abs(getPositionYMeters() - curTestHeightTime)),
+                  Units.metersToInches(curTestHeightTime) }));
+          m_profileTestIndex++;
+          m_testStartTime = null;
+          if (m_profileTestIndex >= ElevatorConstants.kElevatorTestHeights.length) {
+            m_profileTestIndex = 0;
+            m_profiler.toJSON();
+            m_profiler = null;
+            ProfilingScheduling.getInstance().setFinishTest(m_currentProfileTest);
+          } else {
+            m_testStartTime = null;
+            setTestProfile(ElevatorProfilingSuite.kResetting);
+          }
+        } else {
+          defaultPeriodic();
+        }
+        break;
+      case kResetting:
+        setHeight(0);
+        defaultPeriodic();
+
+        if (Math.abs(getCurrentHeightMeters() - m_elevatorOffsetMeters) < Units.inchesToMeters(1.0)) {
+          setTestProfile(m_lastProfileTest);
+        }
+        break;
+    }
+  }
+
+  @Override
+  public void setTestProfile(Enum<?> profileTest) {
+    m_lastProfileTest = m_currentProfileTest;
+    m_currentProfileTest = (ElevatorProfilingSuite) profileTest;
+  }
+
+  @Override
+  public void stopTestProfile() {
+    m_currentProfileTest = ElevatorProfilingSuite.kNone;
+    m_lastProfileTest = ElevatorProfilingSuite.kNone;
+    m_profileTestIndex = 0;
+    m_testStartTime = null;
+    m_profiler = null;
+  }
+
+  public Command runSetpointTimeProfilingCommand() {
+    setTestProfile(ElevatorProfilingSuite.kSetpointTime);
+    return Commands.waitSeconds(5);
+  }
+
+  public Command waitUntilProfileIsDone() {
+    return Commands.waitUntil(() -> m_currentProfileTest == ElevatorProfilingSuite.kNone && m_profiles == null);
+  }
+
+  public Command runSetpointDeltaAtTimeProfilingCommand() {
+    setHeight(0);
+    waitUntilAtSetpointCommand();
+    setTestProfile(ElevatorProfilingSuite.kSetpointDeltaAtTime);
+    return Commands.waitUntil(() -> m_currentProfileTest == ElevatorProfilingSuite.kNone);
+  }
+
+  public void periodic() {
+    m_profiles.getPeriodicFunction().run();
+
+    m_io.updateInputs(m_inputs);
+    recordOutputs();
+    Logger.getInstance().processInputs("Elevator", m_inputs);
+  }
+
+  public void setCurrentProfile(Enum<?> profile) {
+    m_profiles.setCurrentProfile(profile);
   }
 
   public double getCurrentHeightMeters() {
@@ -115,6 +330,10 @@ public class Elevator extends SubsystemBase {
 
   public double getPositionYMeters() {
     return m_inputs.heightMeters * Math.cos(m_elevatorAngle.getRadians()) + m_elevatorOffsetMeters;
+  }
+
+  public double getPositionYMetersSetpoint() {
+    return m_desiredHeight * Math.cos(m_elevatorAngle.getRadians()) + m_elevatorOffsetMeters;
   }
 
   public double getPositionXMeters() {

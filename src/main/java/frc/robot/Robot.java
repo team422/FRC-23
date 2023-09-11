@@ -7,6 +7,7 @@ package frc.robot;
 import org.littletonrobotics.junction.LoggedRobot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.advantagekit.LoggerUtil;
@@ -111,12 +112,14 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    LiveWindow.setEnabled(false);
     robotContainer.onEnabled();
-    if (testCommand != null) {
-      testCommand.schedule();
-    } else {
-      System.out.println("No test command");
-    }
+    robotContainer.runTestSuite();
+    // if (testCommand != null) {
+    //   testCommand.schedule();
+    // } else {
+    //   System.out.println("No test command");
+    // }
 
   }
 

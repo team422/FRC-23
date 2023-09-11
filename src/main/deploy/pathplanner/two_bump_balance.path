@@ -54,16 +54,41 @@
     },
     {
       "anchorPoint": {
-        "x": 7.094376622781024,
-        "y": 0.9231103861513278
+        "x": 6.344534270665765,
+        "y": 0.8222113301865488
       },
       "prevControl": {
-        "x": 5.730267776507776,
-        "y": 0.931460652851861
+        "x": 5.986226646064404,
+        "y": 0.7595843299325484
       },
       "nextControl": {
-        "x": 5.730267776507776,
-        "y": 0.931460652851861
+        "x": 6.50820223946882,
+        "y": 0.850818128423691
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": 4.0,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.336589919707618,
+        "y": 0.8311994644822617
+      },
+      "prevControl": {
+        "x": 6.344186342886575,
+        "y": 0.8295178135495157
+      },
+      "nextControl": {
+        "x": 6.344186342886575,
+        "y": 0.8295178135495157
       },
       "holonomicAngle": 1.246108244126682,
       "isReversal": true,
@@ -71,10 +96,12 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "cubeBumpFar"
+        ],
         "executionBehavior": "parallel",
-        "waitBehavior": "minimum",
-        "waitTime": 0.3
+        "waitBehavior": "deadline",
+        "waitTime": 1.2
       }
     },
     {
@@ -83,12 +110,12 @@
         "y": 0.6949857389298109
       },
       "prevControl": {
-        "x": 5.627748587094397,
-        "y": 0.6777797045177415
+        "x": 5.821772782434454,
+        "y": 0.6799088684982927
       },
       "nextControl": {
-        "x": 4.549530076613733,
-        "y": 0.708900739365083
+        "x": 4.549417077902087,
+        "y": 0.7041869019034303
       },
       "holonomicAngle": 179.33495756801653,
       "isReversal": false,
@@ -192,7 +219,7 @@
       ]
     },
     {
-      "position": 3.4545454545454555,
+      "position": 4.454545454545455,
       "names": [
         "setpointCubeHigh"
       ]
@@ -205,14 +232,14 @@
       ]
     },
     {
-      "position": 4.690909090909094,
+      "position": 5.690909090909094,
       "names": [
         "setpointStow",
         "intakeStop"
       ]
     },
     {
-      "position": 2.15,
+      "position": 3.15,
       "names": [
         "setpointStow"
       ]

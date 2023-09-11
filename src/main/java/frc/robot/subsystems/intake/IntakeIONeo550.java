@@ -18,7 +18,7 @@ public class IntakeIONeo550 implements IntakeIO {
 
   @Override
   public void setIntakeVoltage(double voltage) {
-    voltage = -voltage;
+
     voltage = MathUtil.clamp(voltage, -11, 11);
     m_intakeMotor.setVoltage(voltage);
   }
@@ -31,6 +31,18 @@ public class IntakeIONeo550 implements IntakeIO {
   @Override
   public void updateInputs(IntakeInputs inputs) {
     inputs.intakeSpeed = m_intakeEncoder.getVelocity();
+    inputs.intakeOutputCurrent = m_intakeMotor.getOutputCurrent();
 
   }
+
+  @Override
+  public void setCurrentLimit(int limit) {
+    m_intakeMotor.setSmartCurrentLimit(limit);
+  }
+
+  @Override
+  public boolean hasGamePiece() {
+    return Math.round(m_intakeMotor.getOutputCurrent()) > 15 && Math.round(getIntakeSpeed()) == 0;
+  }
+
 }

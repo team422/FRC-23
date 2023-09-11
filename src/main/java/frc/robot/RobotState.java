@@ -51,10 +51,13 @@ public class RobotState {
   public Rotation2d realWantedWristRotation2d;
   public FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
   public int m_poseSetpoint;
+  public double elevatorYMetersSetpoint = 0.0;
 
   public int m_grid = 1;
   public int m_column = 1;
   public int m_height = 2;
+
+  public Pose2d m_cubePose;
 
   public String m_scoringSetpoint = "blueFirstGridLeftHigh";
 
@@ -81,6 +84,15 @@ public class RobotState {
       instance = new RobotState(drive, intake, elevator, wrist);
     }
     return instance;
+  }
+
+  public void setCubePose(Rotation2d offset, double distanceX, double distanceY) {
+    Rotation2d final_angle = m_drive.getPose().getRotation().plus(offset);
+    Pose2d pose = m_drive.getPose();
+    m_cubePose = new Pose2d(
+        pose.getX() + distanceX * pose.getRotation().getCos() + distanceY * pose.getRotation().getSin(),
+        pose.getY() + distanceX * pose.getRotation().getSin() + distanceY * pose.getRotation().getCos(), final_angle);
+    Logger.getInstance().recordOutput("cubePose", m_cubePose);
   }
 
   public static RobotState getInstance() {
@@ -163,6 +175,7 @@ public class RobotState {
 
   public void update() {
     elevatorYMeters = m_elevator.getPositionYMeters();
+    elevatorYMeters = m_elevator.getPositionYMetersSetpoint();
     elevatorXMeters = m_elevator.getPositionXMeters();
     wristAngleRotation2d = m_wrist.getAngle();
     Rotation2d wristAngleDesired = m_wrist.m_desiredAngle;
@@ -301,7 +314,7 @@ public class RobotState {
 
   public Command setpointCommandSequential(double[] setpoint) {
     return Commands.sequence(
-        m_wrist.setAngleCommand(Rotation2d.fromDegrees(75)),
+        m_wrist.setAngleCommand(Rotation2d.fromDegrees(75)).withTimeout(1),
         m_elevator.testSetHeightCommand(setpoint[0], Units.inchesToMeters(46)),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(setpoint[1])));
   }
@@ -439,6 +452,16 @@ public class RobotState {
 
   public void setClosestScoringPoseName(String name) {
     m_scoringSetpoint = name;
+  }
+
+  public boolean nearAutonGamePiece() {
+    boolean response = false;
+    for (ExtendedPathPoint point : fieldGeomUtil.allGamePieces.values()) {
+      if (point.atXY(m_drive.getPose())) {
+        response = true;
+      }
+    }
+    return response;
   }
 
 }

@@ -25,6 +25,7 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.velocityMetersPerSecond = m_esim.getVelocityMetersPerSecond();
     inputs.heightMeters = m_esim.getPositionMeters();
     inputs.setVoltage = m_voltage;
+    inputs.currentAmps = m_esim.getCurrentDrawAmps();
 
   }
 

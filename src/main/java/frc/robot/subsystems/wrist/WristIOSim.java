@@ -12,7 +12,6 @@ public class WristIOSim implements WristIO {
     m_sim = new SingleJointedArmSim(DCMotor.getNEO(1), WristConstants.kGearRatio, 0.01,
         Units.inchesToMeters(7.85),
         WristConstants.kMinAngle.getRadians(), WristConstants.kMaxAngle.getRadians(), false);
-
   }
 
   @Override
@@ -20,7 +19,7 @@ public class WristIOSim implements WristIO {
     m_sim.update(0.02);
     inputs.angleRad = m_sim.getAngleRads();
     inputs.velocity = m_sim.getVelocityRadPerSec();
-    inputs.currentDraw = m_sim.getCurrentDrawAmps();
+    inputs.currentAmps = m_sim.getCurrentDrawAmps();
 
   }
 

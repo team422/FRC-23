@@ -10,6 +10,7 @@ public interface ElevatorIO extends LoggedIO<ElevatorInputs> {
   public static class ElevatorInputs {
     public double heightMeters;
     public double outputVoltage;
+    public double currentAmps;
     public double temperature;
     public double velocityMetersPerSecond;
     public double setVoltage;
