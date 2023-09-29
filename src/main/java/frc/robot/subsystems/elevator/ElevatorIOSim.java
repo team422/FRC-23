@@ -15,7 +15,7 @@ public class ElevatorIOSim implements ElevatorIO {
         ElevatorConstants.kDrumSize,
         ElevatorConstants.kMinHeightMeters,
         ElevatorConstants.kMaxHeightMeters,
-        true);
+        false);
   }
 
   @Override

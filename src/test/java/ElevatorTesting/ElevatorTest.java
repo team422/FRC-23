@@ -47,7 +47,9 @@ class ElevatorTest {
     double[] heightsInchesToCheck = { 20, 25, 30, 35, 40, 45 };
     for (double height : heightsInchesToCheck) {
       m_elevator.setHeight(Units.inchesToMeters(height));
-      sleep(1);
+      sleep(2);
+      System.out.println(Units.inchesToMeters(height));
+      System.out.println(m_elevator.getCurrentHeightMeters());
       assertEquals(Units.inchesToMeters(height), m_elevator.getCurrentHeightMeters(), DELTA);
     }
 

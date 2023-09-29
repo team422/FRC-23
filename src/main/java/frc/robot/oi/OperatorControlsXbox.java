@@ -14,6 +14,7 @@ public class OperatorControlsXbox implements OperatorControls {
   }
 
   public Trigger halfWayDown() {
+
     return m_controller.povDown();
   }
 

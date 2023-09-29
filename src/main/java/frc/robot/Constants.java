@@ -156,7 +156,7 @@ public final class Constants {
     public static final int kId = 1;
     public static final boolean kTuningMode = true;
 
-    public static final TunableNumber kP = new TunableNumber("Elevator P", 14.0);
+    public static final TunableNumber kP = new TunableNumber("Elevator P", 20.0);
     public static final TunableNumber kManualSetpoint = new TunableNumber("Elevator Height", 0.0);
     public static final TunableNumber kI = new TunableNumber("Elevator I", 1.6);
     public static final TunableNumber kD = new TunableNumber("Elevator D", 0.5);
@@ -168,7 +168,7 @@ public final class Constants {
         kKg.get(), kKv.get());
     public static final ProfiledPIDController elevatorPIDController = new ProfiledPIDController(kP.get(),
         kI.get(), kD.get(),
-        new Constraints(30, 6));
+        new Constraints(1000, 1000));
 
     public static final double kGearRatio = 2.256 * Math.PI;
     public static final int kEncoderCPR = 2048;

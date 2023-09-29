@@ -15,12 +15,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.DataPoint;
 import frc.lib.hardwareprofiler.HardwareProfiler;
+import frc.lib.hardwareprofiler.PIDAutoTuner;
 import frc.lib.hardwareprofiler.PowerConsumptionHelper;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.hardwareprofiler.ProfilingScheduling;
 import frc.lib.utils.SubsystemProfiles;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Robot;
 
 public class Elevator extends ProfiledSubsystem {
   public final ElevatorInputsAutoLogged m_inputs;
@@ -60,6 +62,10 @@ public class Elevator extends ProfiledSubsystem {
   public boolean m_profileTestRunning = false;
   public Double m_testStartTime = null;
 
+  // PID tuning variables
+  PIDAutoTuner m_PIDTuner;
+  double m_nextTime = 0;
+
   public Elevator(ElevatorIO io, ProfiledPIDController elevatorPIDController, ElevatorFeedforward elevatorFeedForward,
       double ElevatorOffsetMeters, double maxHeight, Rotation2d elevatorAngle) {
     m_io = io;
@@ -88,6 +94,8 @@ public class Elevator extends ProfiledSubsystem {
     Class<? extends Enum<?>> profileEnumClass = ElevatorProfiles.class;
     Enum<?> defaultProfile = ElevatorProfiles.kDefault;
     m_profiles = new SubsystemProfiles(profileEnumClass, elevatorPeriodicHash, defaultProfile);
+    m_PIDTuner = new PIDAutoTuner("Elevator", Units.inchesToMeters(30),
+        Units.inchesToMeters(0.05));
 
   }
 
@@ -101,10 +109,14 @@ public class Elevator extends ProfiledSubsystem {
         accelerationSetpoint);
 
     double outputVoltage = pidVoltage + feedForwardVoltage;
-    m_io.setVoltage(outputVoltage);
+    if (Robot.isSimulation()) {
+      m_io.setVoltage(pidVoltage);
+    } else {
+      m_io.setVoltage(pidVoltage);
+    }
     // m_io.setVoltage(feedForwardVoltage);
-    // Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);
-    // Logger.getInstance().recordOutput("Elevator/FFVoltage", feedForwardVoltage);
+    Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);
+    Logger.getInstance().recordOutput("Elevator/FFVoltage", feedForwardVoltage);
     // Logger.getInstance().recordOutput("Elevator/OutputVoltage", outputVoltage);
 
     m_lastVelocity = velocitySetpoint;
@@ -120,6 +132,9 @@ public class Elevator extends ProfiledSubsystem {
   }
 
   public void tuningPeriodic() {
+    m_PIDTuner.saveCurrentValue(m_inputs.heightMeters);
+    double kP = m_PIDTuner.getKp();
+    double kSetpoint = m_PIDTuner.getSetpoint();
     if (ElevatorConstants.kP.hasChanged() || ElevatorConstants.kI.hasChanged()
         || ElevatorConstants.kD.hasChanged()) {
       m_controller.setP(ElevatorConstants.kP.get());
@@ -133,8 +148,30 @@ public class Elevator extends ProfiledSubsystem {
     }
     if (ElevatorConstants.kTuningMode && ElevatorConstants.kManualSetpoint.hasChanged()) {
       setHeight(Units.inchesToMeters(ElevatorConstants.kManualSetpoint.get()));
+      System.out.println("The height has changed to " + m_desiredHeight);
     }
+    System.out.println(ElevatorConstants.kManualSetpoint.hasChanged());
+    // Logger.getInstance().recordOutput("Elevator/kP", kP);
+    // if (kP != m_controller.getP() && m_controller.getP() != 1) {
+    //   m_controller.setP(1);
+    //   m_nextTime = Timer.getFPGATimestamp() + 1.0;
+    // }
+    // if (Timer.getFPGATimestamp() < m_nextTime) {
+    //   setHeight(m_elevatorOffsetMeters + Units.inchesToMeters(5));
+    //   defaultPeriodic();
+    //   return;
+    // } else {
+    // m_controller.setP(kP);
+    // }
+
+    Logger.getInstance().recordOutput("Elevator/kSetpoint", kSetpoint);
+
+    // setHeight(kSetpoint);
     defaultPeriodic();
+  }
+
+  public void enablePIDTuning() {
+    setCurrentProfile(ElevatorProfiles.kTuning);
   }
 
   public void zeroingPeriodic() {

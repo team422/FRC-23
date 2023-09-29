@@ -9,7 +9,7 @@ public class WristIOSim implements WristIO {
   SingleJointedArmSim m_sim;
 
   public WristIOSim() {
-    m_sim = new SingleJointedArmSim(DCMotor.getNEO(1), WristConstants.kGearRatio, 0.01,
+    m_sim = new SingleJointedArmSim(DCMotor.getNEO(1), WristConstants.kGearRatio, 0.5,
         Units.inchesToMeters(7.85),
         WristConstants.kMinAngle.getRadians(), WristConstants.kMaxAngle.getRadians(), false);
   }
@@ -25,14 +25,13 @@ public class WristIOSim implements WristIO {
 
   @Override
   public void setVoltage(double voltage) {
-    m_sim.setInputVoltage(-voltage / 2);
+    m_sim.setInputVoltage(voltage);
 
   }
 
   @Override
   public void setBrakeMode(boolean mode) {
     // TODO Auto-generated method stub
-
   }
 
 }

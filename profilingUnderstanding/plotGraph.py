@@ -7,7 +7,7 @@ import random
 import datetime
 import matplotlib
 if "__main__" == __name__:
-    os.chdir("../profilingData")
+    os.chdir("../actual_robot_tests/hardwareprofiler")
     print(os.listdir())
     files = os.listdir()
     # remove all non json files
@@ -42,6 +42,10 @@ if "__main__" == __name__:
                 y.append(i['values'][0])
                 x.append(i['values'][1])
             # 2023-09-09T21:54:36.295162
+            if len(values['time'].split('.')[1]) > 6:
+                print(values['time'])
+                values['time'] = values['time'][:-3]
+                print(values['time'])
             date = str(datetime.datetime.strptime(values['time'], "%Y-%m-%dT%H:%M:%S.%f").date())
             df=pd.DataFrame({values['units'][1]:x,date: y})
             # make it lighter the newer it is

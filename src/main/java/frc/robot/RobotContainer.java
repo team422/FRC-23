@@ -28,9 +28,13 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.hardwareprofiler.ProfilingScheduling;
 import frc.lib.hardwareprofiler.SingleProfiling;
@@ -107,6 +111,21 @@ public class RobotContainer {
     configureSubsystems();
     configureButtonBindings();
     configureAuto();
+    configurePIDTuning();
+  }
+
+  public void configurePIDTuning() {
+    // add a button to the dashboard to enable/disable PID tuning
+
+    ShuffleboardTab tab = Shuffleboard.getTab("PID Tuning");
+    // add a button to tab
+    SmartDashboard.putData("Enable Wrist PID Tuning", new InstantCommand(() -> {
+      m_wrist.enablePIDTuning();
+    }));
+    SmartDashboard.putData("Enable Elevator PID Tuning", new InstantCommand(() -> {
+      m_elevator.enablePIDTuning();
+    }));
+
   }
 
   public void configureLogging() {
@@ -173,7 +192,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(32)), // 118 is back of wrist
+          Units.degreesToRadians(151)), // 118 is back of wrist
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -231,6 +250,7 @@ public class RobotContainer {
     DriverControls driverControls = new DriverControlsDualFlightStick(
         Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort,
         DriveConstants.kDriveDeadband);
+    // DriverControls driverControls = new DriverControlsXboxController(2);
     // TeloepDriveTurnPID teleopDrive = new TeloepDriveTurnPID(m_drive, Constants.DriveConstants.holonomicDrive,
     //     driverControls::getDriveForward,
     //     driverControls::getDriveLeft,
@@ -439,6 +459,7 @@ public class RobotContainer {
     //   return;
     // } else {
     // RENABLE
+    m_drive.logMovemnets();
     String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
     if (selectedAuto != m_curSelectedAuto) {
       m_curSelectedAuto = selectedAuto;
@@ -497,6 +518,7 @@ public class RobotContainer {
     if (m_robotState != null) {
       m_robotState.update();
     }
+    m_drive.logMovemnets();
 
   }
 

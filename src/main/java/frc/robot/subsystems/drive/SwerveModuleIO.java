@@ -15,6 +15,8 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     public double turnRadsPerSecond;
     public double driveDistanceMeters;
     public double driveVelocityMetersPerSecond;
+    public double voltageOut;
+    public double currentAmps;
   }
 
   public SwerveModulePosition getPosition();

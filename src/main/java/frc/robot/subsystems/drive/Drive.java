@@ -76,6 +76,12 @@ public class Drive extends SubsystemBase {
     }
   }
 
+  public double logMovemnets() {
+    double max = 0;
+    Logger.getInstance().recordOutput("Gyro", m_gyro.getAccelX());
+    return max;
+  }
+
   @Override
   public void periodic() {
     m_gyro.updateInputs(m_gyroInputs);
