@@ -241,14 +241,22 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
-    public static final TunableNumber kDriveP = new TunableNumber("Drive P", 0.1);
+    public static final TunableNumber kDriveP = new TunableNumber("Drive wP", 0.1);
     public static final TunableNumber kDriveI = new TunableNumber("Drive I", 0.0);
     public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
     public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
 
-    public static final TunableNumber kTurningP = new TunableNumber("TrP", 0.05);
-    public static final TunableNumber kTurningI = new TunableNumber("Turnin I", 0.00);
-    public static final TunableNumber kTurningD = new TunableNumber("Turnin D", 0.005);
+    public static final TunableNumber kTurningP = new TunableNumber("TurningP", 0.05);
+    public static final TunableNumber kTurningI = new TunableNumber("Turning I", 0.00);
+    public static final TunableNumber kTurningD = new TunableNumber("Turning D", 0.005);
+
+    public static final TunableNumber kDriveKS = new TunableNumber("Drive KS", 0.0);
+    public static final TunableNumber kDriveKV = new TunableNumber("Drive KV", 20.0);
+    public static final TunableNumber kDriveKA = new TunableNumber("Drive KA", 1.0);
+
+    public static final TunableNumber kTurningPSim = new TunableNumber("TurningP Sim", 5.5);
+    public static final TunableNumber kTurningISim = new TunableNumber("Turning I Sim", 0.00);
+    public static final TunableNumber kTurningDSim = new TunableNumber("Turning D Sim", 0.005);
 
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.85); // 0.09398; // 3.7 in
 
@@ -257,6 +265,10 @@ public final class Constants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
 
     public static final double kTurnPositionConversionFactor = 21.428;
+
+    // Simulation Constants
+    public static final double kDriveJ = 0.01;
+    public static final double kTurningJ = 0.0001;
 
   }
 

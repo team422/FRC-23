@@ -37,4 +37,6 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   public SwerveModuleState getState();
 
   public SwerveModuleState getAbsoluteState();
+
+  public void setVoltage(double voltageDrive, double voltageTurn);
 }

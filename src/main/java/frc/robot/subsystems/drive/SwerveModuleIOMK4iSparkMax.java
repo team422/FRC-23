@@ -154,6 +154,13 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
   public Rotation2d adjustedAngle = new Rotation2d();
 
+  @Override
+  public void setVoltage(double voltageDrive, double voltageTurn) {
+    m_driveController.setReference(voltageDrive, ControlType.kVoltage);
+    m_turningController.setReference(voltageTurn, ControlType.kVoltage);
+
+  }
+
   /**
    * Sets the desired state for the module.
    *
