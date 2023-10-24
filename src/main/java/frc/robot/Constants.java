@@ -56,21 +56,21 @@ public final class Constants {
 
   public static final class Setpoints {
     // FORMAT is ELEVATOR height in METERS and then INTAKE angle in DEGREES
-    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(18), -23.95 - 7.25 }; // OLD might revert
+    public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(21), -35.95 }; // OLD might revert
     // public static final double[] pickUpConeVerticalCommandSetpoints = { Units.inchesToMeters(20), -33.95 };
 
-    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 15 - 7.25 };
-    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -23 };
-    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 12 - 7.25 };
-    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 74.4 - 7.25 };
-    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(43), -32 };
-    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 12 - 7.25 };
-    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(47.489), 28 };
-    public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(50), 28 };
+    public static final double[] pickUpCubeGroundCommandSetpoints = { Units.inchesToMeters(0), 19 };
+    public static final double[] pickUpConeGroundCommandSetpoints = { Units.inchesToMeters(0), -18 };
+    public static final double[] intakeFromLoadingStationCommand = { Units.inchesToMeters(8.2), 17 };
+    public static final double[] dropLoadingStationCommandSetpoints = { Units.inchesToMeters(0), 79.4 };
+    public static final double[] coneMidCommandSetpoints = { Units.inchesToMeters(48.5), -45 }; // 44 , -27
+    public static final double[] cubeMidCommandSetpoints = { Units.inchesToMeters(35), 17 };
+    public static final double[] cubeHighCommandSetpoints = { Units.inchesToMeters(47.489), 33 };
+    public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(50), 33 };
     // public static final double[] cubeHighCommandSetpointsAuto = { Units.inchesToMeters(47), 50 };
-    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(50.6), -5 - 7.25 - 5 };
-    public static final double[] coneHighCommandSetpointsAuto = { Units.inchesToMeters(50.6), -5 - 7.25 };
-    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 95 - 7.25 };
+    public static final double[] coneHighCommandSetpoints = { Units.inchesToMeters(50.6), 0 };
+    public static final double[] coneHighCommandSetpointsAuto = { Units.inchesToMeters(50.6), 0 };
+    public static final double[] stowVerticalCommandSetpoints = { Units.inchesToMeters(0), 100 };
     // side is considered the side of the field without drivers, wall has drivers
     public static final ExtendedPathPoint blueLeftWallLoadingStation = new ExtendedPathPoint(
         new Translation2d(15.8, 7.37),
@@ -201,7 +201,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-
+    public static final int kId = 2;
     public static final double kDriveDeadband = 0.1;
 
     public static final double kWheelDiameter = Units.inchesToMeters(3.7);
@@ -218,7 +218,7 @@ public final class Constants {
 
     public static final Pose2d startPose = new Pose2d(3, 5, new Rotation2d());
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModuleTranslations);
-    public static final double kMaxModuleSpeedMetersPerSecond = 6;
+    public static final double kMaxModuleSpeedMetersPerSecond = 6; // 6
     public static final double kMaxSpeedMetersPerSecond = 8.5; // 8.5
     public static final double kMaxHighElevatorSpeedMetersPerSecond = 1.8; // 8.5
     public static final double kMaxAccelMetersPerSecondSq = 4;
@@ -227,7 +227,7 @@ public final class Constants {
     public static final Rotation2d kMaxAcceptedAngleError = Rotation2d.fromDegrees(10);
 
     public static final double kMaxSpeedMetersPerSecondAuto = 4; // 3.85 is correct 2023-04-01
-    public static final double kMaxAccelMetersPerSecondSqAuto = 3.3;
+    public static final double kMaxAccelMetersPerSecondSqAuto = 3;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Units.degreesToRadians(360);
     public static final double kMaxHighElevatorAngularSpeedRadiansPerSecond = Units.degreesToRadians(240);
@@ -238,25 +238,37 @@ public final class Constants {
         new PIDController(.08, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
+
+    public static final double[] kDriveSpeedTests = { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 };
   }
 
   public static final class ModuleConstants {
-    public static final TunableNumber kDriveP = new TunableNumber("Drive wP", 0.1);
-    public static final TunableNumber kDriveI = new TunableNumber("Drive I", 0.0);
-    public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00);
-    public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96);
+    public static final TunableNumber kDriveP = new TunableNumber("Drive wP", 0.1, "Drive");
+    public static final TunableNumber kDriveI = new TunableNumber("Drive I", 0.0, "Drive");
+    public static final TunableNumber kDriveD = new TunableNumber("Drive D", 0.00, "Drive");
+    public static final TunableNumber kDriveFF = new TunableNumber("Drive FF", 2.96, "Drive");
 
-    public static final TunableNumber kTurningP = new TunableNumber("TurningP", 0.05);
-    public static final TunableNumber kTurningI = new TunableNumber("Turning I", 0.00);
-    public static final TunableNumber kTurningD = new TunableNumber("Turning D", 0.005);
+    public static final TunableNumber kFFDriveP = new TunableNumber("FFDrive wP", 0.1, "Drive");
+    public static final TunableNumber kFFDriveI = new TunableNumber("FFDrive I", 0.0, "Drive");
+    public static final TunableNumber kFFDriveD = new TunableNumber("FFDrive D", 0.00, "Drive");
 
-    public static final TunableNumber kDriveKS = new TunableNumber("Drive KS", 0.0);
-    public static final TunableNumber kDriveKV = new TunableNumber("Drive KV", 20.0);
-    public static final TunableNumber kDriveKA = new TunableNumber("Drive KA", 1.0);
+    public static final TunableNumber kTurningP = new TunableNumber("TurnP", .16, "Drive");
+    public static final TunableNumber kTurningI = new TunableNumber("Turning I", 0.00, "Drive");
+    public static final TunableNumber kTurningD = new TunableNumber("Turning D", 0.005, "Drive");
 
-    public static final TunableNumber kTurningPSim = new TunableNumber("TurningP Sim", 5.5);
-    public static final TunableNumber kTurningISim = new TunableNumber("Turning I Sim", 0.00);
-    public static final TunableNumber kTurningDSim = new TunableNumber("Turning D Sim", 0.005);
+    public static final TunableNumber kDriveKS = new TunableNumber("Drive KS", 1.0, "Drive");
+    public static final TunableNumber kDriveKV = new TunableNumber("Drive KV", 3.0, "Drive");
+    public static final TunableNumber kDriveKA = new TunableNumber("Drive KA", 1.5, "Drive");
+
+    public static final TunableNumber kTurningPSim = new TunableNumber("TurningP Sim", 5.5, "Drive");
+    public static final TunableNumber kTurningISim = new TunableNumber("Turning I Sim", 0.00, "Drive");
+    public static final TunableNumber kTurningDSim = new TunableNumber("Turning D Sim", 0.005, "Drive");
+
+    public static final TunableNumber kStartAccel = new TunableNumber("Start Accel", 4.5, "Drive");
+    public static final TunableNumber kAccelDropoff = new TunableNumber("Accel Dropoff", -1, "Drive");
+
+    public static final TunableNumber kStartAccelSim = new TunableNumber("Start Accel Sim", 4.5, "Drive");
+    public static final TunableNumber kAccelDropoffSim = new TunableNumber("Accel Dropoff Sim", -1, "Drive");
 
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.85); // 0.09398; // 3.7 in
 
@@ -353,16 +365,16 @@ public final class Constants {
   }
 
   public static final class WristConstants {
-    public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0);
-    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 25.0);
-    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 30);
-    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 5.5);
-    public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08);
-    public static final TunableNumber kWristD = new TunableNumber("Wrist D", .3);
-    public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.05);
-    public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6);
-    public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.08);
-    public static final TunableNumber kWristka = new TunableNumber("Wrist ka", 0.0);
+    public static final TunableNumber kWristSetpoint = new TunableNumber("Wrist degrees", 0.0, "Wrist");
+    public static final TunableNumber kWristAccel = new TunableNumber("Wrist accel", 25.0, "Wrist");
+    public static final TunableNumber kWristVelo = new TunableNumber("Wrist Velo", 30, "Wrist");
+    public static final TunableNumber kWristP = new TunableNumber("Wrist P", 5.5, "Wrist");
+    public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08, "Wrist");
+    public static final TunableNumber kWristD = new TunableNumber("Wrist D", .3, "Wrist");
+    public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.05, "Wrist");
+    public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6, "Wrist");
+    public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.08, "Wrist");
+    public static final TunableNumber kWristka = new TunableNumber("Wrist ka", 0.0, "Wrist");
     public static final boolean kWristTuning = false;
 
     public static final int wristEncoderCPR = 4096; // Counts per revolution

@@ -41,6 +41,10 @@ public class Pigeon2Accel implements Accelerometer {
     return getAccelData(kZ);
   }
 
+  public double getA() {
+    return Math.sqrt(Math.pow(getZ(), 2) + Math.pow(getY(), 2) + Math.pow(getX(), 2));
+  }
+
   private short[] getRawAccelData() {
     short[] data = new short[3];
     m_pigeon.getBiasedAccelerometer(data);

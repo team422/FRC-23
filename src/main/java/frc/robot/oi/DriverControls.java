@@ -55,4 +55,6 @@ public interface DriverControls {
 
   public Trigger ledFlash();
 
+  public Trigger stopDriveTestingMode();
+
 }

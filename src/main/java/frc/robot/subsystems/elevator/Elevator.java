@@ -451,9 +451,9 @@ public class Elevator extends ProfiledSubsystem {
 
   public Command zeroHeightCommand() {
     return runEnd(() -> {
-      m_curZeroing = true;
+      setCurrentProfile(ElevatorProfiles.kZeroing);
     }, () -> {
-      m_curZeroing = false;
+      setCurrentProfile(m_profiles.lastProfile);
     });
   }
 

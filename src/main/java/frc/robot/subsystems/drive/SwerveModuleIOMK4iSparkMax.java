@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import frc.lib.utils.CalculusSolver;
 import frc.lib.utils.CanSparkMaxSetup;
 import frc.robot.Constants;
 import frc.robot.util.TunableNumber;
@@ -37,6 +38,8 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   private double adjustedSpeed;
   private String name;
 
+  private double oldVelocity;
+
   public static class ModuleConstants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
     public static final double kTurnPositionConversionFactor = 21.428;
@@ -49,6 +52,10 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     // public static final TunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
 
   }
+
+  public CalculusSolver m_currentCalculusSolver;
+
+  public CalculusSolver m_wheelSpeedCalculusSolver;
 
   /**
    * Constructs a SwerveModule.
@@ -111,6 +118,9 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_driveController.setP(ModuleConstants.kDriveP.get());
     m_driveController.setI(ModuleConstants.kDriveI.get());
     m_driveController.setD(ModuleConstants.kDriveD.get());
+
+    m_currentCalculusSolver = new CalculusSolver(50);
+    m_wheelSpeedCalculusSolver = new CalculusSolver(50);
   }
 
   public String getName() {
@@ -124,6 +134,12 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(m_driveEncoder.getVelocity(), getAngle());
+  }
+
+  @Override
+  public double getPowerUsage() {
+    return m_driveMotor.getOutputCurrent() * m_driveMotor.getBusVoltage()
+        + m_turningMotor.getOutputCurrent() * m_turningMotor.getBusVoltage();
   }
 
   @Override
@@ -158,7 +174,13 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   public void setVoltage(double voltageDrive, double voltageTurn) {
     m_driveController.setReference(voltageDrive, ControlType.kVoltage);
     m_turningController.setReference(voltageTurn, ControlType.kVoltage);
+  }
 
+  public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition state) {
+    m_driveController.setReference(voltageDrive, ControlType.kVoltage);
+    m_turningController.setReference(
+        state.angle.getDegrees(),
+        ControlType.kPosition);
   }
 
   /**
@@ -240,15 +262,59 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     return new Rotation2d(MathUtil.angleModulus(angle));
   }
 
+  public double getAcceleration() {
+    return (m_driveEncoder.getVelocity() - oldVelocity) / (0.02);
+  }
+
   @Override
   public void updateInputs(SwerveModuleInputs inputs) {
     // TODO Auto-generated method stub
     inputs.driveDistanceMeters = getDriveDistanceMeters();
     inputs.driveVelocityMetersPerSecond = getDriveVelocityMetersPerSecond();
+    inputs.driveVelocityMetersPerSecondAbs = Math.abs(getDriveVelocityMetersPerSecond());
     inputs.turnAngleRads = getAngle().getRadians();
     inputs.turnRadsPerSecond = Units.degreesToRadians(m_driveEncoder.getVelocity());
-    inputs.currentAmps = m_driveMotor.getAppliedOutput();
-    inputs.voltageOut = m_driveMotor.getBusVoltage();
+    inputs.currentAmpsDrive = m_driveMotor.getOutputCurrent();
+    inputs.voltageOutDrive = m_driveMotor.getBusVoltage();
+    inputs.currentAmpsPerVelocity = Math.abs(m_driveMotor.getOutputCurrent() / getAcceleration());
+  }
+
+  @Override
+  public double getVoltage() {
+    return m_driveMotor.getBusVoltage();
+  }
+
+  @Override
+  public double getDriveCurrent() {
+    return m_driveMotor.getOutputCurrent();
+  }
+
+  @Override
+  public void updateCurrentCalculusSolver() {
+    m_currentCalculusSolver.addPoint(m_driveMotor.getOutputCurrent(), m_driveMotor.getBusVoltage());
+  }
+
+  @Override
+  public void updateWheelSpeedCalculusSolver() {
+    m_wheelSpeedCalculusSolver.addPoint(m_driveEncoder.getVelocity(), m_driveMotor.getBusVoltage());
+
+  }
+
+  @Override
+  public double getDeltaDriveCurrent() {
+    return m_currentCalculusSolver.getInstantaneousDerivative();
+  }
+
+  @Override
+  public double getDeltaWheelSpeed() {
+    return m_wheelSpeedCalculusSolver.getInstantaneousDerivative();
+
+  }
+
+  @Override
+  public double getWheelSpeed() {
+    return m_driveEncoder.getVelocity();
+
   }
 
 }

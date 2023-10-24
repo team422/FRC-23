@@ -48,4 +48,12 @@ public class GyroIOPigeon implements GyroIO {
     return m_accel.getX();
   }
 
+  public double getAccelY() {
+    return m_accel.getY();
+  }
+
+  public double getAccel() {
+    return m_accel.getA();
+  }
+
 }

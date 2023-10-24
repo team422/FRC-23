@@ -19,8 +19,8 @@ public class TunableNumber {
    * 
    * @param dashboardKey Key on dashboard
    */
-  public TunableNumber(String dashboardKey) {
-    this.key = tableKey + "/" + dashboardKey;
+  public TunableNumber(String tableString, String dashboardKey) {
+    this.key = tableString + "/" + dashboardKey;
   }
 
   /**
@@ -30,7 +30,12 @@ public class TunableNumber {
    * @param defaultValue Default value
    */
   public TunableNumber(String dashboardKey, double defaultValue) {
-    this(dashboardKey);
+    this(tableKey, dashboardKey);
+    setDefault(defaultValue);
+  }
+
+  public TunableNumber(String dashboardKey, double defaultValue, String tableKey) {
+    this(tableKey, dashboardKey);
     setDefault(defaultValue);
   }
 

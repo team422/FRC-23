@@ -6,7 +6,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.lib.utils.CalculusSolver;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
@@ -19,6 +21,11 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
   private DCMotorSim m_turnMotor;
   private PIDController m_turnController;
+
+  private double m_voltageDrive;
+
+  public CalculusSolver m_wheelSpeedCalculusSolver;
+  public CalculusSolver m_currentCalculusSolver;
 
   public SwerveModuleIOSim() {
     // m_curState = new SwerveModuleState();
@@ -35,6 +42,9 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     m_turnController = new PIDController(ModuleConstants.kTurningPSim.get(), ModuleConstants.kTurningISim.get(),
         ModuleConstants.kTurningDSim.get());
 
+    m_wheelSpeedCalculusSolver = new CalculusSolver(50);
+    m_currentCalculusSolver = new CalculusSolver(50);
+
   }
 
   public SwerveModulePosition getPosition() {
@@ -44,8 +54,18 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   public void setVoltage(double voltageDrive, double voltageTurn) {
+    m_voltageDrive = voltageDrive;
     m_driveMotor.setInputVoltage(voltageDrive);
     m_turnMotor.setInputVoltage(voltageTurn);
+  }
+
+  public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition position) {
+    m_voltageDrive = voltageDrive;
+
+    double currentAngle = getAngle().getRadians();
+
+    double turnPID = m_turnController.calculate(currentAngle, position.angle.getRadians());
+    setVoltage(voltageDrive, turnPID);
   }
 
   public void resetDistance() {
@@ -73,7 +93,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     double turnPID = m_turnController.calculate(currentAngle, desiredAngle);
     System.out
         .println("DriveFF: " + driveFF + " DrivePID: " + drivePID + " TurnPID: " + turnPID);
-    setVoltage(driveFF + drivePID, turnPID);
+    setVoltage(driveFF, turnPID);
   }
 
   public SwerveModuleState getState() {
@@ -81,7 +101,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   public double getSpeed() {
-    System.out.println("Speed: " + m_driveMotor.getAngularVelocityRadPerSec() * ModuleConstants.kDriveConversionFactor);
+    // System.out.println("Speed: " + m_driveMotor.getAngularVelocityRadPerSec() * ModuleConstants.kDriveConversionFactor);
     return m_driveMotor.getAngularVelocityRadPerSec() * ModuleConstants.kDriveConversionFactor;
   }
 
@@ -104,6 +124,8 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     inputs.driveDistanceMeters = getPosition().distanceMeters;
     inputs.driveVelocityMetersPerSecond = getSpeed();
     inputs.turnRadsPerSecond = m_turnMotor.getAngularVelocityRadPerSec();
+    inputs.currentAmpsDrive = m_driveMotor.getCurrentDrawAmps();
+    inputs.voltageOutDrive = m_voltageDrive;
     m_driveMotor.update(0.02);
     m_turnMotor.update(0.02);
 
@@ -112,5 +134,48 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   @Override
   public SwerveModuleState getAbsoluteState() {
     return getState();
+  }
+
+  @Override
+  public double getPowerUsage() {
+    return m_driveMotor.getCurrentDrawAmps()
+        * BatterySim.calculateDefaultBatteryLoadedVoltage(m_driveMotor.getCurrentDrawAmps())
+        + m_turnMotor.getCurrentDrawAmps()
+            * BatterySim.calculateDefaultBatteryLoadedVoltage(m_turnMotor.getCurrentDrawAmps());
+  }
+
+  @Override
+  public double getDriveCurrent() {
+    return m_driveMotor.getCurrentDrawAmps();
+  }
+
+  @Override
+  public double getVoltage() {
+    return m_voltageDrive;
+  }
+
+  @Override
+  public void updateCurrentCalculusSolver() {
+    m_currentCalculusSolver.addPoint(getDriveCurrent(), getVoltage());
+  }
+
+  @Override
+  public void updateWheelSpeedCalculusSolver() {
+    m_wheelSpeedCalculusSolver.addPoint(getSpeed(), getVoltage());
+  }
+
+  @Override
+  public double getDeltaDriveCurrent() {
+    return m_currentCalculusSolver.getInstantaneousDerivative();
+  }
+
+  @Override
+  public double getDeltaWheelSpeed() {
+    return m_wheelSpeedCalculusSolver.getInstantaneousDerivative();
+  }
+
+  @Override
+  public double getWheelSpeed() {
+    return getSpeed();
   }
 }

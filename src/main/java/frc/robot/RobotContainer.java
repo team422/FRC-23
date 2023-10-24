@@ -54,10 +54,11 @@ import frc.robot.commands.drive.DriveToCube;
 import frc.robot.commands.drive.DriveToNode;
 import frc.robot.commands.drive.TeleopDrive;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsDualFlightStick;
+import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.OperatorControls;
 import frc.robot.oi.OperatorControlsXbox;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DriveProfilingSuite;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOMK4iSparkMax;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
@@ -126,6 +127,10 @@ public class RobotContainer {
       m_elevator.enablePIDTuning();
     }));
 
+    SmartDashboard.putData("Enable Drive Feedforward Tuning", new InstantCommand(() -> {
+      m_drive.setTestingCommand(DriveProfilingSuite.kFeedForwardAccuracy);
+    }));
+
   }
 
   public void configureLogging() {
@@ -192,7 +197,7 @@ public class RobotContainer {
       m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
           Constants.WristConstants.wristEncoderCPR,
           m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
-          Units.degreesToRadians(151)), // 118 is back of wrist
+          Units.degreesToRadians(149)), // 118 is back of wrist
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
           Constants.WristConstants.kMaxAngle);
@@ -247,9 +252,10 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    DriverControls driverControls = new DriverControlsDualFlightStick(
-        Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort,
-        DriveConstants.kDriveDeadband);
+    // DriverControls driverControls = new DriverControlsDualFlightStick(
+    //     Constants.OIConstants.kDriverLeftDriveStickPort, Constants.OIConstants.kDriverRightDriveStickPort,
+    //     DriveConstants.kDriveDeadband);
+    DriverControls driverControls = new DriverControlsXboxController(4);
     // DriverControls driverControls = new DriverControlsXboxController(2);
     // TeloepDriveTurnPID teleopDrive = new TeloepDriveTurnPID(m_drive, Constants.DriveConstants.holonomicDrive,
     //     driverControls::getDriveForward,
@@ -328,6 +334,7 @@ public class RobotContainer {
           return Setpoints.distanceToDropCone;
         }));
     driverControls.stowIntakeAndElevator().and(operatorControls.dropStationButton().negate()).onTrue(stowCommand);
+    driverControls.stopDriveTestingMode().onTrue(RobotState.getInstance().stopDriveTestingMode());
     operatorControls.setpointMidCone().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).onTrue(coneMidCommand);
     operatorControls.setpointHighCone().and(operatorControls.heightModifier().negate())

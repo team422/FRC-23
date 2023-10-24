@@ -28,6 +28,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.commands.drive.DriveToPoint;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
@@ -208,6 +209,10 @@ public class RobotState {
     }
     // SmartDashboard.putNumber("Pose Setpoint", m_poseSetpoint);
 
+  }
+
+  public void setDriveType(DriveProfiles profile) {
+    m_drive.setProfile(profile);
   }
 
   public void checkIfBreakElevator() {
@@ -462,6 +467,10 @@ public class RobotState {
       }
     }
     return response;
+  }
+
+  public Command stopDriveTestingMode() {
+    return m_drive.stopTestingCommand();
   }
 
 }

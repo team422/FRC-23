@@ -153,4 +153,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger ledFlash() {
     return m_rightJoystick.button(8);
   }
+
+  @Override
+  public Trigger stopDriveTestingMode() {
+    return m_rightJoystick.button(10);
+  }
 }

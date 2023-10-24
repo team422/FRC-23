@@ -2,28 +2,34 @@ package frc.robot.oi;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.util.EricNubControls;
 
 public class DriverControlsXboxController implements DriverControls {
 
   CommandXboxController m_controller;
+  EricNubControls m_controls;
 
   public DriverControlsXboxController(int xboxControllerPort) {
     m_controller = new CommandXboxController(xboxControllerPort);
+    m_controls = new EricNubControls();
   }
 
   @Override
   public double getDriveForward() {
-    return m_controller.getLeftY();
+    double val = m_controls.addDeadzoneScaled(m_controller.getLeftY(), 0.03);
+    return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
   public double getDriveLeft() {
-    return m_controller.getLeftX();
+    double val = m_controls.addDeadzoneScaled(m_controller.getLeftX(), 0.03);
+    return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
   public double getDriveRotation() {
-    return m_controller.getRightX();
+    double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
+    return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
@@ -46,17 +52,18 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public Trigger startIntakeConeInCubeOut() {
     // TODO Auto-generated method stub
-    return new Trigger();
-  }
-
-  @Override
-  public Trigger startIntakeCubeInConeOut() {
     return new Trigger(() -> m_controller.getLeftTriggerAxis() > 0);
   }
 
   @Override
+  public Trigger startIntakeCubeInConeOut() {
+    return new Trigger(() -> m_controller.getRightTriggerAxis() > 0);
+  }
+
+  @Override
   public Trigger lebronJames() {
-    return new Trigger(() -> m_controller.getHID().getLeftStickButton());
+    // return new Trigger(() -> m_controller.getHID().getLeftStickButton());
+    return new Trigger();
   }
 
   @Override
@@ -110,7 +117,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger stowIntakeAndElevator() {
-    return m_controller.a();
+    return m_controller.rightStick();
   }
 
   @Override
@@ -151,6 +158,12 @@ public class DriverControlsXboxController implements DriverControls {
   public Trigger ledFlash() {
     // TODO Auto-generated method stub
     return new Trigger();
+  }
+
+  @Override
+  public Trigger stopDriveTestingMode() {
+    // TODO Auto-generated method stub
+    return m_controller.start();
   }
 
 }

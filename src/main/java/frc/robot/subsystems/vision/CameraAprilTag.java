@@ -150,7 +150,7 @@ public class CameraAprilTag extends SubsystemBase {
     if (distance > 4) {
       return VecBuilder.fill(100, 100, 100);
     }
-    return VecBuilder.fill(distance * 0.35, distance * 0.35, 85);
+    return VecBuilder.fill(distance * 0.22, distance * 0.22, 85);
   }
 
   public PhotonPipelineResult getPipelineResult() {

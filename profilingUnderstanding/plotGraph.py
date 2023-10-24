@@ -7,7 +7,7 @@ import random
 import datetime
 import matplotlib
 if "__main__" == __name__:
-    os.chdir("../actual_robot_tests/hardwareprofiler")
+    os.chdir("../profilingData")
     print(os.listdir())
     files = os.listdir()
     # remove all non json files

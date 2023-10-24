@@ -19,7 +19,16 @@ public interface GyroIO extends LoggedIO<GyroInputs> {
 
   public Rotation2d getPitch();
 
+  public default double getAccel() {
+    return 0;
+  }
+
   public default double getAccelX() {
     return 0;
   };
+
+  public default double getAccelY() {
+    return 0;
+  };
+
 }
