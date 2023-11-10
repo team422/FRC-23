@@ -27,6 +27,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.lib.pathplanner.ExtendedPathPoint;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.util.CustomHolmonomicDrive;
 import frc.robot.util.TunableNumber;
 
@@ -202,6 +203,9 @@ public final class Constants {
 
   public static final class DriveConstants {
     public static final int kId = 2;
+
+    public static final DriveProfiles kDefaultDriveProfile = DriveProfiles.kDefault;
+
     public static final double kDriveDeadband = 0.1;
 
     public static final double kWheelDiameter = Units.inchesToMeters(3.7);
@@ -239,7 +243,9 @@ public final class Constants {
         new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
 
-    public static final double[] kDriveSpeedTests = { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 };
+    public static final double[] kDriveSpeedTests = { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0 };
+    // public static final double[] kAngularDriveSpeedTests = { 1.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 };
+
   }
 
   public static final class ModuleConstants {

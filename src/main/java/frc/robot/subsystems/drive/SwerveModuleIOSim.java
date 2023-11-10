@@ -91,8 +91,8 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     double driveFF = m_driveFeedforward.calculate(desiredSpeed);
     double drivePID = m_driveController.calculate(currentSpeed, desiredSpeed);
     double turnPID = m_turnController.calculate(currentAngle, desiredAngle);
-    System.out
-        .println("DriveFF: " + driveFF + " DrivePID: " + drivePID + " TurnPID: " + turnPID);
+    // System.out
+    //     .println("DriveFF: " + driveFF + " DrivePID: " + drivePID + " TurnPID: " + turnPID);
     setVoltage(driveFF, turnPID);
   }
 
@@ -178,4 +178,22 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   public double getWheelSpeed() {
     return getSpeed();
   }
+
+  @Override
+  public void setBrakeMode(boolean mode) {
+    return;
+  }
+
+  @Override
+  public void setVoltageDriveIgnoreTurn(double driveVoltage) {
+    m_driveMotor.setInputVoltage(driveVoltage);
+
+  }
+
+  @Override
+  public void setVoltageTurnIgnoreDrive(double turnVoltage) {
+    m_turnMotor.setInputVoltage(turnVoltage);
+
+  }
+
 }

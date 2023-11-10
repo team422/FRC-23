@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -10,6 +12,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -56,7 +59,7 @@ public class CameraAprilTag extends SubsystemBase {
 
     if (m_photonCamera.getPipelineIndex() == VisionConstants.kAprilTagPipelineIndex) { // UPDATE LATER
       m_result = m_photonCamera.getLatestResult();
-      if (m_result.getTargets().size() < 2) {
+      if (m_result.getTargets().size() < 2 && m_result.getTargets().size() > 0) {
         m_photonEstimator.update(m_result).ifPresent(pose -> {
           frc.robot.RobotState.getInstance().setCamPositionLowConfidence(pose.estimatedPose);
           if (frc.robot.RobotState.getInstance().m_lastCameraTimestamp
@@ -69,7 +72,7 @@ public class CameraAprilTag extends SubsystemBase {
           }
         });
 
-      } else {
+      } else if (m_result.getTargets().size() >= 2) {
         m_photonEstimator.update(m_result).ifPresent(pose -> {
           lastPose3d = pose.estimatedPose;
           // System.out.println(pose.estimatedPose);
@@ -78,6 +81,8 @@ public class CameraAprilTag extends SubsystemBase {
           m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds,
               getMatrixStds(pose, getPipelineResult()));
         });
+      } else {
+        lastPose3d = null;
       }
     } else {
       m_result = m_photonCamera.getLatestResult();
@@ -118,6 +123,18 @@ public class CameraAprilTag extends SubsystemBase {
       }
     }
 
+  }
+
+  public Pose2d getEstimatedPose() {
+    if (lastPose3d == null) {
+      return null;
+    }
+    return lastPose3d.toPose2d();
+  }
+
+  public void setAprilTagMap(AprilTagFieldLayout tagLayout) {
+    m_layout = tagLayout;
+    m_photonEstimator.setFieldTags(tagLayout);
   }
 
   public Vector<N3> getMatrixStds(EstimatedRobotPose curRobotPose, PhotonPipelineResult result) {
@@ -172,6 +189,27 @@ public class CameraAprilTag extends SubsystemBase {
       setPipeline(VisionConstants.kAprilTagPipelineIndex);
     });
 
+  }
+
+  public ArrayList<AprilTag> getAprilTagsInView() {
+    List<PhotonTrackedTarget> targets = m_photonCamera.getLatestResult().getTargets();
+    ArrayList<AprilTag> tags = new ArrayList<>();
+    for (PhotonTrackedTarget target : targets) {
+      if (target.getFiducialId() != 0) {
+        Transform3d tagPose = target.getBestCameraToTarget();
+        Pose2d robotPose = frc.robot.RobotState.getInstance().getPose();
+        // add the rotation and translation of the robot to the tag
+        // m_transform is the transform from the camera to the robot
+        // tag pose is the transform from the camera to the tag
+        // robot pose is the transform from the field to the robot
+        // we want the transform from the field to the tag
+        // Pose3d tagPoseTransformed = new Pose3d(robotPose).transformBy(tagPose);
+        Transform3d fullTransform = m_transform.plus(tagPose); // this might be minus
+        Pose3d tagPoseTransformed = new Pose3d(robotPose).transformBy(fullTransform);
+        tags.add(new AprilTag(target.getFiducialId(), tagPoseTransformed));
+      }
+    }
+    return tags;
   }
 
 }

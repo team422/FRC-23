@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -23,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.pathplanner.ExtendedPathPoint;
 import frc.lib.utils.FieldGeomUtil;
 import frc.lib.utils.FullDesiredRobotState;
+import frc.lib.utils.SwerveTester;
+import frc.lib.utils.SwerveTester.SwerveTesterProfiles;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Setpoints;
@@ -31,6 +35,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.vision.CameraAprilTag;
 import frc.robot.subsystems.wrist.Wrist;
 
 public class RobotState {
@@ -40,6 +45,7 @@ public class RobotState {
   public Intake m_intake;
   public Elevator m_elevator;
   public Wrist m_wrist;
+  public CameraAprilTag[] m_cameras;
 
   public Pose3d m_armPosition = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
   public Pose3d m_wristPosition = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
@@ -71,20 +77,67 @@ public class RobotState {
       Rotation2d.fromDegrees(0));
   public double m_elevatorHeightMeters = 0;
 
-  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  public SwerveTester m_SwerveTester;
+
+  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist, CameraAprilTag[] cameras) {
     m_drive = drive;
     m_intake = intake;
     m_elevator = elevator;
     m_wrist = wrist;
+    m_cameras = cameras;
     m_poseSetpoint = 5;
     m_elevatorHeightMeters = m_elevator.getCurrentHeightMeters();
+    m_SwerveTester = new SwerveTester(m_drive::setActiveWheel, //
+        m_drive::drive, //
+        m_drive::getHeading, //
+        m_drive::getSwerveModulePositions, //
+        m_drive::getModuleStates, //
+        m_drive::setActiveModuleState,
+        Constants.DriveConstants.kDriveKinematics,
+        m_drive::setChassisSpeedsDirectionOnly,
+        m_drive::getChassisSpeeds,
+        m_drive::setWheelIdleBrake,
+        m_drive::setSingleWheelDriveMode,
+        m_drive::setAllowCameraOdometeryConnections,
+        m_drive::createAprilTagFieldLayout,
+        m_drive::getPose,
+        m_drive::resetPose,
+        this::getCameraEstimatedPoseList,
+        Constants.DriveConstants.kWheelDiameter * Math.sqrt(2));
   }
 
-  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist) {
+  public SwerveTester getSwerveTester() {
+    return m_SwerveTester;
+  }
+
+  public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist,
+      CameraAprilTag[] cameras) {
     if (instance == null) {
-      instance = new RobotState(drive, intake, elevator, wrist);
+      instance = new RobotState(drive, intake, elevator, wrist, cameras);
     }
     return instance;
+  }
+
+  public ArrayList<AprilTag> getAprilTagsInView() {
+    ArrayList<AprilTag> tags = new ArrayList<AprilTag>();
+    for (CameraAprilTag camera : m_cameras) {
+      ArrayList<AprilTag> cameraTags = camera.getAprilTagsInView();
+      if (cameraTags != null) {
+        tags.addAll(cameraTags);
+      }
+    }
+    return tags;
+  }
+
+  public ArrayList<Pose2d> getCameraEstimatedPoseList() {
+    ArrayList<Pose2d> poses = new ArrayList<Pose2d>();
+    for (CameraAprilTag camera : m_cameras) {
+      Pose2d pose = camera.getEstimatedPose();
+      if (pose != null) {
+        poses.add(pose);
+      }
+    }
+    return poses;
   }
 
   public void setCubePose(Rotation2d offset, double distanceX, double distanceY) {
@@ -103,13 +156,28 @@ public class RobotState {
     return instance;
   }
 
+  public Pose2d getPose() {
+    return m_drive.getPose();
+  }
+
   public Pose3d get3dPosition() {
     return m_robotPose;
 
   }
 
+  public void setAprilTagMap(AprilTagFieldLayout map) {
+    for (CameraAprilTag camera : m_cameras) {
+      camera.setAprilTagMap(map);
+    }
+  }
+
   public Pose3d getCamPositionLowConfidence() {
     return m_robotPoseLowConfidence;
+  }
+
+  public void regainTeleopDriveControls() {
+    m_drive.setProfile(Constants.DriveConstants.kDefaultDriveProfile);
+
   }
 
   public void setCamPositionLowConfidence(Pose3d pose) {
@@ -254,6 +322,11 @@ public class RobotState {
     return Commands.runOnce(() -> {
       this.setHeight(height);
     });
+  }
+
+  public void startDriveAngularTest(SwerveTesterProfiles test) {
+    m_SwerveTester.setCurrentSwerveTest(test);
+    m_SwerveTester.startTesting();
   }
 
   public void setHeight(int height) {

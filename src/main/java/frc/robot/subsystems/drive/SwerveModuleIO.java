@@ -64,4 +64,10 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public double getWheelSpeed();
 
+  public void setBrakeMode(boolean mode);
+
+  public void setVoltageDriveIgnoreTurn(double driveVoltage);
+
+  public void setVoltageTurnIgnoreDrive(double turnVoltage);
+
 }

@@ -314,6 +314,26 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   @Override
   public double getWheelSpeed() {
     return m_driveEncoder.getVelocity();
+  }
+
+  @Override
+  public void setBrakeMode(boolean mode) {
+    if (mode) {
+      m_driveMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_driveMotor.setIdleMode(IdleMode.kCoast);
+    }
+  }
+
+  @Override
+  public void setVoltageDriveIgnoreTurn(double driveVoltage) {
+    m_driveMotor.setVoltage(driveVoltage);
+
+  }
+
+  @Override
+  public void setVoltageTurnIgnoreDrive(double turnVoltage) {
+    m_turningMotor.setVoltage(turnVoltage);
 
   }
 

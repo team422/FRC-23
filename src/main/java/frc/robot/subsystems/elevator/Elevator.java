@@ -205,7 +205,7 @@ public class Elevator extends ProfiledSubsystem {
           String[] Units = { "Time", "Height" };
           HardwareProfiler.ProfilingType profilingType = HardwareProfiler.ProfilingType.TIME_TO_SETPOINT;
           int testNumber = 1;
-          double[] testParamters = { 1.0 };
+          Double[] testParamters = { 1.0 };
           String[] testParameterNames = { "Tolerance Inches" };
           m_profiler = new HardwareProfiler(name, time, id, subsystemId, Units, profilingType, testNumber,
               testParamters, testParameterNames);
@@ -215,7 +215,7 @@ public class Elevator extends ProfiledSubsystem {
           id = 3;
           profilingType = HardwareProfiler.ProfilingType.POWER_CONSUMPTION_BY_SETPOINT;
           testNumber = 1;
-          testParamters = new double[] { 1.0 };
+          testParamters = new Double[] { 1.0 };
           testParameterNames = new String[] { "Tolerance Inches" };
           m_profiler2 = new HardwareProfiler(name, time, id, subsystemId, Units, profilingType, testNumber,
               testParamters, testParameterNames);
@@ -270,7 +270,7 @@ public class Elevator extends ProfiledSubsystem {
           String[] Units = { "Delta Height (inches)", "Expected Height (inches)" };
           HardwareProfiler.ProfilingType profilingType = HardwareProfiler.ProfilingType.DELTA_AT_TIME;
           int testNumber = 1;
-          double[] testParamters = { 1.0 };
+          Double[] testParamters = { 1.0 };
           String[] testParameterNames = { "Time" };
           m_profiler = new HardwareProfiler(name, time, id, subsystemId, Units, profilingType, testNumber,
               testParamters, testParameterNames);

@@ -40,6 +40,7 @@ import frc.lib.hardwareprofiler.ProfilingScheduling;
 import frc.lib.hardwareprofiler.SingleProfiling;
 import frc.lib.pathplanner.PathPlannerUtil;
 import frc.lib.utils.FieldGeomUtil;
+import frc.lib.utils.SwerveTester.SwerveTesterProfiles;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -58,6 +59,7 @@ import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.OperatorControls;
 import frc.robot.oi.OperatorControlsXbox;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.Drive.DriveProfilingSuite;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOMK4iSparkMax;
@@ -131,6 +133,17 @@ public class RobotContainer {
       m_drive.setTestingCommand(DriveProfilingSuite.kFeedForwardAccuracy);
     }));
 
+    SmartDashboard.putData("Test Drive Get to Speed", new InstantCommand(() -> {
+      m_drive.setProfile(DriveProfiles.kModuleAndAccuracyTesting);
+      m_robotState.startDriveAngularTest(SwerveTesterProfiles.kTimeToSpeed);
+    }));
+    SmartDashboard.putData("Regain Drive Controls", new InstantCommand(() -> {
+      m_robotState.regainTeleopDriveControls();
+    }));
+    SmartDashboard.putData("Test Individual Module Drive Get to Speed", new InstantCommand(() -> {
+      m_drive.setProfile(DriveProfiles.kModuleAndAccuracyTesting);
+      m_robotState.startDriveAngularTest(SwerveTesterProfiles.kModuleTimeToSpeed);
+    }));
   }
 
   public void configureLogging() {
@@ -223,7 +236,7 @@ public class RobotContainer {
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
 
-      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams);
     } else {
 
       m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
@@ -240,7 +253,8 @@ public class RobotContainer {
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
-      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
+      m_cams = new CameraAprilTag[] {};
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams);
     }
 
   }

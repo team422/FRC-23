@@ -3,6 +3,7 @@ package frc.lib.hardwareprofiler;
 import java.io.File;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import com.google.gson.Gson;
@@ -15,10 +16,10 @@ public class HardwareProfiler {
   public int id;
   public int subsystemId;
   public int testNumber;
-  public DataPoint[] dataPoints;
+  public ArrayList<DataPoint> dataPoints;
   public String[] units;
   public ProfilingType profilingType;
-  public double[] testParamters;
+  public Double[] testParamters;
   public String[] testParamtersName;
   public String time;
 
@@ -27,8 +28,9 @@ public class HardwareProfiler {
     OTHER
   }
 
-  public HardwareProfiler(String name, double time, int id, int subsystemId, String[] units, DataPoint[] dataPoints,
-      ProfilingType profilingType, int testNumber, double[] testParamters, String[] testParamtersName) {
+  public HardwareProfiler(String name, double time, int id, int subsystemId, String[] units,
+      ArrayList<DataPoint> dataPoints,
+      ProfilingType profilingType, int testNumber, Double[] testParamters, String[] testParamtersName) {
     this.name = name;
     this.startTime = time;
     this.id = id;
@@ -42,12 +44,12 @@ public class HardwareProfiler {
   }
 
   public HardwareProfiler(String name, double time, int id, int subsystemId, String[] units,
-      ProfilingType profilingType, int testNumber, double[] testParamters, String[] testParamtersName) {
+      ProfilingType profilingType, int testNumber, Double[] testParamters, String[] testParamtersName) {
     this.name = name;
     this.startTime = time;
     this.id = id;
     this.subsystemId = subsystemId;
-    this.dataPoints = new DataPoint[0];
+    this.dataPoints = new ArrayList<DataPoint>();
     this.units = units;
     this.profilingType = profilingType;
     this.testNumber = testNumber;
@@ -56,12 +58,13 @@ public class HardwareProfiler {
   }
 
   public void addDataPoint(DataPoint dataPoint) {
-    DataPoint[] newDataPoints = new DataPoint[dataPoints.length + 1];
-    for (int i = 0; i < dataPoints.length; i++) {
-      newDataPoints[i] = dataPoints[i];
-    }
-    newDataPoints[dataPoints.length] = dataPoint;
-    dataPoints = newDataPoints;
+    // DataPoint[] newDataPoints = new DataPoint[dataPoints.length + 1];
+    // for (int i = 0; i < dataPoints.length; i++) {
+    //   newDataPoints[i] = dataPoints[i];
+    // }
+    // newDataPoints[dataPoints.length] = dataPoint;
+    // dataPoints = newDataPoints;
+    dataPoints.add(dataPoint);
   }
 
   public void EnsureHardwareProfilerFolder() {
