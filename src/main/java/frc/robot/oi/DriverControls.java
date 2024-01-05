@@ -55,4 +55,8 @@ public interface DriverControls {
 
   public Trigger ledFlash();
 
+  public Trigger flywheelOnTop();
+
+  public Trigger flywheelPLEASESTOP();
+
 }

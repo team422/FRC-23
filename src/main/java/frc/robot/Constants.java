@@ -31,15 +31,15 @@ import frc.robot.util.CustomHolmonomicDrive;
 import frc.robot.util.TunableNumber;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean constants. This class should not be used for any other
- * purpose. All constants should be declared globally (i.e. public static). Do
- * not put anything functional in this class.
- *
- * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the constants are needed, to reduce verbosity.
- */
+* The Constants class provides a convenient place for teams to hold robot-wide
+* numerical or boolean constants. This class should not be used for any other
+* purpose. All constants should be declared globally (i.e. public static). Do
+* not put anything functional in this class.
+*
+* <p>
+* It is advised to statically import this class (or one of its inner classes)
+* wherever the constants are needed, to reduce verbosity.
+*/
 
 public final class Constants {
   public static final boolean tuningMode = true;
@@ -78,7 +78,7 @@ public final class Constants {
     public static final ExtendedPathPoint blueRightWallLoadingStation = new ExtendedPathPoint(
         new Translation2d(15.8, 6.0),
         new Rotation2d(), Rotation2d.fromDegrees(0));
-    // Grid is labeled first to third from edge of field without 
+    // Grid is labeled first to third from edge of field without
     public static final ExtendedPathPoint blueFirstGridLeftCone = new ExtendedPathPoint(
         new Translation2d(1.84 + .4, 0.43),
         new Rotation2d(), Rotation2d.fromDegrees(180));
@@ -150,6 +150,17 @@ public final class Constants {
     // LED fade colors
     public static final Color kMechTechGreen = new Color(0, 183, 96);
     public static final Color kChargedUpGold = new Color(255, 183, 0);
+  }
+
+  public static final class FlywheelConstants {
+    public static final double gearRatio = 4.0;
+    public static final double tolerance = 0.008;
+    //what is a feedforward
+    //not in my america
+    public static final TunableNumber kP = new TunableNumber("Flywheel P", 14);
+    public static final TunableNumber kI = new TunableNumber("Flywheel I", 1.6);
+    public static final TunableNumber kD = new TunableNumber("Flywheel D", 0.5);
+    public static final PIDController flywheelController = new PIDController(kP.get(), kI.get(), kD.get());
   }
 
   public static final class ElevatorConstants {

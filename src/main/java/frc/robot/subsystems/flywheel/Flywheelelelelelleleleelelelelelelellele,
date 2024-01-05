@@ -1,0 +1,115 @@
+#they left this here so here is my AoC 2023 select solutions that I like/find jank
+
+
+# AoC d10 s1/2 2023
+
+data = [x for x in open("test.txt").read().split("\n")]
+p = [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "S"][0]
+minmaxcp = [10000,100000, 0, 0, 0]
+while p != [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "S"][0] or minmaxcp[-1] == 0:
+    dir = ("u" if data[p[0]-1][p[1]] in ["|", "F", "7"] else "d" if data[p[0]+1][p[1]] in ["|", "L", "J"] else "r" if data[p[0]][p[1]+1] in ["-", "J", "7"] else "l" if data[p[0]][p[1]-1] in ["-", "F", "L"] else "") if p == [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "S"][0]  else (("u" if dir == "l" else "r") if data[p[0]][p[1]] == "L" else ("u" if dir == "r" else "l") if data[p[0]][p[1]] == "J" else ("d" if dir == "r" else "l") if data[p[0]][p[1]] == "7" else ("d" if dir == "l" else "r") if data[p[0]][p[1]] == "F" else dir) 
+    p = [p[0]-1,p[1]] if dir == "u" else [p[0]+1,p[1]] if dir == "d" else [p[0],p[1]+1] if dir == "r" else [p[0],p[1]-1] if dir == "l" else p 
+    minmaxcp = [p[0] if p[0] < minmaxcp[0] else minmaxcp[0], p[1] if p[1] < minmaxcp[1] else minmaxcp[1], p[0] if p[0] > minmaxcp[2] else minmaxcp[2], p[1] if p[1] > minmaxcp[3] else minmaxcp[3], minmaxcp[4] + 1] + minmaxcp[5:] + [p[0:2]]
+print("s1", minmaxcp[4], "s2", len([[i,j] for j in range(minmaxcp[1],minmaxcp[3]) for i in range(minmaxcp[0],minmaxcp[2]) if len([x for x in range(j) if data[i][x] in ["|", 'J', 'L', 'S'] and [i,x] in minmaxcp[5:]]) % 2 and [i,j] not in minmaxcp[5:]]))
+
+
+# AoC d11 s1/2 2023
+
+import math
+data = [x for x in open("data.txt").read().split("\n")]
+erow = [i for i in range(len(data)) if [x for x in data[i] if x == "#"] == []]
+ecol = [j for j in range(len(data[0])) if [x for x in range(len(data)) if data[x][j] == "#"] == []]
+print("s1", int(sum([math.fabs(i[0] - j[0]) + (len([x for x in range(i[0], j[0]) if x in erow]) + len([x for x in range(j[0], i[0]) if x in erow])) +  math.fabs(i[1] - j[1]) + (len([x for x in range(i[1], j[1]) if x in ecol]) + len([x for x in range(j[1], i[1]) if x in ecol])) for i,j in [[x,y] for x in [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "#"] for y in [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "#"]]])/2), "s2", int(sum([math.fabs(i[0] - j[0]) + 999999 * (len([x for x in range(i[0], j[0]) if x in erow]) + len([x for x in range(j[0], i[0]) if x in erow])) +  math.fabs(i[1] - j[1]) + 999999 * (len([x for x in range(i[1], j[1]) if x in ecol]) + len([x for x in range(j[1], i[1]) if x in ecol])) for i,j in [[x,y] for x in [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "#"] for y in [[x,y] for x in range(len(data)) for y in range(len(data[0])) if data[x][y] == "#"]]])/2))
+
+
+# AoC d17 s1/2 2023
+
+
+from enum import Enum
+from queue import PriorityQueue
+
+input = [[int(y) for y in x] for x in open("data.txt").read().split("\n")]
+m, n = len(input), len(input[0])
+
+stepper = {'u': (-1, 0),'d': (1, 0),'r': (0, 1),'l': (0, -1)}
+inv = {"u": "d", 'd':'u', 'r':'l', 'l':'r'}
+
+class Direction(Enum):
+    u = (-1,0)
+    r = (0, 1)
+    d = (1,0)
+    l = (0, -1)
+
+
+class Node():
+    def __init__(self, cost: int, x: int, y: int, dir: Direction, stepcounter: int):
+        self.cost = cost
+        self.x = x
+        self.y = y
+        self.dir = dir
+        self.stepcounter = stepcounter
+
+    def __lt__(self, other):
+        if self.cost == other.cost:
+            if self.x == other.x:
+                if self.y == other.y:
+                    if self.dir == other.dir:
+                        return self.stepcounter < other.stepcounter
+                    return self.dir.value < other.dir.value
+                return self.y < other.y
+            return self.x < other.x
+        return self.cost < other.cost
+    
+    def get_info(self):
+        return(self.x, self.y, self.dir, self.stepcounter)
+
+
+def dijkstra(graph: list[list[int]],min_steps: int, max_steps: int):
+    
+    pq: PriorityQueue[Node] = PriorityQueue()
+    pq.put(Node(0, 0, 0, Direction.r, 1))
+    pq.put(Node(0, 0, 0, Direction.d, 1))
+
+    visited: set[tuple[int, int, Direction, int]] = set()
+
+    while pq:
+        curr = pq.get()
+
+        if curr.get_info() in visited:
+            continue
+        visited.add(curr.get_info())
+
+        newX = curr.x + curr.dir.value[1]
+        newY = curr.y + curr.dir.value[0]
+
+        if newX >= len(graph[0]) or newY >= len(graph) or newX < 0 or newY < 0:
+            continue 
+
+        newCost = curr.cost + graph[newY][newX]
+
+        if newX == len(graph[0]) - 1 and newY == len(graph) - 1 and curr.stepcounter + 1 <= max_steps:
+            return newCost
+    
+        for newDir in Direction:
+            #if opp dir
+            if newDir.value[0] + curr.dir.value[0] == 0 and newDir.value[1] + curr.dir.value[1] == 0:
+                continue
+            #if same dir
+            if newDir.value[0] == curr.dir.value[0] and newDir.value[1] == curr.dir.value[1]:
+                newStepCounter = curr.stepcounter + 1
+            #if other dir and hasn't done minimum
+            elif curr.stepcounter < min_steps:
+                continue
+            #if other dir and has done minimum
+            else:
+                newStepCounter = 1
+            if newStepCounter > max_steps:
+                continue
+            pq.put(Node(newCost, newX, newY, newDir, newStepCounter))
+    return -1
+
+print("s1:", dijkstra(input, 0, 3))
+
+print("s2:", dijkstra(input, 4, 10))
+
+

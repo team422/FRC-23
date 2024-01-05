@@ -153,4 +153,14 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger ledFlash() {
     return m_rightJoystick.button(8);
   }
+
+  @Override
+  public Trigger flywheelOnTop() {
+    return m_rightJoystick.button(1);
+  }
+
+  @Override
+  public Trigger flywheelPLEASESTOP() {
+    return m_rightJoystick.button(2);
+  }
 }

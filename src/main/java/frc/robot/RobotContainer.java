@@ -35,6 +35,7 @@ import frc.lib.pathplanner.PathPlannerUtil;
 import frc.lib.utils.FieldGeomUtil;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.RobotConstants;
@@ -58,6 +59,8 @@ import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIONeo;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIONeo550;
 import frc.robot.subsystems.intake.IntakeIOSim;
@@ -88,6 +91,7 @@ public class RobotContainer {
   private LED m_LED;
   private String m_curSelectedAuto = "none";
   private List<PathPlannerTrajectory> m_traj;
+  private Flywheel m_flywheel; //im on a whole nother level im geekin 
   // private LED m_LED2;
 
   // Dashboard inputs
@@ -212,6 +216,8 @@ public class RobotContainer {
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist);
+      m_flywheel = new Flywheel(new FlywheelIOSim(), Constants.FlywheelConstants.flywheelController,
+          FlywheelConstants.tolerance); //RADunancy
     }
 
   }
@@ -349,13 +355,13 @@ public class RobotContainer {
 
     driverControls.resetFieldCentric().onTrue(m_drive.resetCommand(new Pose2d(1.81, 6.9, new Rotation2d())));
     driverControls.startIntakeConeInCubeOut().whileTrue(m_intake.intakeConeCommand());
-    driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.intakeCubeCommand());
+    //driverControls.startIntakeCubeInConeOut().whileTrue(m_intake.intakeCubeCommand());
     driverControls.zeroElevator().onTrue(m_elevator.zeroHeightCommand());
     // driverControls.setpointHighCone().onTrue(coneHighCommand);
     // driverControls.setpointMidCube().onTrue(cubeMidCommand);
     // driverControls.setpointHighCube().onTrue(cubeHighCommand);
     driverControls.intakeTippedCone().onTrue(pickUpConeGroundCommandDriver);
-    driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommandDriver);
+    //driverControls.intakeVerticalCone().onTrue(pickUpConeVerticalCommandDriver);
     driverControls.setpointIntakeGroundCube().onTrue(pickUpCubeGroundCommandDriver);
     // driverControls.intakeFromLoadingStation().onTrue(intakeFromLoadingStationCommand);
     driverControls.autoIntakeCube().whileTrue(intakeCubeTeleop);
@@ -381,6 +387,10 @@ public class RobotContainer {
     driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
 
     driverControls.ledFlash().onTrue(m_LED.startFlash());
+
+    driverControls.flywheelOnTop().onTrue(m_flywheel.setVelocityCommand(9));
+
+    driverControls.flywheelPLEASESTOP().onTrue(m_flywheel.setVelocityCommand(0));
   }
 
   public void onEnabled() {
