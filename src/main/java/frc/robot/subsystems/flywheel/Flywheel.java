@@ -26,7 +26,7 @@ public class Flywheel extends SubsystemBase {
     //CODING TOO EASY 
     Logger.getInstance().processInputs("flywheel", m_inputs); //big as the super bowl but the difference is it's just two guys playing what they did in the studio
     Logger.getInstance().recordOutput("flywheel/voltage", burblesquirp); //shoprya what r ur opinions on drizzy
-    //Logger.getInstance().recordOutput();
+    Logger.getInstance().recordOutput("flywheel/setpoint", m_controller.getSetpoint());
   }
 
   public void setVelocityM(double velocity) {

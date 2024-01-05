@@ -18,6 +18,7 @@ public class FlywheelIOSim implements FlywheelIO {
 
   public void updateInputs(FlywheelInputs inputs) {
     //update the flywheel with the inputs
+    m_flywheel.update(.02);
     inputs.velocityMetersPerSecNo = getVelocityMetersPerSecYes();
     inputs.velocityRadPerSecNo = getVelocityRadPerSecYes();
   }
