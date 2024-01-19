@@ -27,18 +27,24 @@ public class Wrist extends SubsystemBase {
 
   private double m_lastTime;
   private double m_lastVelocitySetpoint;
+  private boolean m_PIDSet;
 
-  public Wrist(WristIO io, ProfiledPIDController wristPIDController, ArmFeedforward feedForward, Rotation2d minAngle,
+  public Wrist(WristIO io, ProfiledPIDController wristFastPIDController, ArmFeedforward feedForward,
+      Rotation2d minAngle,
       Rotation2d maxAngle) {
     m_io = io;
     m_inputs = new WristInputsAutoLogged();
 
-    m_controller = wristPIDController;
-    m_feedforward = feedForward;
-    m_controller.setTolerance(Units.degreesToRadians(2));
-    kMinAngle = minAngle.getRadians();
-    kMaxAngle = maxAngle.getRadians();
-    m_controller.setIntegratorRange(-0.5, 0.5);
+    {
+
+      m_controller = wristFastPIDController;
+      m_feedforward = feedForward;
+      m_controller.setTolerance(Units.degreesToRadians(2));
+      kMinAngle = minAngle.getRadians();
+      kMaxAngle = maxAngle.getRadians();
+      m_controller.setIntegratorRange(-0.5, 0.5);
+      m_PIDSet = false;
+    }
 
     // m_controller.reset(0);
   }
@@ -77,6 +83,7 @@ public class Wrist extends SubsystemBase {
     // Logger.getInstance().recordOutput("Wrist/OutputVoltage", outputVoltage);
     Logger.getInstance().recordOutput("Wrist/SetpointDegrees", m_desiredAngle.getDegrees());
     Logger.getInstance().recordOutput("Wrist/AngleDeg", Units.radiansToDegrees(m_inputs.angleRad));
+    Logger.getInstance().recordOutput("Wrist/FastPID Enabled", m_PIDSet);
 
     m_lastTime = Timer.getFPGATimestamp();
     m_lastVelocitySetpoint = velocitySetpoint;
@@ -114,6 +121,28 @@ public class Wrist extends SubsystemBase {
 
   public Command testSetAngleCommand(Rotation2d angle) {
     return testSetAngleCommand(angle, Units.degreesToRadians(3.0));
+  }
+
+  public void setPIDNo(double kFastWristP, double kFastWristI, double kFastWristD) {
+    m_controller.setP(kFastWristP);
+    m_controller.setD(kFastWristD);
+    m_controller.setI(kFastWristI);
+    m_PIDSet = !m_PIDSet;
+  }
+
+  public Command Rastaclat(double kFastWristP, double kFastWristI, double kFastWristD, double kWristP, double kWristI,
+      double kWristD) {
+    return runOnce(() -> {
+      if (m_PIDSet) {
+        setPIDNo(kFastWristP, kFastWristI, kFastWristD);
+      } else {
+        m_controller.setP(kWristP);
+        m_controller.setD(kWristD);
+        m_controller.setI(kWristI);
+        m_PIDSet = true;
+      }
+    });
+
   }
 
   public Command testSetAngleCommand(Rotation2d angle, double toleranceRadians) {
