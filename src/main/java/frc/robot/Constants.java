@@ -342,6 +342,9 @@ public final class Constants {
     public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6);
     public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.08);
     public static final TunableNumber kWristka = new TunableNumber("Wrist ka", 0.0);
+    public static final TunableNumber kFastWristP = new TunableNumber("Wrist Fast P", 40);
+    public static final TunableNumber kFastWristI = new TunableNumber("Wrist Fast I", 0.08);
+    public static final TunableNumber kFastWristD = new TunableNumber("Wrist Fast D", 0.3);
     public static final boolean kWristTuning = false;
 
     public static final int wristEncoderCPR = 4096; // Counts per revolution
@@ -350,6 +353,10 @@ public final class Constants {
         kWristkv.get(), kWristka.get());
     public static final ProfiledPIDController wristPIDController = new ProfiledPIDController(kWristP.get(),
         kWristI.get(), kWristD.get(),
+        new Constraints(kWristVelo.get(), kWristAccel.get()));
+
+    public static final ProfiledPIDController wristFastPIDController = new ProfiledPIDController(
+        kFastWristP.get(), kFastWristI.get(), kFastWristD.get(),
         new Constraints(kWristVelo.get(), kWristAccel.get()));
 
     public static final double kLengthMeters = Units.inchesToMeters(3);

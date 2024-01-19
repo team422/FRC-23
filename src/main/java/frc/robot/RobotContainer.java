@@ -171,7 +171,20 @@ public class RobotContainer {
           Units.degreesToRadians(32)), // 118 is back of wrist
           Constants.WristConstants.wristPIDController,
           Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
-          Constants.WristConstants.kMaxAngle);
+          Constants.WristConstants.kMaxAngle
+
+      );
+
+      m_wrist = new Wrist(new WristIOThroughBoreSparkMaxAlternate(Constants.Ports.wristMotorPort,
+          Constants.WristConstants.wristEncoderCPR,
+          m_throughboreSparkMaxIntakeMotor.getAbsoluteEncoder(Type.kDutyCycle),
+          Units.degreesToRadians(32)), // 118 is back of wrist
+          Constants.WristConstants.wristFastPIDController,
+          Constants.WristConstants.wristFeedForward, Constants.WristConstants.kMinAngle,
+          Constants.WristConstants.kMaxAngle
+
+      );
+
       m_elevator = new Elevator(new ElevatorIONeo(Constants.Ports.elevatorLeaderMotorPort,
           Ports.elevatorFollowerMotorPort, Constants.Ports.elevatorThroughBoreEncoderPortA,
           Ports.elevatorThroughBoreEncoderPortB, Constants.ElevatorConstants.kGearRatio,
@@ -282,6 +295,7 @@ public class RobotContainer {
     //     new ChargeStationBalance(m_drive));
     Command chargeCommand = new ChargeStationBalance(m_drive);
     operatorControls.charge().whileTrue(chargeCommand);
+
     operatorControls.setIntakeHighPowerMode().whileTrue(m_intake.setHighPowerMode());
     Command intakeCubeTeleop = Commands.parallel(new DriveToCube(m_drive, () -> {
       return RobotState.getInstance().m_cubePose;
@@ -294,14 +308,14 @@ public class RobotContainer {
 
     // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     // FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();
-    driverControls.autoScore().whileTrue(
-        RobotState.getInstance().autoScore(() -> {
-          return RobotState.getInstance().getScoringPose();
-        }, () -> {
-          return RobotState.getInstance().getWristPosition();
-        }, () -> {
-          return Setpoints.distanceToDropCone;
-        }));
+    // driverControls.autoScore().whileTrue(
+    //     RobotState.getInstance().autoScore(() -> {
+    //       return RobotState.getInstance().getScoringPose();
+    //     }, () -> {
+    //       return RobotState.getInstance().getWristPosition();
+    //     }, () -> {
+    //       return Setpoints.distanceToDropCone;
+    //     }));
     driverControls.stowIntakeAndElevator().and(operatorControls.dropStationButton().negate()).onTrue(stowCommand);
     operatorControls.setpointMidCone().and(operatorControls.heightModifier().negate())
         .and(operatorControls.columnModifier().negate()).onTrue(coneMidCommand);
@@ -362,13 +376,16 @@ public class RobotContainer {
     operatorControls.manualInputOverride().whileTrue(m_wrist.moveCommand(operatorControls::moveWristInput));
     operatorControls.manualInputOverride().whileTrue(m_elevator.moveCommand(operatorControls::moveElevatorInput));
     operatorControls.charge().whileTrue(chargeCommand);
-
+    driverControls.jamesButton().onTrue(
+        m_wrist.Rastaclat(Constants.WristConstants.kFastWristP.get(), Constants.WristConstants.kFastWristI.get(),
+            Constants.WristConstants.kFastWristD.get(), Constants.WristConstants.kWristP.get(),
+            Constants.WristConstants.kWristI.get(), Constants.WristConstants.kWristD.get()));
     driverControls.resetDrive().onTrue(m_drive.resetFirmwareCommand());
     driverControls.lebronJames().onTrue(lebronJamesConeCommand);
 
-    // operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> {
-    //   m_robotState.increasePoseSetpoint();
-    // }));
+    // operatorControls.increasePoseSetpoint().onTrue(Commands.runOnce(() -> { like grahhh keep it a stack women moonwalk cause they know i got bands
+    //   m_robotState.increasePoseSetpoint(); like 100 bands on chenlly but she still shakin butt in the deli
+    // }));        YOU THINK YOU THE CRAP YOU AINT EVEN THE FART
     // operatorControls.decreasePoseSetpoint().onTrue(Commands.runOnce(() -> {
     //   m_robotState.decreasePoseSetpoint();
     // }));
@@ -380,7 +397,7 @@ public class RobotContainer {
         () -> driverControls.getDriveRotation());
     driverControls.goToNode().whileTrue(driveToGridSetpointCommand);
 
-    driverControls.ledFlash().onTrue(m_LED.startFlash());
+    // driverControls.ledFlash().onTrue(m_LED.startFlash());
   }
 
   public void onEnabled() {
