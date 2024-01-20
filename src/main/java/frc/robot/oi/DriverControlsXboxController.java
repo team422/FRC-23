@@ -166,4 +166,19 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.start();
   }
 
+  @Override
+  public Trigger turretLeft() {
+    return new Trigger();
+  }
+
+  @Override
+  public Trigger turretRight() {
+    return new Trigger();
+  }
+
+  @Override
+  public Trigger turretZero() {
+    return new Trigger();
+  }
+
 }

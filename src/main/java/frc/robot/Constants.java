@@ -153,6 +153,12 @@ public final class Constants {
     public static final Color kChargedUpGold = new Color(255, 183, 0);
   }
 
+  public static final class HoodConstants {
+    public static final TunableNumber kP = new TunableNumber("Hood P", 5, "hood");
+    public static final TunableNumber kI = new TunableNumber("Hood I", 0.1, "hood");
+    public static final TunableNumber kD = new TunableNumber("Hood D", 0.1, "hood");
+  }
+
   public static final class ElevatorConstants {
     public static final int kId = 1;
     public static final boolean kTuningMode = true;
@@ -377,6 +383,14 @@ public final class Constants {
     public static final TunableNumber kWristP = new TunableNumber("Wrist P", 5.5, "Wrist");
     public static final TunableNumber kWristI = new TunableNumber("Wrist I", 0.08, "Wrist");
     public static final TunableNumber kWristD = new TunableNumber("Wrist D", .3, "Wrist");
+    //chal 1 (not at all tuned xd)
+    public static final TunableNumber kCubeWristP = new TunableNumber("Wrist P", 9, "Wrist");
+    public static final TunableNumber kCubeWristI = new TunableNumber("Wrist I", 0.1, "Wrist");
+    public static final TunableNumber kCubeWristD = new TunableNumber("Wrist D", .5, "Wrist");
+    public static final TunableNumber kConeWristP = new TunableNumber("Wrist P", 7, "Wrist");
+    public static final TunableNumber kConeWristI = new TunableNumber("Wrist I", 0.09, "Wrist");
+    public static final TunableNumber kConeWristD = new TunableNumber("Wrist D", .4, "Wrist");
+
     public static final TunableNumber kWristks = new TunableNumber("Wrist ks", 0.05, "Wrist");
     public static final TunableNumber kWristkg = new TunableNumber("Wrist kg", .6, "Wrist");
     public static final TunableNumber kWristkv = new TunableNumber("Wrist kv", 0.08, "Wrist");
@@ -395,6 +409,13 @@ public final class Constants {
     public static final double kGearRatio = 34.8444444444;
     public static final Rotation2d kMaxAngle = Rotation2d.fromDegrees(95);
     public static final Rotation2d kMinAngle = Rotation2d.fromDegrees(-80);
+  }
+
+  public static final class TurretConstants {
+    public static final TunableNumber kTurretP = new TunableNumber("Turret kP", 5, "Turret");
+    public static final TunableNumber kTurretI = new TunableNumber("Turret kI", 5, "Turret");
+    public static final TunableNumber kTurretD = new TunableNumber("Turret kD", 5, "Turret");
+    public static final TunableNumber kTurretSensitivity = new TunableNumber("Turret Sensitivity", 5, "turret");
   }
 
   public static final class OIConstants {

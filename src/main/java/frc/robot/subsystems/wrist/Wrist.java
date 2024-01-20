@@ -36,6 +36,9 @@ public class Wrist extends ProfiledSubsystem {
   private double m_lastVelocitySetpoint;
   private double m_nextTime = 0;
 
+  //Chal 1
+  private String m_heldPiece = "Empty";
+
   public enum WristProfilingSuite {
     kSetpointTime, kSetpointDeltaAtTime, kNone, kResetting, kWaiting
   }
@@ -211,5 +214,27 @@ public class Wrist extends ProfiledSubsystem {
 
   public void setBrakeMode(boolean mode) {
     m_io.setBrakeMode(mode);
+  }
+
+  //chal 1
+  public void setHeldPiece(String piece) {
+    m_heldPiece = piece;
+    updatePIDController();
+  }
+
+  public void updatePIDController() {
+    if (m_heldPiece == "Cube") {
+      m_controller = new ProfiledPIDController(WristConstants.kCubeWristP.get(), WristConstants.kCubeWristI.get(),
+          WristConstants.kCubeWristD.get(),
+          new Constraints(WristConstants.kWristVelo.get(), WristConstants.kWristAccel.get()));
+    } else if (m_heldPiece == "Cone") {
+      m_controller = new ProfiledPIDController(WristConstants.kConeWristP.get(), WristConstants.kConeWristI.get(),
+          WristConstants.kConeWristD.get(),
+          new Constraints(WristConstants.kWristVelo.get(), WristConstants.kWristAccel.get()));
+    } else {
+      m_controller = new ProfiledPIDController(WristConstants.kWristP.get(), WristConstants.kWristI.get(),
+          WristConstants.kWristD.get(),
+          new Constraints(WristConstants.kWristVelo.get(), WristConstants.kWristAccel.get()));
+    }
   }
 }

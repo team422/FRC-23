@@ -1,18 +1,18 @@
-package frc.robot.subsystems.wrist;
+package frc.robot.subsystems.hood;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.lib.advantagekit.LoggedIO;
-import frc.robot.subsystems.wrist.WristIO.WristInputs;
+import frc.robot.subsystems.hood.HoodIO.HoodInputs;
 
-public interface WristIO extends LoggedIO<WristInputs> {
+public interface HoodIO extends LoggedIO<HoodInputs> {
 
   @AutoLog
-  public static class WristInputs {
+  public static class HoodInputs {
     public double angleRad;
+    public double angularVelocityRadPerSec;
     public double outputVoltage;
     public double currentAmps;
-    public double velocity;
   }
 
   public void setVoltage(double voltage);

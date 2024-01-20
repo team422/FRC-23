@@ -20,6 +20,7 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -47,6 +48,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.Setpoints;
+import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
@@ -74,6 +76,8 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIONeo550;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.turret.Turret;
+import frc.robot.subsystems.turret.TurretIOSim;
 import frc.robot.subsystems.vision.CameraAprilTag;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
@@ -93,6 +97,7 @@ public class RobotContainer {
   private CameraAprilTag[] m_cams;
   private Wrist m_wrist;
   private Elevator m_elevator;
+  private Turret m_turret;
   private CANSparkMax m_throughboreSparkMaxIntakeMotor;
   private RobotState m_robotState;
   private AutoFactory m_autoFactory;
@@ -255,6 +260,8 @@ public class RobotContainer {
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
       m_cams = new CameraAprilTag[] {};
       m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams);
+      m_turret = new Turret(new TurretIOSim(), new PIDController(TurretConstants.kTurretP.get(),
+          TurretConstants.kTurretI.get(), TurretConstants.kTurretD.get()));
     }
 
   }
@@ -319,6 +326,12 @@ public class RobotContainer {
     //     DriveConstants.holonomicDrive,
     //     () -> driverControls.getDriveX(), () -> driverControls.getDriveY(), () -> driverControls.getDriveZ());
 
+    Command turretLeftCommand = Commands
+        .runOnce(() -> m_turret.updateAngleCommand(new Rotation2d(TurretConstants.kTurretSensitivity.get())));
+    Command turretRightCommand = Commands
+        .runOnce(() -> m_turret.updateAngleCommand(new Rotation2d(-TurretConstants.kTurretSensitivity.get())));
+    Command turretZeroCommand = Commands.runOnce(() -> m_turret.updateAngleCommand(new Rotation2d(0)));
+
     Command stowCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.stowVerticalCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.stowVerticalCommandSetpoints[1])));
@@ -336,6 +349,10 @@ public class RobotContainer {
     Command dropLoaderStationCommand = Commands.parallel(
         m_elevator.setHeightCommand(Setpoints.dropLoadingStationCommandSetpoints[0]),
         m_wrist.setAngleCommand(Rotation2d.fromDegrees(Setpoints.dropLoadingStationCommandSetpoints[1])));
+
+    driverControls.turretLeft().whileTrue(turretLeftCommand); //left 5
+    driverControls.turretRight().whileTrue(turretRightCommand); //right 5
+    driverControls.turretZero().onTrue(turretZeroCommand); //right 6
 
     // driverControls.goToLoadingStation().whileTrue(driveThroughPointsToLoadingStationCommand);
     // FieldGeomUtil fieldGeomUtil = new FieldGeomUtil();

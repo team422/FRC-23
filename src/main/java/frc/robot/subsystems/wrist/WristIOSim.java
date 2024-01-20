@@ -26,7 +26,6 @@ public class WristIOSim implements WristIO {
   @Override
   public void setVoltage(double voltage) {
     m_sim.setInputVoltage(voltage);
-
   }
 
   @Override

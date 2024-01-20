@@ -57,4 +57,9 @@ public interface DriverControls {
 
   public Trigger stopDriveTestingMode();
 
+  public Trigger turretLeft();
+
+  public Trigger turretRight();
+
+  public Trigger turretZero();
 }

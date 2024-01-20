@@ -158,4 +158,19 @@ public class DriverControlsDualFlightStick implements DriverControls {
   public Trigger stopDriveTestingMode() {
     return m_rightJoystick.button(10);
   }
+
+  @Override
+  public Trigger turretLeft() {
+    return m_leftJoystick.button(5);
+  }
+
+  @Override
+  public Trigger turretRight() {
+    return m_rightJoystick.button(5);
+  }
+
+  @Override
+  public Trigger turretZero() {
+    return m_rightJoystick.button(6);
+  }
 }
