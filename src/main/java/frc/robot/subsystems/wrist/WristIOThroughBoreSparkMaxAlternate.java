@@ -29,7 +29,7 @@ public class WristIOThroughBoreSparkMaxAlternate implements WristIO {
 
   @Override
   public void setVoltage(double voltage) {
-    // m_wristMotor.setVoltage(voltage);
+    m_wristMotor.setVoltage(voltage);
   }
 
   @Override

@@ -72,6 +72,13 @@ public class CustomHolmonomicDrive {
         && Math.abs(eTranslate.getY()) < tolTranslate.getY();
   }
 
+  public boolean atReference(Pose2d initial, Pose2d finalPose, Pose2d acceptableError) {
+    return Math.abs(initial.getX() - finalPose.getX()) < acceptableError.getX() &&
+        Math.abs(initial.getY() - finalPose.getY()) < acceptableError.getY() &&
+        Math.abs(initial.getRotation().getDegrees() - finalPose.getRotation().getDegrees()) < acceptableError
+            .getRotation().getDegrees();
+  }
+
   public double distanceFromXY(Pose2d currentPose, Pose2d poseRef) {
     return Math
         .sqrt(Math.pow(currentPose.getX() - poseRef.getX(), 2) + Math.pow(currentPose.getY() - poseRef.getY(), 2));

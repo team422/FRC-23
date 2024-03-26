@@ -41,7 +41,7 @@ public class ElevatorIONeo implements ElevatorIO {
 
   public void setVoltage(double voltage) {
     voltage = MathUtil.clamp(voltage, -12.0, 12.0);
-    // m_leaderMotor.setVoltage(voltage);
+    m_leaderMotor.setVoltage(voltage);
   }
 
   public double getVelocityMetersPerSecond() {

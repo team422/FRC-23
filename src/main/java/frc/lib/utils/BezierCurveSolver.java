@@ -1,6 +1,6 @@
 package frc.lib.utils;
 
-import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.path.PathPoint;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 

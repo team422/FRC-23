@@ -243,7 +243,7 @@ public final class Constants {
         new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
         new SlewRateLimiter(kMaxAngularAccelerationRadiansPerSecondSquared));
 
-    public static final double[] kDriveSpeedTests = { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0 };
+    public static final double[] kDriveSpeedTests = { 1.5, 2.0, 2.5, 3.0, 3.5, 4.0 };
     // public static final double[] kAngularDriveSpeedTests = { 1.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 };
 
   }
@@ -331,9 +331,9 @@ public final class Constants {
     public static final double kUseLowConfidenceThreshold = 6.0;
     // public static final String klimelightName = "limelight";
     public static final String kRightCamera = "AprilTagCameraGreen";
-    public static final Transform3d kRightCameraTransform = new Pose3d(new Translation3d(
+    public static final Pose3d kRightCameraTransform = new Pose3d(new Translation3d(
         Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(27.269)),
-        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(-15))).minus(new Pose3d());
+        new Rotation3d(0, Units.degreesToRadians(-10), Units.degreesToRadians(15)));
 
     public static final double[][] simpleRightMatrixExtrinsics = new double[][] {
         { 894.615709772545, 0.0, 581.0767987446387 },
@@ -350,7 +350,10 @@ public final class Constants {
     // public static final String kleftCameraName = "Microsoft_LifeCam_HD-3000";
     public static final Transform3d kleftCameraTransform = new Pose3d(new Translation3d(
         Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(26.269)),
-        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
+        new Rotation3d(0, Units.degreesToRadians(-10), Units.degreesToRadians(-15))).minus(new Pose3d());
+    // new Pose3d(new Translation3d(
+    // Units.inchesToMeters(8.977), Units.inchesToMeters(-0.206), Units.inchesToMeters(37.298 + 1.75)),
+    // new Rotation3d(0, Units.degreesToRadians(34), Units.degreesToRadians(0))).minus(new Pose3d());
     public static final double[][] simpleLeftMatrixExtrinsics = new double[][] {
         { 894.615709772545, 0.0, 581.0767987446387 },
         { 0.0, 879.9275957208279, 391.75614240135394 }, { 0.0, 0.0, 1.0 } };

@@ -1,11 +1,13 @@
+import datetime
+import json
+import os
+import random
+
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import os
-import json
 import pandas as pd
-import random
-import datetime
-import matplotlib
+
 if "__main__" == __name__:
     os.chdir("../profilingData")
     print(os.listdir())
@@ -25,17 +27,18 @@ if "__main__" == __name__:
             final_data[data['id']].append(data)
         else:
             final_data[data['id']] = [data]
-        
+      
     for key,value in final_data.items():
         print(str(key)+":"+str(final_data[key][0]['name']))
 
     # which_test = int(input("Which test would you like to see? "))
-
+    print(final_data.keys())
     for keys,data in final_data.items():
         a = 1
+        print(data[0]['name'])
         ndata = sorted(data, key=lambda k: k['time'],reverse=True)
         for values in ndata:
-            print(values['time'])
+            # print(values['time'])
             x = []
             y = []
             for i in values['dataPoints']:

@@ -112,7 +112,7 @@ public class Elevator extends ProfiledSubsystem {
     if (Robot.isSimulation()) {
       m_io.setVoltage(pidVoltage);
     } else {
-      m_io.setVoltage(pidVoltage);
+      m_io.setVoltage(outputVoltage);
     }
     // m_io.setVoltage(feedForwardVoltage);
     Logger.getInstance().recordOutput("Elevator/PIDVoltage", pidVoltage);

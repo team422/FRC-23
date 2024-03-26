@@ -9,9 +9,8 @@ import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
-import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -31,7 +30,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -41,13 +39,13 @@ import frc.lib.hardwareprofiler.SingleProfiling;
 import frc.lib.pathplanner.PathPlannerUtil;
 import frc.lib.utils.FieldGeomUtil;
 import frc.lib.utils.SwerveTester.SwerveTesterProfiles;
+import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.Setpoints;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.ChargeStationBalance;
@@ -58,6 +56,8 @@ import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.OperatorControls;
 import frc.robot.oi.OperatorControlsXbox;
+import frc.robot.subsystems.NorthStarVision.AprilTagVision;
+import frc.robot.subsystems.NorthStarVision.AprilTagVisionIONorthstar;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.Drive.DriveProfilingSuite;
@@ -98,8 +98,9 @@ public class RobotContainer {
   private AutoFactory m_autoFactory;
   private AprilTagFieldLayout m_layout;
   private LED m_LED;
+  private AprilTagVision m_aprilTagVision;
   private String m_curSelectedAuto = "none";
-  private List<PathPlannerTrajectory> m_traj;
+  private List<PathPlannerPath> m_traj;
   // private LED m_LED2;
 
   // Dashboard inputs
@@ -113,7 +114,7 @@ public class RobotContainer {
     configureAprilTags();
     configureSubsystems();
     configureButtonBindings();
-    configureAuto();
+    // configureAuto();
     configurePIDTuning();
   }
 
@@ -144,6 +145,17 @@ public class RobotContainer {
       m_drive.setProfile(DriveProfiles.kModuleAndAccuracyTesting);
       m_robotState.startDriveAngularTest(SwerveTesterProfiles.kModuleTimeToSpeed);
     }));
+
+    SmartDashboard.putData("Run drive movement characterization", new InstantCommand(() -> {
+      m_drive.setProfile(DriveProfiles.kModuleAndAccuracyTesting);
+      m_drive.setWheelIdleBrake(false);
+      m_robotState.startDriveAngularTest(SwerveTesterProfiles.kOdometryTest);
+    }));
+
+    SmartDashboard.putData("Test AprilTag Field Layout", new InstantCommand(() -> {
+      m_robotState.normalizeAndCorrectAprilTagMaps();
+    }));
+
   }
 
   public void configureLogging() {
@@ -221,22 +233,25 @@ public class RobotContainer {
           Constants.ElevatorConstants.elevatorFeedForward, Constants.ElevatorConstants.kMinHeightMeters,
           Constants.ElevatorConstants.kMaxHeightMeters,
           Rotation2d.fromDegrees(90).minus(Constants.ElevatorConstants.kAngle));
-      m_cams = new CameraAprilTag[] {
-          new CameraAprilTag(VisionConstants.kleftCameraName, m_layout, VisionConstants.kleftCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
-              VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
-          new CameraAprilTag(VisionConstants.kRightCamera, m_layout, VisionConstants.kRightCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
-              VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
-          new CameraAprilTag(VisionConstants.kLimelightCameraName, m_layout, VisionConstants.kLimelightCameraTransform,
-              m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kCubeSearchPipelineIndex,
-              VisionConstants.ktopCameraHFOV, VisionConstants.ktopCameraVFOV)
-      };
-
+      // m_cams = new CameraAprilTag[] {
+      //     new CameraAprilTag(VisionConstants.kleftCameraName, m_layout, VisionConstants.kleftCameraTransform,
+      //         m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
+      //         VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
+      //     new CameraAprilTag(VisionConstants.kRightCamera, m_layout, VisionConstants.kRightCameraTransform,
+      //         m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
+      //         VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
+      //     new CameraAprilTag(VisionConstants.kLimelightCameraName, m_layout, VisionConstants.kLimelightCameraTransform,
+      //         m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kCubeSearchPipelineIndex,
+      //         VisionConstants.ktopCameraHFOV, VisionConstants.ktopCameraVFOV)
+      // };
+      m_aprilTagVision = new AprilTagVision(new AprilTagVisionIONorthstar("northstar_0"),
+          new AprilTagVisionIONorthstar("northstar_1"));
+      // new AprilTagVisionIONorthstar("northstar_1"));
+      m_aprilTagVision.setDataInterface(m_drive::addVisionData);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
 
-      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams);
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams, m_aprilTagVision);
     } else {
 
       m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
@@ -253,8 +268,15 @@ public class RobotContainer {
       m_intake = new Intake(new IntakeIOSim(), IntakeConstants.intakePIDController);
       m_LED = new LED(Constants.LEDConstants.kLEDPort, Constants.LEDConstants.kLEDLength);
       // m_LED2 = new LED(Constants.LEDConstants.kLEDPort2, Constants.LEDConstants.kLEDLength);
-      m_cams = new CameraAprilTag[] {};
-      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams);
+      // m_cams = new CameraAprilTag[] {
+      //     new CameraAprilTag(VisionConstants.kleftCameraName, m_layout, VisionConstants.kleftCameraTransform,
+      //         m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
+      //         VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV),
+      //     new CameraAprilTag(VisionConstants.kRightCamera, m_layout, VisionConstants.kRightCameraTransform,
+      //         m_drive.getPoseEstimator(), PoseStrategy.MULTI_TAG_PNP, VisionConstants.kAprilTagPipelineIndex,
+      //         VisionConstants.ksideCameraVFOV, VisionConstants.ksideCameraHFOV) };
+      m_aprilTagVision = new AprilTagVision(new AprilTagVisionIONorthstar("northstar_0"));
+      m_robotState = RobotState.startInstance(m_drive, m_intake, m_elevator, m_wrist, m_cams, m_aprilTagVision);
     }
 
   }
@@ -481,19 +503,22 @@ public class RobotContainer {
     // } else {
     // RENABLE
     m_drive.logMovemnets();
+    VirtualSubsystem.periodicAll();
+    /*/ 
     String selectedAuto = m_autoChooser.getSendableChooser().getSelected();
     if (selectedAuto != m_curSelectedAuto) {
       m_curSelectedAuto = selectedAuto;
-      m_traj = m_autoFactory.loadPathGroupByName(selectedAuto);
+      m_traj = m_autoFactory.getAutoTrajectory(selectedAuto);
     }
-
+    
     if (m_traj != null) {
-      Pose2d desPose = m_traj.get(0).transformTrajectoryForAlliance(m_traj.get(0), DriverStation.getAlliance())
-          .getInitialHolonomicPose();
+      Pose2d desPose = m_traj.get(0)
+          // .transformTrajectoryForAlliance(m_traj.get(0), DriverStation.getAlliance())
+          .getPreviewStartingHolonomicPose();
       Logger.getInstance().recordOutput("Drive/wantedAutoPose", desPose);
-
+    
       Pose2d pose = RobotState.getInstance().getCamPositionLowConfidence().toPose2d();
-
+    
       if (pose != null) {
         // m_LED.setSolidColorNumber(Color.kBlue,
         //     (int) Math.ceil(pose.getTranslation().getDistance(new Translation3d(0, 0, 0))));
@@ -515,13 +540,14 @@ public class RobotContainer {
           // System.out.println("kBlue");
           m_LED.setSolidColorCommand(Color.kBlue).ignoringDisable(true).schedule();
         }
-
+    
       } else {
         m_LED.setSolidColorCommand(Color.kRed);
       }
     } else {
       m_LED.setSolidColorCommand(Color.kBrown);
     }
+    /*/
 
     // }
 
@@ -540,6 +566,7 @@ public class RobotContainer {
       m_robotState.update();
     }
     m_drive.logMovemnets();
+    VirtualSubsystem.periodicAll();
 
   }
 

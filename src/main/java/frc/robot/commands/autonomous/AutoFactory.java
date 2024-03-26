@@ -3,12 +3,9 @@ package frc.robot.commands.autonomous;
 import java.util.List;
 import java.util.Map;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.BaseAutoBuilder;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.server.PathPlannerServer;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PIDConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -16,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.utils.FieldGeomUtil;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.RobotState;
@@ -155,34 +151,35 @@ public class AutoFactory extends CommandBase {
     //     Map.entry("elevatorHigh", m_elevator.setHeightCommand(Units.inchesToMeters(5))),
     //     Map.entry("charge", new ChargeStationBalance(drive)));
 
-    if (Constants.MetaConstants.pathTuningMode) {
-      PathPlannerServer.startServer(5811);
-    }
+    // if (Constants.MetaConstants.pathTuningMode) {
+    //   PPLibTelemetry.(5811);
+    // }
 
   }
 
-  public List<PathPlannerTrajectory> loadPathGroupByName(String name) {
-    return PathPlanner.loadPathGroup(
-        name,
-        DriveConstants.kMaxSpeedMetersPerSecondAuto,
-        DriveConstants.kMaxAccelMetersPerSecondSqAuto);
+  public PathPlannerPath loadPathGroupByName(String name) {
+    return PathPlannerPath.fromPathFile(name);
   }
 
-  public CommandBase getAutoCommand(String name) {
-    return getAutoCommand(loadPathGroupByName(name));
+  public List<PathPlannerPath> getAutoTrajectory(String name) {
+    return PathPlannerAuto.getPathGroupFromAutoFile(name);
+
   }
 
-  private CommandBase getAutoCommand(List<PathPlannerTrajectory> paths) {
+  public CommandBase getAutoCommand(String nameString) {
     // Create Auto builder
-    BaseAutoBuilder autoBuilder = new SwerveAutoBuilder(
-        m_drive::getPose,
-        m_drive::resetPose,
-        linearPIDConstants,
-        angularPIDConstants,
-        m_drive::drive,
-        m_eventMap,
-        true, // TODO: ENABLE (AND TEST) BEFORE COMP
-        m_drive);
-    return Commands.sequence(m_drive.brakeCommand(), autoBuilder.fullAuto(paths).andThen(m_drive.brakeCommand()));
+    // AutoBuilder.configureHolonomic(
+    //     m_drive::getPose,
+    //     m_drive::resetPose,
+    //     m_drive::getChassisSpeeds,
+    //     m_drive::drive,
+    //     new HolonomicPathFollowerConfig(linearPIDConstants, angularPIDConstants,
+    //         DriveConstants.kMaxModuleSpeedMetersPerSecond, DriveConstants.kTrackWidth, new ReplanningConfig()),
+    //     m_drive);
+    // Command auto = new PathPlannerAuto(nameString);
+    // return Commands.sequence(m_drive.brakeCommand(), auto.andThen(m_drive.brakeCommand()));
+    return new CommandBase() {
+
+    };
   }
 }

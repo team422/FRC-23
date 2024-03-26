@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -16,6 +18,7 @@ import frc.lib.hardwareprofiler.DataPoint;
 import frc.lib.hardwareprofiler.HardwareProfiler;
 import frc.lib.hardwareprofiler.HardwareProfiler.ProfilingType;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 
 public class SwerveTester {
   Consumer<Integer> m_setActiveWheel;
@@ -35,6 +38,7 @@ public class SwerveTester {
   Supplier<Pose2d> m_getPose;
   Consumer<Pose2d> m_setPose;
   Supplier<ArrayList<Pose2d>> m_getCurrentVisionPose;
+  Supplier<AprilTagFieldLayout> m_getAprilTagLayout;
   SwerveTesterProfiles m_currentTest;
   SwerveDriveKinematics m_kinematics;
   HardwareProfiler m_profiler;
@@ -55,7 +59,7 @@ public class SwerveTester {
   }
 
   public boolean m_isTesting = false;
-  public Integer m_wheelNumber = -1;
+  public Integer m_wheelNumber = 0;
 
   public SwerveTester(
       Consumer<Integer> setActiveWheel, //
@@ -64,6 +68,7 @@ public class SwerveTester {
       Supplier<SwerveModulePosition[]> getModulePositions, //
       Supplier<SwerveModuleState[]> getModuleStates, //
       Consumer<SwerveModuleState> setModuleState,
+      Consumer<SwerveModuleVoltages> setModuleVoltageState,
       SwerveDriveKinematics kinematics,
       Consumer<Boolean> setChassisSpeedsDirectionOnly,
       Supplier<ChassisSpeeds> getChassisSpeeds,
@@ -74,6 +79,7 @@ public class SwerveTester {
       Supplier<Pose2d> getPose,
       Consumer<Pose2d> setPose,
       Supplier<ArrayList<Pose2d>> getCurrentVisionPose,
+      Supplier<AprilTagFieldLayout> getAprilTagLayout,
       double trackCircleDiameter) {
     m_setActiveWheel = setActiveWheel;
     m_setChassisSpeeds = setChassisSpeeds;
@@ -82,6 +88,7 @@ public class SwerveTester {
     m_getModuleStates = getModuleStates;
     m_setModuleState = setModuleState;
     m_kinematics = kinematics;
+    m_setModuleVoltageDriveTurn = setModuleVoltageState;
     m_getChassisSpeeds = getChassisSpeeds;
     m_setSingleWheelMode = setSingleWheelMode;
     m_createAprilTagLayout = createAprilTagLayout;
@@ -89,6 +96,7 @@ public class SwerveTester {
     m_getPose = getPose;
     m_setPose = setPose;
     m_getCurrentVisionPose = getCurrentVisionPose;
+    m_getAprilTagLayout = getAprilTagLayout;
     m_trackCircleDiameter = trackCircleDiameter;
   }
 
@@ -118,7 +126,7 @@ public class SwerveTester {
           new ArrayList<DataPoint>(),
           ProfilingType.TIME_TO_SETPOINT, m_wheelNumber, new Double[] { 0.1 }, new String[] { "Tolerance Velocity" });
     }
-    if (!m_isTesting) {
+    if (!m_testRunning) {
       if (isMovingAndStop()) {
         return false;
       } else {
@@ -138,7 +146,9 @@ public class SwerveTester {
     }
     if (m_isTesting) {
       double speed = Constants.DriveConstants.kDriveSpeedTests[m_currentTestNum];
-      m_setModuleState.accept(new SwerveModuleState(speed, m_getModuleStates.get()[m_wheelNumber].angle));
+      m_setSingleWheelMode.accept(true);
+      // m_setModuleVoltageDriveTurn
+      //     .accept(SwerveModuleVoltages.setDriveOnly());
 
       // double time = Timer.getFPGATimestamp() - m_lastRelevantTime;
       double actualSpeed = Math.abs(m_getModuleStates.get()[m_wheelNumber].speedMetersPerSecond);
@@ -159,7 +169,7 @@ public class SwerveTester {
 
   public void moduleTimeToSpeed() {
     if (m_wheelNumber == 4) {
-      m_wheelNumber = -1;
+      m_wheelNumber = 0;
       setCurrentSwerveTest(SwerveTesterProfiles.kNone);
       return;
     }
@@ -200,7 +210,7 @@ public class SwerveTester {
         return;
       } else {
         m_currentTestNum += 1;
-        m_lastRelevantTime = Timer.getFPGATimestamp();
+        // m_lastRelevantTime = Timer.getFPGATimestamp();
         m_testRunning = true;
         if (m_currentTestNum >= Constants.DriveConstants.kDriveSpeedTests.length) {
           m_isTesting = false;
@@ -212,15 +222,81 @@ public class SwerveTester {
       }
     }
 
+    if (m_testRunning) {
+      double speed = Constants.DriveConstants.kDriveSpeedTests[m_currentTestNum];
+      // find the desired pose (the pose of the 2nd lowest april tag)
+      System.out.println(m_getAprilTagLayout.get().getTags());
+      // Logger.getInstance().recordOutput("Tag 1", m_getAprilTagLayout.get().getTagPose(1).get());
+      // Logger.getInstance().recordOutput("Tag 2", m_getAprilTagLayout.get().getTagPose(2).get());
+      // Logger.getInstance().recordOutput("Tag 3", m_getAprilTagLayout.get().getTagPose(3).get());
+      Pose2d desiredPose = m_getAprilTagLayout.get().getTagPose(2).get().toPose2d();
+      desiredPose = desiredPose.plus(new Transform2d(new Translation2d(1, 0), Rotation2d.fromDegrees(0)));
+      // find the current pose
+      Pose2d currentPose = m_getCurrentVisionPose.get().get(0);
+      // find the error
+      Transform2d error = desiredPose.minus(currentPose);
+
+      // // find the speed to set
+      ChassisSpeeds speeds = getChassisSpeedsInDirection(error, speed, currentPose, desiredPose);
+      m_setChassisSpeeds.accept(speeds);
+      if (DriveConstants.holonomicDrive.atReference(currentPose, desiredPose,
+          new Pose2d(.2, .2, Rotation2d.fromRadians(.3)))) {
+        if (justAverageCameraPoseForASecondWithoutResetPose()) {
+          Pose2d visionPose = averagePoses(currentPoses);
+          Pose2d currentOdometryPose = m_getPose.get();
+          Transform2d errorPose = visionPose.minus(currentOdometryPose);
+          double errorInches = errorPose.getTranslation().getNorm() * 39.3701;
+          m_profiler.addDataPoint(new DataPoint(new double[] { errorInches, speed }));
+          m_setPose.accept(visionPose);
+          m_lastRelevantTime = -1;
+          m_testRunning = false;
+        }
+
+      }
+    }
+
+  }
+
+  public ChassisSpeeds getChassisSpeedsInDirection(Transform2d error, Double maxSpeed, Pose2d start, Pose2d end) {
+    double distanceToTarget = error.getTranslation().getNorm();
+
+    if (DriveConstants.holonomicDrive.atReference(start, end, new Pose2d(.2, .2, Rotation2d.fromRadians(.3)))) {
+      return new ChassisSpeeds(0, 0, 0);
+    }
+    ChassisSpeeds speeds = Constants.DriveConstants.holonomicDrive.calculate(start, end);
+    double speed = Math.sqrt(Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2));
+    if (speed > maxSpeed) {
+      speeds = new ChassisSpeeds(speeds.vxMetersPerSecond / speed * maxSpeed,
+          speeds.vyMetersPerSecond / speed * maxSpeed, speeds.omegaRadiansPerSecond);
+    }
+    return speeds;
+
   }
 
   public boolean averageCameraPoseForASecond() {
     if (m_lastRelevantTime == -1) {
       m_lastRelevantTime = Timer.getFPGATimestamp();
+      currentPoses.clear();
     }
     if (Timer.getFPGATimestamp() - m_lastRelevantTime > 1) {
       m_lastRelevantTime = -1;
       m_setPose.accept(averagePoses(currentPoses));
+      return true;
+    }
+    ArrayList<Pose2d> curPose = m_getCurrentVisionPose.get();
+    if (curPose != null) {
+      currentPoses.addAll(curPose);
+    }
+    return false;
+  }
+
+  public boolean justAverageCameraPoseForASecondWithoutResetPose() {
+    if (m_lastRelevantTime == -1) {
+      m_lastRelevantTime = Timer.getFPGATimestamp();
+      currentPoses.clear();
+    }
+    if (Timer.getFPGATimestamp() - m_lastRelevantTime > 1) {
+      m_lastRelevantTime = -1;
       return true;
     }
     ArrayList<Pose2d> curPose = m_getCurrentVisionPose.get();

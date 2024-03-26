@@ -2,11 +2,13 @@ package frc.robot.subsystems.drive;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -15,6 +17,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -28,6 +32,8 @@ import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.hardwareprofiler.ProfilingScheduling;
 import frc.lib.utils.FieldGeomUtil;
 import frc.lib.utils.FieldUtil;
+import frc.lib.utils.PoseEstimator;
+import frc.lib.utils.PoseEstimator.TimestampedVisionUpdate;
 import frc.lib.utils.SubsystemProfiles;
 import frc.lib.utils.SwerveModuleVoltages;
 import frc.lib.utils.SwerveTester;
@@ -60,7 +66,7 @@ public class Drive extends ProfiledSubsystem {
   public PIDController m_driveController;
   public PIDController m_turnController;
   public PIDController m_driveFFPIDController;
-
+  private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0 };
   private SubsystemProfiles m_profiles;
 
   public CustomHolmonomicDrive m_holonomicController;
@@ -98,6 +104,8 @@ public class Drive extends ProfiledSubsystem {
   public SwerveModuleState m_moduleState = new SwerveModuleState(0, new Rotation2d(0));
   double[] wheelSpeedsLikelyhood;
   double[] wheelSpeedsCorrection;
+
+  private PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
   public SwerveTester m_swerveTester;
 
   public enum AprilTagFieldCreationStage {
@@ -107,7 +115,8 @@ public class Drive extends ProfiledSubsystem {
   public AprilTagFieldCreationStage m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kSpinningToFind;
 
   public ArrayList<AprilTag> m_aprilTagsFoundAsTransforms = new ArrayList<AprilTag>();
-
+  public ArrayList<Integer> m_tags = new ArrayList<Integer>();
+  private Rotation2d lastGyroYaw = new Rotation2d();
   Rotation2d m_aprilTagFieldRotation = new Rotation2d(0);
 
   /** Creates a new Drive. */
@@ -176,7 +185,7 @@ public class Drive extends ProfiledSubsystem {
 
   public void ffPeriodic() {
     if (m_desChassisSpeeds == null) {
-      System.out.println("Everything is null");
+      // System.out.println("Everything is null");
       return;
     }
     double[] m_voltageDrive = new double[4];
@@ -274,14 +283,24 @@ public class Drive extends ProfiledSubsystem {
     m_allowCameraOdometeryConnections = allow;
   }
 
+  public void addVisionData(List<TimestampedVisionUpdate> update) {
+    poseEstimator.addVisionData(update);
+
+    for (TimestampedVisionUpdate a : update) {
+      m_poseEstimator.addVisionMeasurement(a.pose(), a.timestamp());
+
+    }
+  }
+
   public void moduleAndAccuracyTesting() {
     m_swerveTester = RobotState.getInstance().getSwerveTester();
     m_swerveTester.runTest();
+    if (m_creatingAprilTagFieldLayout) {
+      handleCreatingAprilTagFieldLayout();
+      return;
+    }
     if (!m_singleWheelDriveMode) {
       defaultPeriodic();
-    } else if (m_creatingAprilTagFieldLayout) {
-      handleCreatingAprilTagFieldLayout();
-
     } else {
       handleSingleWheelMode();
     }
@@ -311,30 +330,42 @@ public class Drive extends ProfiledSubsystem {
     }
     if (m_aprilTagFieldCreationStage == AprilTagFieldCreationStage.kSpinningToFind) {
       ArrayList<AprilTag> curTags = RobotState.getInstance().getAprilTagsInView();
-      m_aprilTagsFoundAsTransforms.addAll(curTags);
-      if (getPose().getRotation().getDegrees() < 20) {
-        if (m_aprilTagFieldRotation.getDegrees() > 300) {
-          // we have spun around and found all the tags
-          m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kMoveBetweenTags;
-          ArrayList<AprilTag> roughLocations = averageAprilTagTransforms(m_aprilTagsFoundAsTransforms);
-          m_aprilTagsFoundAsTransforms.clear();
-          m_aprilTagsFoundAsTransforms.addAll(roughLocations);
-          m_aprilTagsFoundAsTransforms.sort((AprilTag a, AprilTag b) -> {
-            return a.ID - b.ID;
-          });
+      for (AprilTag tag : curTags) {
+        if (m_tags.indexOf(tag.ID) == -1) {
+          m_tags.add(tag.ID);
         }
-        m_desChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+      }
+      m_aprilTagsFoundAsTransforms.addAll(curTags);
+      System.out.println(getPose().getRotation().getDegrees());
+      System.out.println(m_aprilTagFieldRotation.getDegrees());
+      if ((getPose().getRotation().getDegrees() < 20 && getPose().getRotation().getDegrees() > 0)
+          || m_aprilTagFieldRotation.getDegrees() > 300 && m_tags.size() > 2) {
+        // we have spun around and found all the tags
+        m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kMoveBetweenTags;
+        ArrayList<AprilTag> roughLocations = averageAprilTagTransforms(m_aprilTagsFoundAsTransforms);
+        System.out.println(roughLocations);
+        m_aprilTagsFoundAsTransforms.clear();
+        m_aprilTagsFoundAsTransforms.addAll(roughLocations);
+        m_aprilTagsFoundAsTransforms.sort((AprilTag a, AprilTag b) -> {
+          return a.ID - b.ID;
+        });
+        System.out.println(m_aprilTagsFoundAsTransforms);
+        m_desChassisSpeeds = new ChassisSpeeds(0, 0, 1);
         defaultPeriodic();
       } else {
-        m_desChassisSpeeds = new ChassisSpeeds(0, 0, 0.1);
+        m_desChassisSpeeds = new ChassisSpeeds(0, 0, 1);
         defaultPeriodic();
-      }
-      if (getPose().getRotation().getDegrees() > 20) {
-        m_aprilTagFieldRotation = getPose().getRotation();
-        // increases when spinning but locks in when we have spun around
+        System.out.println(getPose().getRotation().getDegrees() > 0);
+        if (getPose().getRotation().getDegrees() > 0) {
+          m_aprilTagFieldRotation = getPose().getRotation();
+        } else {
+          m_aprilTagFieldRotation = Rotation2d.fromDegrees(360 + getPose().getRotation().getDegrees());
+        }
       }
     }
-    if (m_aprilTagFieldCreationStage == AprilTagFieldCreationStage.kMoveBetweenTags) {
+    if (m_aprilTagFieldCreationStage == AprilTagFieldCreationStage.kMoveBetweenTags)
+
+    {
       // if we need to move between tags for accuracy we can do that later
       // for now we will just set the origin to the smallest tag
       convertToNewFieldLayout(m_aprilTagsFoundAsTransforms);
@@ -519,8 +550,11 @@ public class Drive extends ProfiledSubsystem {
       m_createdAprilTagFieldLayout = false;
       return true;
     }
-    m_creatingAprilTagFieldLayout = true;
-    m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kInit;
+    if (!m_creatingAprilTagFieldLayout) {
+      m_creatingAprilTagFieldLayout = true;
+      m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kInit;
+    }
+
     return false;
 
   }
@@ -600,10 +634,11 @@ public class Drive extends ProfiledSubsystem {
 
   @Override
   public void periodic() {
+
     m_gyro.updateInputs(m_gyroInputs);
     // updateSlipData();
     // calculateSlipLikelyhood();
-    // Logger.getInstance().processInputs("Gyro", m_gyroInputs);
+    // Logger.getInstance().processInputs("Gyro", m_gyroInputs);  
     m_profiles.getPeriodicFunction().run();
     logData();
 
@@ -625,6 +660,41 @@ public class Drive extends ProfiledSubsystem {
     Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
     Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
     Logger.getInstance().recordOutput("Drive/DesiredStates", getDesiredStates());
+    Logger.getInstance().recordOutput("NorthstarPosition", poseEstimator.getLatestPose());
+    SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
+      wheelDeltas[i] = new SwerveModulePosition(
+          (m_modules[i].getPosition().distanceMeters - lastModulePositionsMeters[i]),
+          m_modules[i].getAngle());
+      lastModulePositionsMeters[i] = m_modules[i].getPosition().distanceMeters;
+    }
+    var twist = DriveConstants.kDriveKinematics.toTwist2d(wheelDeltas);
+    var gyroYaw = new Rotation2d(m_gyroInputs.yawPositionRad);
+    if (m_gyroInputs.connected) {
+      twist = new Twist2d(twist.dx, twist.dy, gyroYaw.minus(lastGyroYaw).getRadians());
+    }
+    lastGyroYaw = gyroYaw;
+    poseEstimator.addDriveData(Timer.getFPGATimestamp(), twist);
+    // Log 3D odometry pose
+    Pose3d robotPose3d = new Pose3d(getPose());
+    robotPose3d = robotPose3d
+        .exp(
+            new Twist3d(
+                0.0,
+                0.0,
+                m_gyroInputs.pitchPositionRad * DriveConstants.kTrackWidth / 2.0,
+                0.0,
+                m_gyroInputs.pitchPositionRad,
+                0.0))
+        .exp(
+            new Twist3d(
+                0.0,
+                0.0,
+                m_gyroInputs.rollPositionRad * DriveConstants.kTrackWidth / 2.0,
+                m_gyroInputs.rollPositionRad,
+                0.0,
+                0.0));
+    Logger.getInstance().recordOutput("Odometry/Robot3d", robotPose3d);
     if (RobotConstants.AScopeLogging) {
       FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
           DriveConstants.kModuleTranslations);
@@ -672,6 +742,7 @@ public class Drive extends ProfiledSubsystem {
 
   public void resetPose(Pose2d pose) {
     m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
+    poseEstimator.resetPose(pose);
     m_hasResetOdometry = true;
   }
 
@@ -708,6 +779,10 @@ public class Drive extends ProfiledSubsystem {
   public void setActiveModuleState(SwerveModuleState state) {
     m_moduleState = state;
 
+  }
+
+  public void setActiveModuleVoltageState(SwerveModuleVoltages voltage) {
+    m_moduleVoltageState = voltage;
   }
 
   public void setSingleWheelDriveMode(boolean singleWheelDriveMode) {

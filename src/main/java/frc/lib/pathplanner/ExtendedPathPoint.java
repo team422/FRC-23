@@ -1,6 +1,7 @@
 package frc.lib.pathplanner;
 
-import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.path.PathPoint;
+import com.pathplanner.lib.path.RotationTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,7 +16,7 @@ public class ExtendedPathPoint extends PathPoint {
   public Rotation2d m_acceptedAngularError;
 
   public ExtendedPathPoint(Translation2d pose, Rotation2d heading, Rotation2d holRotation2d) {
-    super(pose, heading, heading);
+    super(pose, new RotationTarget(0, holRotation2d));
     m_pose = pose;
     m_heading = heading;
     m_holonomicHeading = holRotation2d;
@@ -26,7 +27,7 @@ public class ExtendedPathPoint extends PathPoint {
   public ExtendedPathPoint(Translation2d pose, Rotation2d heading, Rotation2d holRotation2d,
       Translation2d acceptedPoseError,
       Rotation2d acceptedAngularError) {
-    super(pose, heading, heading);
+    super(pose, new RotationTarget(0, holRotation2d));
     m_pose = pose;
     m_heading = heading;
     m_holonomicHeading = holRotation2d;

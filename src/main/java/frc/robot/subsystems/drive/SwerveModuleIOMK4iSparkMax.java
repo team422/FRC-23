@@ -50,7 +50,6 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     public static final TunableNumber kTurningI = Constants.ModuleConstants.kTurningI;
     public static final TunableNumber kTurningD = Constants.ModuleConstants.kTurningD;
     // public static final TunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
-
   }
 
   public CalculusSolver m_currentCalculusSolver;

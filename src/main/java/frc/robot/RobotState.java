@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -31,6 +32,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.commands.drive.DriveToPoint;
+import frc.robot.subsystems.NorthStarVision.AprilTagVision;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.elevator.Elevator;
@@ -79,7 +81,10 @@ public class RobotState {
 
   public SwerveTester m_SwerveTester;
 
-  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist, CameraAprilTag[] cameras) {
+  public AprilTagVision m_TagVision;
+
+  private RobotState(Drive drive, Intake intake, Elevator elevator, Wrist wrist, CameraAprilTag[] cameras,
+      AprilTagVision tagVision) {
     m_drive = drive;
     m_intake = intake;
     m_elevator = elevator;
@@ -93,6 +98,7 @@ public class RobotState {
         m_drive::getSwerveModulePositions, //
         m_drive::getModuleStates, //
         m_drive::setActiveModuleState,
+        m_drive::setActiveModuleVoltageState,
         Constants.DriveConstants.kDriveKinematics,
         m_drive::setChassisSpeedsDirectionOnly,
         m_drive::getChassisSpeeds,
@@ -103,7 +109,9 @@ public class RobotState {
         m_drive::getPose,
         m_drive::resetPose,
         this::getCameraEstimatedPoseList,
+        this::getAprilTagLayout,
         Constants.DriveConstants.kWheelDiameter * Math.sqrt(2));
+    m_TagVision = tagVision;
   }
 
   public SwerveTester getSwerveTester() {
@@ -111,11 +119,24 @@ public class RobotState {
   }
 
   public static RobotState startInstance(Drive drive, Intake intake, Elevator elevator, Wrist wrist,
-      CameraAprilTag[] cameras) {
+      CameraAprilTag[] cameras, AprilTagVision tagVision) {
     if (instance == null) {
-      instance = new RobotState(drive, intake, elevator, wrist, cameras);
+      instance = new RobotState(drive, intake, elevator, wrist, cameras, tagVision);
     }
     return instance;
+  }
+
+  public AprilTagFieldLayout getAprilTagLayout() {
+    if (m_cameras.length > 0) {
+      return m_cameras[0].getAprilTagFieldLayout();
+    }
+    try {
+      return AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+
   }
 
   public ArrayList<AprilTag> getAprilTagsInView() {
@@ -169,6 +190,28 @@ public class RobotState {
     for (CameraAprilTag camera : m_cameras) {
       camera.setAprilTagMap(map);
     }
+  }
+
+  public void normalizeAndCorrectAprilTagMaps() {
+    AprilTagFieldLayout correct = FieldConstants.getAprilTags();
+    AprilTagFieldLayout toCorrect = m_TagVision.createAprilTagFieldLayoutFromFieldMap();
+    System.out.println(toCorrect);
+    AprilTag tagToCorrectFrom = toCorrect.getTags().get(0);
+    Pose3d tagToCorrectTo = correct.getTagPose(tagToCorrectFrom.ID).get();
+    Transform3d transform = tagToCorrectTo.minus(tagToCorrectFrom.pose);
+    for (AprilTag tag : toCorrect.getTags()) {
+      tag.pose = tag.pose.plus(transform);
+      Logger.getInstance().recordOutput("AprilTag/AprilTagMapCorrection_" + tag.ID, tag.pose);
+      Logger.getInstance().recordOutput("AprilTag/AprilTagMapCorrectionDistanceInches_" + tag.ID,
+          Units.metersToInches(correct.getTagPose(tag.ID).get().minus(tag.pose).getTranslation().getNorm()));
+
+      Logger.getInstance().recordOutput("AprilTag/AprilTagMapCorrectionAngleDegrees_" + tag.ID,
+          correct.getTagPose(tag.ID).get().minus(tag.pose).getRotation().getX()
+              + correct.getTagPose(tag.ID).get().minus(tag.pose).getRotation().getY()
+              + correct.getTagPose(tag.ID).get().minus(tag.pose).getRotation().getY());
+
+    }
+
   }
 
   public Pose3d getCamPositionLowConfidence() {

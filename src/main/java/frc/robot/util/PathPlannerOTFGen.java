@@ -2,7 +2,7 @@ package frc.robot.util;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.path.PathPoint;
 
 public class PathPlannerOTFGen {
   // make hashmap of important points
@@ -19,9 +19,9 @@ public class PathPlannerOTFGen {
   //   return path;
   // }
 
-  public void addImportantPoint(String name, PathPoint[] points) {
-    important_points.put(name, points);
-  }
+  // public void addImportantPoint(String name, PathPoint[] points) {
+  //   important_points.put(name, points);
+  // }
   // PathPoint
 
 }
